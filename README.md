@@ -1,2 +1,2 @@
 # DelphiProject
-projet Delphi : communication avec 1 automate et des appareils de mesures
+projet Delphi : communication avec un automate et des appareils de mesures
