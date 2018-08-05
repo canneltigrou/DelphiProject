@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, Math, Buttons;
+  StdCtrls, ExtCtrls, ComCtrls, Math, Buttons,ScktComp;
 
 type
   TForm1 = class(TForm)
@@ -12,17 +12,16 @@ type
     SK6: TCheckBox;
     SK5: TCheckBox;
     Timer1: TTimer;
-    Button3: TButton;
-    Label12: TLabel;
+    ButtonConnectAutomate: TButton;
     GroupBox2: TGroupBox;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
-    GroupBox3: TGroupBox;
+    GroupBoxOutputs: TGroupBox;
     CheckBox4: TCheckBox;
     CheckBox5: TCheckBox;
-    CheckBox6: TCheckBox;
-    CheckBox7: TCheckBox;
+    CbOutputAp1: TCheckBox;
+    CbOutputAp2: TCheckBox;
     CheckBox8: TCheckBox;
     CheckBox9: TCheckBox;
     CheckBox10: TCheckBox;
@@ -32,7 +31,7 @@ type
     Button1: TButton;
     RadioGroup1: TRadioGroup;
     Timer2: TTimer;
-    SpeedButton1: TSpeedButton;
+    SpeedButtonTest: TSpeedButton;
     GroupBox10: TGroupBox;
     Button8: TButton;
     Label2: TLabel;
@@ -41,11 +40,44 @@ type
     RadioButton3: TRadioButton;
     RadioButton4: TRadioButton;
     Button10: TButton;
-    Button11: TButton;
+    ButtonDisconnectAutomate: TButton;
     EditFrequence: TEdit;
     Label3: TLabel;
     ButtonFrequence: TButton;
-    procedure Button3Click(Sender: TObject);
+    EditIP1: TEdit;
+    ButtonConnecter1: TButton;
+    //connexion: Tclientsocket;
+    //adresse: string; // adresse IP
+    //port: integer;
+    EditPort1: TEdit;
+    LabelPort1: TLabel;
+    EditIP2: TEdit;
+    EditPort2: TEdit;
+    ButtonConnecter2: TButton;
+    EditIP3: TEdit;
+    EditPort3: TEdit;
+    ButtonConnecter3: TButton;
+    GroupBoxAutomate: TGroupBox;
+    GroupBoxAp1: TGroupBox;
+    Label12: TLabel;
+    GroupBoxAp2: TGroupBox;
+    GroupBoxAp3: TGroupBox;
+    Label1: TLabel;
+    EditEnvoiAp1: TEdit;
+    LabelEnvoiAp2: TLabel;
+    LabelEnvoiAp3: TLabel;
+    EditEnvoiAp2: TEdit;
+    EditEnvoiAp3: TEdit;
+    GroupBoxAp4: TGroupBox;
+    LabelEnvoiAp4: TLabel;
+    ButtonConnecter4: TButton;
+    EditIP4: TEdit;
+    EditPort4: TEdit;
+    EditEnvoiAp4: TEdit;
+
+
+
+    procedure ButtonConnectAutomateClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -53,7 +85,7 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
-    procedure SpeedButton1Click(Sender: TObject);
+    procedure SpeedButtonTestClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button8Click(Sender: TObject);
     procedure RadioButton1Click(Sender: TObject);
@@ -61,14 +93,15 @@ type
     procedure RadioButton3Click(Sender: TObject);
     procedure RadioButton4Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
-    procedure CheckBox6Click(Sender: TObject);
-    procedure CheckBox7Click(Sender: TObject);
+    procedure CbOutputAp1Click(Sender: TObject);
+    procedure CbOutputAp2Click(Sender: TObject);
     procedure CheckBox8Click(Sender: TObject);
     procedure CheckBox9Click(Sender: TObject);
     procedure CheckBox10Click(Sender: TObject);
     procedure CheckBox11Click(Sender: TObject);
-    procedure Button11Click(Sender: TObject);
+    procedure ButtonDisconnectAutomateClick(Sender: TObject);
     procedure ButtonFrequenceClick(Sender: TObject);
+    procedure EditEnvoiAp1Change(Sender: TObject);
   
   private
     { Private declarations }
@@ -109,7 +142,7 @@ function ReadBackDigitalOut:Longint; stdcall; external 'K8055d.dll';
 procedure ReadBackAnalogOut(Buffer: Pointer); stdcall; external 'K8055d.dll';
 function Connected: boolean; stdcall; external 'K8055d.dll';
 
-procedure TForm1.Button3Click(Sender: TObject);
+procedure TForm1.ButtonConnectAutomateClick(Sender: TObject);
 var h,CardAddr:integer;
 out_digital: longint;
 out_analog: array[0..1] of longint;
@@ -160,8 +193,8 @@ end;
 procedure TForm1.Button4Click(Sender: TObject);
 begin
   SetAllDigital;
-  CheckBox6.checked:=true;
-  CheckBox7.checked:=true;
+  CbOutputAp1.checked:=true;
+  CbOutputAp2.checked:=true;
   CheckBox8.checked:=true;
   CheckBox9.checked:=true;
   CheckBox10.checked:=true;
@@ -171,8 +204,8 @@ end;
 procedure TForm1.Button6Click(Sender: TObject);
 begin
   ClearAllDigital;
-  CheckBox6.checked:=false;
-  CheckBox7.checked:=false;
+  CbOutputAp1.checked:=false;
+  CbOutputAp2.checked:=false;
   CheckBox8.checked:=false;
   CheckBox9.checked:=false;
   CheckBox10.checked:=false;
@@ -181,9 +214,9 @@ end;
 
 
 
-procedure TForm1.SpeedButton1Click(Sender: TObject);
+procedure TForm1.SpeedButtonTestClick(Sender: TObject);
 begin
-  timer2.enabled:=SpeedButton1.Down;
+  //timer2.enabled:=SpeedButton1.Down;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -297,23 +330,23 @@ out_analog: array[0..1] of integer;
 begin
   out_digital:=ReadBackDigitalOut;
   ReadBackAnalogOut(@out_analog[0]);
-  CheckBox6.checked:=(out_digital and 1)>0;
-  CheckBox7.checked:=(out_digital and 2)>0;
+  CbOutputAp1.checked:=(out_digital and 1)>0;
+  CbOutputAp2.checked:=(out_digital and 2)>0;
   CheckBox8.checked:=(out_digital and 4)>0;
   CheckBox9.checked:=(out_digital and 8)>0;
   CheckBox10.checked:=(out_digital and 16)>0;
   CheckBox11.checked:=(out_digital and 32)>0;
 end;
 
-procedure TForm1.CheckBox6Click(Sender: TObject);
+procedure TForm1.CbOutputAp1Click(Sender: TObject);
 begin
-  if CheckBox6.checked then SetDigitalChannel(1)
+  if CbOutputAp1.checked then SetDigitalChannel(1)
     else ClearDigitalChannel(1);
 end;
 
-procedure TForm1.CheckBox7Click(Sender: TObject);
+procedure TForm1.CbOutputAp2Click(Sender: TObject);
 begin
-  if CheckBox7.checked then SetDigitalChannel(2)
+  if CbOutputAp2.checked then SetDigitalChannel(2)
     else ClearDigitalChannel(2);
 end;
 
@@ -329,6 +362,8 @@ begin
     else ClearDigitalChannel(4);
 end;
 
+
+
 procedure TForm1.CheckBox10Click(Sender: TObject);
 begin
   if CheckBox10.checked then SetDigitalChannel(5)
@@ -343,7 +378,7 @@ end;
 
 
 
-procedure TForm1.Button11Click(Sender: TObject);
+procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
     CloseDevice;
     RadioButton1.enabled:=false;
