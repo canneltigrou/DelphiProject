@@ -3,8 +3,8 @@ unit K8055;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, Math, Buttons,ScktComp;
+  Windows, FMX.StdCtrls, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls, ComCtrls, Math, Buttons,ScktComp(* , FMX.StdCtrls *);
 
 type
   TForm1 = class(TForm)
@@ -45,37 +45,48 @@ type
     Label3: TLabel;
     ButtonFrequence: TButton;
     EditIP1: TEdit;
-    ButtonConnecter1: TButton;
-    //connexion: Tclientsocket;
+
     //adresse: string; // adresse IP
     //port: integer;
     EditPort1: TEdit;
     LabelPort1: TLabel;
     EditIP2: TEdit;
     EditPort2: TEdit;
-    ButtonConnecter2: TButton;
-    EditIP3: TEdit;
-    EditPort3: TEdit;
-    ButtonConnecter3: TButton;
     GroupBoxAutomate: TGroupBox;
     GroupBoxAp1: TGroupBox;
     Label12: TLabel;
     GroupBoxAp2: TGroupBox;
-    GroupBoxAp3: TGroupBox;
-    Label1: TLabel;
-    EditEnvoiAp1: TEdit;
-    LabelEnvoiAp2: TLabel;
-    LabelEnvoiAp3: TLabel;
-    EditEnvoiAp2: TEdit;
-    EditEnvoiAp3: TEdit;
     GroupBoxAp4: TGroupBox;
-    LabelEnvoiAp4: TLabel;
-    ButtonConnecter4: TButton;
     EditIP4: TEdit;
     EditPort4: TEdit;
-    EditEnvoiAp4: TEdit;
+    LabelRecuAp1: TLabel;
+    EditRecuAp1: TEdit;
+    EditRecuAp2: TEdit;
+    EditRecuAp4: TEdit;
+    LabelRecuAp2: TLabel;
+    LabelRecuAp4: TLabel;
+    ImageAp1: TImage;
+    ImageAp2: TImage;
+    ImageAp4: TImage;
+    ClientSocketAp1: TClientSocket;
+    ClientSocketAp2: TClientSocket;
+    ClientSocketAp3: TClientSocket;
+    ClientSocketAp4: TClientSocket;
+    ServerSocket: TServerSocket;
+    LabelEtatConnexion: TLabel;
+    ButtonEnvoiBroadcast: TButton;
+    Label1: TLabel;
+    EditEnvoiBroadcast: TEdit;
+    GroupBoxServer: TGroupBox;
+    ButtonStartServer: TButton;
+    GroupBoxAp3: TGroupBox;
+    LabelRecuAp3: TLabel;
+    ImageAp3: TImage;
+    EditIP3: TEdit;
+    EditPort3: TEdit;
+    EditRecuAp3: TEdit;
 
-
+    procedure FormCreate(Sender: TObject);
 
     procedure ButtonConnectAutomateClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -101,8 +112,12 @@ type
     procedure CheckBox11Click(Sender: TObject);
     procedure ButtonDisconnectAutomateClick(Sender: TObject);
     procedure ButtonFrequenceClick(Sender: TObject);
-    procedure EditEnvoiAp1Change(Sender: TObject);
-  
+    procedure ButtonEnvoiBroadcastClick(Sender: TObject);
+    procedure ServerSocketClientConnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ButtonStartServerClick(Sender: TObject);
+    procedure ServerSocketClientRead(Sender: TObject;
+  Socket: TCustomWinSocket);
+
   private
     { Private declarations }
   public
@@ -112,6 +127,14 @@ type
 var
   Form1: TForm1;
   n: integer;
+  BitmapGood: TBitmap;
+  BitmapBad: TBitmap;
+  sInstructionAp1: String;
+  sInstructionAp2: String;
+  sInstructionAp3: String;
+  sInstructionAp4: String;
+  sInstuctionBroadcast: String;
+  nbAppareilsConnectes: integer;
 
 implementation
 
@@ -142,6 +165,7 @@ function ReadBackDigitalOut:Longint; stdcall; external 'K8055d.dll';
 procedure ReadBackAnalogOut(Buffer: Pointer); stdcall; external 'K8055d.dll';
 function Connected: boolean; stdcall; external 'K8055d.dll';
 
+
 procedure TForm1.ButtonConnectAutomateClick(Sender: TObject);
 var h,CardAddr:integer;
 out_digital: longint;
@@ -157,6 +181,9 @@ begin
     Timer1.Enabled:=True;
 end;
 
+
+
+(* Connexion Ethernet avec le 1er appareil de mesure *)
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   CloseDevice;
@@ -210,6 +237,17 @@ begin
   CheckBox9.checked:=false;
   CheckBox10.checked:=false;
   CheckBox11.checked:=false;
+end;
+
+// Ici : un client se connecte, normalement un appareil de mesure
+procedure TForm1.ServerSocketClientConnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+  Socket.SendText('Connected');//Sends a message to the client
+//If at least a client is connected to the server, then the server can communicate
+//Enables the Send button and the edit box
+  ButtonEnvoiBroadcast.Enabled:=true;
+  EditIP1.Text := Socket.LocalAddress;
+  EditPort1.Text := Socket.LocalPort.ToString;
 end;
 
 
@@ -324,6 +362,27 @@ begin
   //SetPWM(1,255-TrackBar1.position,2);
 end;
 
+procedure TForm1.ButtonStartServerClick(Sender: TObject);
+
+begin
+   if(ServerSocket.Active = False)//The button caption is ‘Start’
+   then
+   begin
+      ServerSocket.Active := True;//Activates the server socket
+      LabelEtatConnexion.Caption:='Server Started';
+      ButtonStartServer.Caption:='Stop';//Set the button caption
+   end
+   else//The button caption is ‘Stop’
+   begin
+      ServerSocket.Active := False;//Stops the server socket
+      LabelEtatConnexion.Caption:= 'Server Stopped';
+      ButtonStartServer.Caption:='Start';
+     //If the server is closed, then it cannot send any messages
+      //Button1.Enabled:=false;//Disables the “Send” button
+      //Edit1.Enabled:=false;//Disables the edit box
+   end;
+end;
+
 procedure TForm1.Button10Click(Sender: TObject);
 var out_digital: integer;
 out_analog: array[0..1] of integer;
@@ -392,4 +451,41 @@ begin
     label12.caption:='Disconnected'
 end;
 
+(* Bouton test : permet d'envoyer la commande spécifié dans la textBox.
+sera exécuté automatiquement par la suite  *)
+procedure TForm1.ButtonEnvoiBroadcastClick(Sender: TObject);
+        var
+  i: integer;
+begin
+     sInstuctionBroadcast :=EditEnvoiBroadcast.Text;//Take the string (message) sent by the server
+     EditEnvoiBroadcast.Text:='';//Clears the edit box
+     //Sends the messages to all clients connected to the server
+     for i:=0 to ServerSocket.Socket.ActiveConnections-1 do
+        ServerSocket.Socket.Connections[i].SendText(sInstuctionBroadcast);//Sent
+end;
+
+
+procedure TForm1.FormCreate(Sender: TObject);
+
+begin
+(*Canvas.InitializeBitmap(BitmapGood1);   *)
+BitmapGood := TBitmap.Create;
+BitmapGood.LoadFromFile('Good.png');
+BitmapBad := TBitmap.Create;
+BitmapBad.LoadFromFile('Bad.png');
+ImageAp1.Picture.Bitmap := BitmapGood;
+ImageAp1.Show;
+
+end;
+
+procedure TForm1.ServerSocketClientRead(Sender: TObject;
+  Socket: TCustomWinSocket);
+Begin
+//Read the message received from the client and add it to the memo text
+// The client identifier appears in front of the message
+  EditRecuAp1.Text:= Socket.ReceiveText;
+end;
+
 end.
+
+
