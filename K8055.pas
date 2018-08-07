@@ -13,7 +13,7 @@ type
     SK5: TCheckBox;
     Timer1: TTimer;
     ButtonConnectAutomate: TButton;
-    GroupBox2: TGroupBox;
+    GroupBoxInputs: TGroupBox;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
@@ -22,52 +22,20 @@ type
     CheckBox5: TCheckBox;
     CbOutputAp1: TCheckBox;
     CbOutputAp2: TCheckBox;
-    CheckBox8: TCheckBox;
-    CheckBox9: TCheckBox;
-    CheckBox10: TCheckBox;
-    CheckBox11: TCheckBox;
-    GroupBox4: TGroupBox;
-    Edit1: TEdit;
-    Button1: TButton;
-    RadioGroup1: TRadioGroup;
-    Timer2: TTimer;
+    CbOutputAp3: TCheckBox;
+    CbOutputAp4: TCheckBox;
     SpeedButtonTest: TSpeedButton;
-    GroupBox10: TGroupBox;
-    Button8: TButton;
-    Label2: TLabel;
-    RadioButton1: TRadioButton;
-    RadioButton2: TRadioButton;
-    RadioButton3: TRadioButton;
-    RadioButton4: TRadioButton;
-    Button10: TButton;
     ButtonDisconnectAutomate: TButton;
     EditFrequence: TEdit;
     Label3: TLabel;
     ButtonFrequence: TButton;
-    EditIP1: TEdit;
-
-    //adresse: string; // adresse IP
-    //port: integer;
-    EditPort1: TEdit;
-    LabelPort1: TLabel;
-    EditIP2: TEdit;
-    EditPort2: TEdit;
     GroupBoxAutomate: TGroupBox;
-    GroupBoxAp1: TGroupBox;
     Label12: TLabel;
-    GroupBoxAp2: TGroupBox;
     GroupBoxAp4: TGroupBox;
     EditIP4: TEdit;
     EditPort4: TEdit;
-    LabelRecuAp1: TLabel;
-    EditRecuAp1: TEdit;
-    EditRecuAp2: TEdit;
-    EditRecuAp4: TEdit;
-    LabelRecuAp2: TLabel;
+    EditReception4: TEdit;
     LabelRecuAp4: TLabel;
-    ImageAp1: TImage;
-    ImageAp2: TImage;
-    ImageAp4: TImage;
     ClientSocketAp1: TClientSocket;
     ClientSocketAp2: TClientSocket;
     ClientSocketAp3: TClientSocket;
@@ -79,26 +47,68 @@ type
     EditEnvoiBroadcast: TEdit;
     GroupBoxServer: TGroupBox;
     ButtonStartServer: TButton;
+    LabelAdressIP4: TLabel;
+    LabelPort4: TLabel;
+    ButtonConnect4: TButton;
+    LabelEnvoi4: TLabel;
+    EditSend4: TEdit;
+    ButtonTop: TButton;
+    ButtonSend4: TButton;
+    LabelEtat4: TLabel;
+    CbTypeAp4: TComboBox;
     GroupBoxAp3: TGroupBox;
-    LabelRecuAp3: TLabel;
-    ImageAp3: TImage;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    LabelEtat3: TLabel;
     EditIP3: TEdit;
     EditPort3: TEdit;
-    EditRecuAp3: TEdit;
+    EditReception3: TEdit;
+    ButtonConnect3: TButton;
+    EditSend3: TEdit;
+    ButtonSend3: TButton;
+    CbTypeAp3: TComboBox;
+    GroupBoxAp2: TGroupBox;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    LabelEtat2: TLabel;
+    EditIP2: TEdit;
+    EditPort2: TEdit;
+    EditReception2: TEdit;
+    ButtonConnect2: TButton;
+    EditSend2: TEdit;
+    ButtonSend2: TButton;
+    CbTypeAp2: TComboBox;
+    GroupBoxAp1: TGroupBox;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
+    LabelEtat1: TLabel;
+    EditIP1: TEdit;
+    EditPort1: TEdit;
+    EditReception1: TEdit;
+    ButtonConnect1: TButton;
+    EditSend1: TEdit;
+    ButtonSend1: TButton;
+    CbTypeAp1: TComboBox;
+    LabelConnexion1: TLabel;
+    LabelConnexion3: TLabel;
+    LabelConnexion2: TLabel;
+    LabelConnexion4: TLabel;
+    Label2: TLabel;
+    Label4: TLabel;
+    Label9: TLabel;
+    Label15: TLabel;
 
     procedure FormCreate(Sender: TObject);
 
     procedure ButtonConnectAutomateClick(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
-    procedure RadioGroup1Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
-    procedure Button6Click(Sender: TObject);
-    procedure Timer2Timer(Sender: TObject);
     procedure SpeedButtonTestClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure Button8Click(Sender: TObject);
     procedure RadioButton1Click(Sender: TObject);
     procedure RadioButton2Click(Sender: TObject);
     procedure RadioButton3Click(Sender: TObject);
@@ -106,10 +116,8 @@ type
     procedure Button10Click(Sender: TObject);
     procedure CbOutputAp1Click(Sender: TObject);
     procedure CbOutputAp2Click(Sender: TObject);
-    procedure CheckBox8Click(Sender: TObject);
-    procedure CheckBox9Click(Sender: TObject);
-    procedure CheckBox10Click(Sender: TObject);
-    procedure CheckBox11Click(Sender: TObject);
+    procedure CbOutputAp3Click(Sender: TObject);
+    procedure CbOutputAp4Click(Sender: TObject);
     procedure ButtonDisconnectAutomateClick(Sender: TObject);
     procedure ButtonFrequenceClick(Sender: TObject);
     procedure ButtonEnvoiBroadcastClick(Sender: TObject);
@@ -190,55 +198,6 @@ begin
 end;
 
 
-
-procedure TForm1.Timer1Timer(Sender: TObject);
-var i, Data1, Data2: integer;
-begin
-  timer1.enabled:=false;
-  Edit1.text:=inttostr(ReadCounter(1));
-  ReadAllAnalog(Data1,Data2);
-  i:=ReadAllDigital;
-  CheckBox1.checked:=(i and 1)>0;
-  CheckBox2.checked:=(i and 2)>0;
-  CheckBox3.checked:=(i and 4)>0;
-  CheckBox4.checked:=(i and 8)>0;
-  CheckBox5.checked:=(i and 16)>0;
-  timer1.enabled:=true;
-end;
-
-
-procedure TForm1.Timer2Timer(Sender: TObject);
-begin
-    ClearDigitalChannel(n);
-    TCheckBox(Form1.FindComponent('CheckBox'+inttostr(n+5))).checked:=false;
-    inc(n);
-    if n=9 then n:=1;
-    TCheckBox(Form1.FindComponent('CheckBox'+inttostr(n+5))).checked:=true;
-    SetDigitalChannel(n);
-end;
-
-procedure TForm1.Button4Click(Sender: TObject);
-begin
-  SetAllDigital;
-  CbOutputAp1.checked:=true;
-  CbOutputAp2.checked:=true;
-  CheckBox8.checked:=true;
-  CheckBox9.checked:=true;
-  CheckBox10.checked:=true;
-  CheckBox11.checked:=true;
-end;
-
-procedure TForm1.Button6Click(Sender: TObject);
-begin
-  ClearAllDigital;
-  CbOutputAp1.checked:=false;
-  CbOutputAp2.checked:=false;
-  CheckBox8.checked:=false;
-  CheckBox9.checked:=false;
-  CheckBox10.checked:=false;
-  CheckBox11.checked:=false;
-end;
-
 // Ici : un client se connecte, normalement un appareil de mesure
 procedure TForm1.ServerSocketClientConnect(Sender: TObject;  Socket: TCustomWinSocket);
 begin
@@ -257,83 +216,7 @@ begin
   //timer2.enabled:=SpeedButton1.Down;
 end;
 
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  ResetCounter(1);
-end;
 
-procedure TForm1.Button2Click(Sender: TObject);
-begin
-  ResetCounter(2);
-end;
-
-procedure TForm1.RadioGroup1Click(Sender: TObject);
-var t1:integer;
-begin
-  case RadioGroup1.ItemIndex of
-    0: t1:=0;
-    1: t1:=2;
-    2: t1:=10;
-    3: t1:=1000;
-  end;
-  SetCounterDebounceTime(1,t1);
-end;
-
-
-
-procedure TForm1.Button8Click(Sender: TObject);
-var k: integer;
-CardFound: boolean;
-begin
-  CardFound:=False;
-  Timer1.Enabled:= False;
-  RadioButton1.Enabled:=False;
-  RadioButton2.Enabled:=False;
-  RadioButton3.Enabled:=False;
-  RadioButton4.Enabled:=False;   
-  k:=SearchDevices;
-  if k > 0 then
-  begin
-    Timer1.Enabled:=True;
-    Label12.caption:='Connected';
-  end;
-  if (k and 1)>0 then
-  begin
-    CardFound:=True;
-    RadioButton1.Enabled:=True;
-    RadioButton1.Checked:=True;
-    SetCurrentDevice(0);
-  end;
-  if (k and 2)>0 then
-  begin
-    RadioButton2.Enabled:=True;
-    if not CardFound then
-    begin
-      CardFound:=True;
-      RadioButton2.Checked:=True;
-      SetCurrentDevice(1);
-    end;
-  end;
-  if (k and 4)>0 then
-  begin
-    RadioButton3.Enabled:=True;
-    if not CardFound then
-    begin
-      CardFound:=True;
-      RadioButton3.Checked:=True;
-      SetCurrentDevice(2);
-    end;
-  end;
-  if (k and 8)>0 then
-  begin
-    RadioButton4.Enabled:=True;
-    if not CardFound then
-    begin
-      RadioButton4.Checked:=True;
-      SetCurrentDevice(3)
-    end;
-  end; 
-end;
 
 procedure TForm1.RadioButton1Click(Sender: TObject);
 begin
@@ -391,10 +274,8 @@ begin
   ReadBackAnalogOut(@out_analog[0]);
   CbOutputAp1.checked:=(out_digital and 1)>0;
   CbOutputAp2.checked:=(out_digital and 2)>0;
-  CheckBox8.checked:=(out_digital and 4)>0;
-  CheckBox9.checked:=(out_digital and 8)>0;
-  CheckBox10.checked:=(out_digital and 16)>0;
-  CheckBox11.checked:=(out_digital and 32)>0;
+  CbOutputAp3.checked:=(out_digital and 4)>0;
+  CbOutputAp4.checked:=(out_digital and 8)>0;
 end;
 
 procedure TForm1.CbOutputAp1Click(Sender: TObject);
@@ -409,45 +290,24 @@ begin
     else ClearDigitalChannel(2);
 end;
 
-procedure TForm1.CheckBox8Click(Sender: TObject);
+procedure TForm1.CbOutputAp3Click(Sender: TObject);
 begin
-  if CheckBox8.checked then SetDigitalChannel(3)
+  if CbOutputAp3.checked then SetDigitalChannel(3)
     else ClearDigitalChannel(3);
 end;
 
-procedure TForm1.CheckBox9Click(Sender: TObject);
+procedure TForm1.CbOutputAp4Click(Sender: TObject);
 begin
-  if CheckBox9.checked then SetDigitalChannel(4)
+  if CbOutputAp4.checked then SetDigitalChannel(4)
     else ClearDigitalChannel(4);
 end;
 
-
-
-procedure TForm1.CheckBox10Click(Sender: TObject);
-begin
-  if CheckBox10.checked then SetDigitalChannel(5)
-    else ClearDigitalChannel(5);
-end;
-
-procedure TForm1.CheckBox11Click(Sender: TObject);
-begin
-  if CheckBox11.checked then SetDigitalChannel(6)
-    else ClearDigitalChannel(6);
-end;
 
 
 
 procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
     CloseDevice;
-    RadioButton1.enabled:=false;
-    RadioButton2.enabled:=false;
-    RadioButton3.enabled:=false;
-    RadioButton4.enabled:=false;
-    RadioButton1.checked:=false;
-    RadioButton2.checked:=false;
-    RadioButton3.checked:=false;
-    RadioButton4.checked:=false;
     label12.caption:='Disconnected'
 end;
 
@@ -469,21 +329,18 @@ procedure TForm1.FormCreate(Sender: TObject);
 
 begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
-BitmapGood := TBitmap.Create;
-BitmapGood.LoadFromFile('Good.png');
-BitmapBad := TBitmap.Create;
-BitmapBad.LoadFromFile('Bad.png');
-ImageAp1.Picture.Bitmap := BitmapGood;
-ImageAp1.Show;
+
 
 end;
+
+
 
 procedure TForm1.ServerSocketClientRead(Sender: TObject;
   Socket: TCustomWinSocket);
 Begin
 //Read the message received from the client and add it to the memo text
 // The client identifier appears in front of the message
-  EditRecuAp1.Text:= Socket.ReceiveText;
+  EditReception1.Text:= Socket.ReceiveText;
 end;
 
 end.
