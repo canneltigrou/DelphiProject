@@ -99,10 +99,10 @@ type
     LabelConnexion3: TLabel;
     LabelConnexion2: TLabel;
     LabelConnexion4: TLabel;
-    Label2: TLabel;
-    Label4: TLabel;
-    Label9: TLabel;
-    Label15: TLabel;
+    LabelSent1: TLabel;
+    LabelSent2: TLabel;
+    LabelSent3: TLabel;
+    LabelSent4: TLabel;
 
     procedure FormCreate(Sender: TObject);
 
@@ -125,6 +125,26 @@ type
     procedure ButtonStartServerClick(Sender: TObject);
     procedure ServerSocketClientRead(Sender: TObject;
   Socket: TCustomWinSocket);
+    procedure ButtonConnect1Click(Sender: TObject);
+    procedure ButtonSend1Click(Sender: TObject);
+    procedure ButtonSend3Click(Sender: TObject);
+    procedure ButtonSend2Click(Sender: TObject);
+    procedure ButtonSend4Click(Sender: TObject);
+    procedure ButtonConnect3Click(Sender: TObject);
+    procedure ButtonConnect2Click(Sender: TObject);
+    procedure ButtonConnect4Click(Sender: TObject);
+    procedure ClientSocket1Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ClientSocket2Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ClientSocket3Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ClientSocketAp1Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+    procedure ClientSocketAp2Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+    procedure ClientSocketAp3Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+    procedure ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+    procedure ClientSocketAp1Read(Sender: TObject; Socket: TCustomWinSocket);
+    procedure ClientSocketAp2Read(Sender: TObject; Socket: TCustomWinSocket);
+    procedure ClientSocketAp3Read(Sender: TObject; Socket: TCustomWinSocket);
+    procedure ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
 
   private
     { Private declarations }
@@ -173,6 +193,67 @@ function ReadBackDigitalOut:Longint; stdcall; external 'K8055d.dll';
 procedure ReadBackAnalogOut(Buffer: Pointer); stdcall; external 'K8055d.dll';
 function Connected: boolean; stdcall; external 'K8055d.dll';
 
+
+procedure TForm1.ButtonConnect1Click(Sender: TObject);
+begin
+    //127.0.0.1 is the standard IP address to loop back to your own machine
+    ClientSocketAp1.Address:= EditIP1.Text ;  //'127.0.0.1';
+    ClientSocketAp1.Active := True;//Activates the client
+
+ if(ClientSocketAp1.Socket.Connected=True)
+    then
+    begin
+      //str:='Disconnected';
+      ClientSocketAp1.Active := False;//Disconnects the client
+      ButtonConnect1.Caption:='Connect';
+    end;
+end;
+
+procedure TForm1.ButtonConnect2Click(Sender: TObject);
+begin
+    //127.0.0.1 is the standard IP address to loop back to your own machine
+    ClientSocketAp2.Address:= EditIP2.Text ;  //'127.0.0.1';
+    ClientSocketAp2.Port := StrToInt(EditPort2.Text) ;
+    ClientSocketAp2.Active := True;//Activates the client
+    LabelEtat1.Visible := False;
+
+ (*if(ClientSocketAp2.Socket.Connected=True)
+    then
+    begin
+      LabelEtat1.Visible := True;
+      ClientSocketAp2.Active := False;//Disconnects the client
+      ButtonConnect2.Caption:='Connect';
+    end;     *)
+end;
+
+procedure TForm1.ButtonConnect3Click(Sender: TObject);
+begin
+    //127.0.0.1 is the standard IP address to loop back to your own machine
+    ClientSocketAp3.Address:= EditIP3.Text ;  //'127.0.0.1';
+    ClientSocketAp3.Active := True;//Activates the client
+
+ if(ClientSocketAp1.Socket.Connected=True)
+    then
+    begin
+      ClientSocketAp3.Active := False;//Disconnects the client
+      ButtonConnect3.Caption:='Connect';
+    end;
+end;
+
+procedure TForm1.ButtonConnect4Click(Sender: TObject);
+begin
+    //127.0.0.1 is the standard IP address to loop back to your own machine
+    ClientSocketAp4.Address:= EditIP4.Text ;  //'127.0.0.1';
+    ClientSocketAp4.Active := True;//Activates the client
+
+ if(ClientSocketAp4.Socket.Connected=True)
+    then
+    begin
+      LabelEtat1.Visible := True;
+      ClientSocketAp4.Active := False;//Disconnects the client
+      ButtonConnect4.Caption:='Connect';
+    end;
+end;
 
 procedure TForm1.ButtonConnectAutomateClick(Sender: TObject);
 var h,CardAddr:integer;
@@ -243,6 +324,42 @@ procedure TForm1.ButtonFrequenceClick(Sender: TObject);
 begin
   OutputAnalogChannel(1,strtoint(EditFrequence.Text));
   //SetPWM(1,255-TrackBar1.position,2);
+end;
+
+procedure TForm1.ButtonSend1Click(Sender: TObject);
+var
+    Str : String;
+begin
+    Str:=EditSend1.Text;
+    ClientSocketAp1.Socket.SendText(str);//Send the messages to the server
+    LabelSent1.Visible := true;
+end;
+
+procedure TForm1.ButtonSend2Click(Sender: TObject);
+var
+    Str : String;
+begin
+    Str:=EditSend2.Text;
+    ClientSocketAp2.Socket.SendText(str);//Send the messages to the server
+    LabelSent2.Visible := true;
+end;
+
+procedure TForm1.ButtonSend3Click(Sender: TObject);
+var
+    Str : String;
+begin
+    Str:=EditSend3.Text;
+    ClientSocketAp3.Socket.SendText(str);//Send the messages to the server
+    LabelSent3.Visible := true;
+end;
+
+procedure TForm1.ButtonSend4Click(Sender: TObject);
+var
+    Str : String;
+begin
+    Str:=EditSend4.Text;
+    ClientSocketAp4.Socket.SendText(str);//Send the messages to the server
+    LabelSent4.Visible := true;
 end;
 
 procedure TForm1.ButtonStartServerClick(Sender: TObject);
@@ -343,6 +460,107 @@ Begin
   EditReception1.Text:= Socket.ReceiveText;
 end;
 
+
+procedure TForm1.ClientSocket1Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   Socket.SendText('Disconnected');//Send the “Disconnected” message to the server
+//str is set to “Disconnected” when the Disconnect button is pressed
+//A client cannot send messages if it is not connected to a server
+   ButtonSend1.Enabled:=False;
+   ButtonConnect1.Caption:='Connect';
+end;
+
+procedure TForm1.ClientSocket2Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   Socket.SendText('Disconnected');//Send the “Disconnected” message to the server
+//str is set to “Disconnected” when the Disconnect button is pressed
+//A client cannot send messages if it is not connected to a server
+   ButtonSend2.Enabled:=False;
+   ButtonConnect2.Caption:='Connect';
+end;
+
+procedure TForm1.ClientSocket3Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   Socket.SendText('Disconnected');//Send the “Disconnected” message to the server
+//str is set to “Disconnected” when the Disconnect button is pressed
+//A client cannot send messages if it is not connected to a server
+   ButtonSend3.Enabled:=False;
+   ButtonConnect3.Caption:='Connect';
+end;
+
+procedure TForm1.ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   Socket.SendText('Disconnected');//Send the “Disconnected” message to the server
+//str is set to “Disconnected” when the Disconnect button is pressed
+//A client cannot send messages if it is not connected to a server
+   ButtonSend4.Enabled:=False;
+   ButtonConnect4.Caption:='Connect';
+end;
+
+procedure TForm1.ClientSocketAp1Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+begin
+  ErrorCode:=0;
+  ClientSocketAp1.Active := False;
+// This can happen when no active server is started
+  //Memo1.Text:=Memo1.Text+'No connection found'+#13#10;
+  labelConnexion1.Visible := True;
+end;
+
+procedure TForm1.ClientSocketAp2Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+begin
+  ErrorCode:=0;
+  ClientSocketAp2.Active := False;
+// This can happen when no active server is started
+  //Memo1.Text:=Memo1.Text+'No connection found'+#13#10;
+  labelConnexion2.Visible := True;
+end;
+
+procedure TForm1.ClientSocketAp3Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+begin
+  ErrorCode:=0;
+  ClientSocketAp3.Active := False;
+// This can happen when no active server is started
+  //Memo1.Text:=Memo1.Text+'No connection found'+#13#10;
+  labelConnexion3.Visible := True;
+end;
+
+procedure TForm1.ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+begin
+  ErrorCode:=0;
+  ClientSocketAp4.Active := False;
+// This can happen when no active server is started
+  //Memo1.Text:=Memo1.Text+'No connection found'+#13#10;
+  labelConnexion4.Visible := True;
+end;
+
+procedure TForm1.ClientSocketAp1Read(Sender: TObject; Socket: TCustomWinSocket);
+begin
+//Reads and displays the message received from the server;
+    EditReception1.Text := Socket.ReceiveText;
+    LabelSent1.Visible := false;
+end;
+
+procedure TForm1.ClientSocketAp2Read(Sender: TObject; Socket: TCustomWinSocket);
+begin
+//Reads and displays the message received from the server;
+    EditReception1.Text := Socket.ReceiveText;
+    LabelSent2.Visible := false;
+end;
+
+procedure TForm1.ClientSocketAp3Read(Sender: TObject; Socket: TCustomWinSocket);
+begin
+//Reads and displays the message received from the server;
+    EditReception1.Text := Socket.ReceiveText;
+    LabelSent3.Visible := false;
+end;
+
+procedure TForm1.ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
+begin
+//Reads and displays the message received from the server;
+    EditReception1.Text := Socket.ReceiveText;
+    LabelSent4.Visible := false;
+end;
+
+
+
 end.
-
-
