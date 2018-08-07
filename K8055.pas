@@ -103,6 +103,7 @@ type
     LabelSent2: TLabel;
     LabelSent3: TLabel;
     LabelSent4: TLabel;
+    Memo1: TMemo;
 
     procedure FormCreate(Sender: TObject);
 
@@ -145,6 +146,7 @@ type
     procedure ClientSocketAp2Read(Sender: TObject; Socket: TCustomWinSocket);
     procedure ClientSocketAp3Read(Sender: TObject; Socket: TCustomWinSocket);
     procedure ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
+    procedure afficherError( ErrorEvent: TErrorEvent; Appareil : string);
 
   private
     { Private declarations }
@@ -198,6 +200,8 @@ procedure TForm1.ButtonConnect1Click(Sender: TObject);
 begin
     //127.0.0.1 is the standard IP address to loop back to your own machine
     ClientSocketAp1.Address:= EditIP1.Text ;  //'127.0.0.1';
+    //ClientSocketAp1.Port := StrToInt(EditPort1.Text)  ;
+    //ClientSocketAp1.Host := EditIP1.Text;
     ClientSocketAp1.Active := True;//Activates the client
 
  if(ClientSocketAp1.Socket.Connected=True)
@@ -212,9 +216,9 @@ end;
 procedure TForm1.ButtonConnect2Click(Sender: TObject);
 begin
     //127.0.0.1 is the standard IP address to loop back to your own machine
-    ClientSocketAp2.Address:= EditIP2.Text ;  //'127.0.0.1';
+    ClientSocketAp2.Host:= EditIP2.Text ;  //'127.0.0.1';
     ClientSocketAp2.Port := StrToInt(EditPort2.Text) ;
-    ClientSocketAp2.Active := True;//Activates the client
+    ClientSocketAp2.Open;//Activates the client
     LabelEtat1.Visible := False;
 
  (*if(ClientSocketAp2.Socket.Connected=True)
@@ -497,8 +501,34 @@ begin
    ButtonConnect4.Caption:='Connect';
 end;
 
+procedure TForm1.afficherError( ErrorEvent: TErrorEvent; Appareil : string);
+begin
+   if ErrorEvent=eeGeneral then
+    Memo1.Lines.Add(Appareil + ' : Erreur inattendu');
+
+  if ErrorEvent=eeSend then
+     Memo1.Lines.Add(Appareil + ' : Erreur d''écriture sur la connexion socket');
+
+  if ErrorEvent=eeReceive then
+    Memo1.Lines.Add(Appareil +' : Erreur de lecture sur la connexion socket');
+
+  if ErrorEvent=eeConnect then
+    Memo1.Lines.Add(Appareil + ' : Une demande de connexion déjà acceptée n''a pas pu être achevée');
+
+  if ErrorEvent=eeDisconnect then
+    Memo1.Lines.Add(Appareil + ' : Erreur de fermeture d''une connexion');
+
+  if ErrorEvent=eeAccept then
+    Memo1.Lines.Add(Appareil + ' : Erreur d''acceptation d''une demande de connexion cliente');
+
+end;
+
+
+
+
 procedure TForm1.ClientSocketAp1Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
 begin
+  afficherError( ErrorEvent , 'Ap1')  ;
   ErrorCode:=0;
   ClientSocketAp1.Active := False;
 // This can happen when no active server is started
@@ -508,6 +538,7 @@ end;
 
 procedure TForm1.ClientSocketAp2Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
 begin
+  afficherError( ErrorEvent , 'Ap2')  ;
   ErrorCode:=0;
   ClientSocketAp2.Active := False;
 // This can happen when no active server is started
@@ -517,6 +548,7 @@ end;
 
 procedure TForm1.ClientSocketAp3Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
 begin
+  afficherError( ErrorEvent , 'Ap3')  ;
   ErrorCode:=0;
   ClientSocketAp3.Active := False;
 // This can happen when no active server is started
@@ -524,12 +556,15 @@ begin
   labelConnexion3.Visible := True;
 end;
 
-procedure TForm1.ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+
+
+procedure TForm1.ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent;
+var ErrorCode: Integer);
 begin
+   afficherError( ErrorEvent , 'Ap4')  ;
+
   ErrorCode:=0;
   ClientSocketAp4.Active := False;
-// This can happen when no active server is started
-  //Memo1.Text:=Memo1.Text+'No connection found'+#13#10;
   labelConnexion4.Visible := True;
 end;
 
