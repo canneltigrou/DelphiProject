@@ -104,6 +104,7 @@ type
     LabelSent3: TLabel;
     LabelSent4: TLabel;
     Memo1: TMemo;
+    ButtonDisconnect2: TButton;
 
     procedure FormCreate(Sender: TObject);
 
@@ -147,6 +148,7 @@ type
     procedure ClientSocketAp3Read(Sender: TObject; Socket: TCustomWinSocket);
     procedure ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
     procedure afficherError( ErrorEvent: TErrorEvent; Appareil : string);
+    procedure ButtonDisconnect2Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -198,19 +200,12 @@ function Connected: boolean; stdcall; external 'K8055d.dll';
 
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
 begin
-    //127.0.0.1 is the standard IP address to loop back to your own machine
-    ClientSocketAp1.Address:= EditIP1.Text ;  //'127.0.0.1';
-    //ClientSocketAp1.Port := StrToInt(EditPort1.Text)  ;
-    //ClientSocketAp1.Host := EditIP1.Text;
-    ClientSocketAp1.Active := True;//Activates the client
+    ClientSocketAp1.Host:= EditIP2.Text ;  //'127.0.0.1';
+    ClientSocketAp1.Port := StrToInt(EditPort2.Text) ;
+    ClientSocketAp1.Open;//Activates the client
+    LabelEtat1.Visible := False;
 
- if(ClientSocketAp1.Socket.Connected=True)
-    then
-    begin
-      //str:='Disconnected';
-      ClientSocketAp1.Active := False;//Disconnects the client
-      ButtonConnect1.Caption:='Connect';
-    end;
+
 end;
 
 procedure TForm1.ButtonConnect2Click(Sender: TObject);
@@ -425,6 +420,11 @@ end;
 
 
 
+
+procedure TForm1.ButtonDisconnect2Click(Sender: TObject);
+begin
+  ClientSocketAp2.Close;
+end;
 
 procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
