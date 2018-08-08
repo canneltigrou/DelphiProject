@@ -149,7 +149,10 @@ type
     procedure ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
     procedure afficherError( ErrorEvent: TErrorEvent; Appareil : string);
     procedure ButtonDisconnect2Click(Sender: TObject);
-
+    procedure ClientSocket1OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ClientSocket2OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ClientSocket3OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
   private
     { Private declarations }
   public
@@ -499,6 +502,30 @@ begin
 //A client cannot send messages if it is not connected to a server
    ButtonSend4.Enabled:=False;
    ButtonConnect4.Caption:='Connect';
+end;
+
+procedure TForm1.ClientSocket2OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   ButtonSend2.Enabled:= True;
+  // ButtonConnect2.Caption:='Connect';
+end;
+
+procedure TForm1.ClientSocket1OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   ButtonSend1.Enabled:= True;
+  // ButtonConnect2.Caption:='Connect';
+end;
+
+procedure TForm1.ClientSocket3OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   ButtonSend3.Enabled:= True;
+  // ButtonConnect2.Caption:='Connect';
+end;
+
+procedure TForm1.ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   ButtonSend4.Enabled:= True;
+  // ButtonConnect2.Caption:='Connect';
 end;
 
 procedure TForm1.afficherError( ErrorEvent: TErrorEvent; Appareil : string);
