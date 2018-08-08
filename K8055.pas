@@ -3,11 +3,14 @@ unit K8055;
 interface
 
 uses
-  Windows, FMX.StdCtrls, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, Math, Buttons,ScktComp(* , FMX.StdCtrls *);
+  Windows, Messages, SysUtils,Variants, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, OleCtrls,CWInstrumentControlLib_TLB, ComCtrls,CWVisaLib_TLB,
+  Menus, ExtCtrls, ComCtrls, Math, Buttons,ScktComp,ComCtrls ;
+
 
 type
   TForm1 = class(TForm)
+    connexion : TCWVisa;
     GroupBox1: TGroupBox;
     SK6: TCheckBox;
     SK5: TCheckBox;
