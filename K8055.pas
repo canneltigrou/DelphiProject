@@ -153,6 +153,7 @@ type
     procedure ClientSocket2OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
     procedure ClientSocket3OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
     procedure ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ButtonTopClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -170,6 +171,8 @@ var
   sInstructionAp4: String;
   sInstuctionBroadcast: String;
   nbAppareilsConnectes: integer;
+  sIpAp1: String;
+  iPortAp1: integer;
 
 implementation
 
@@ -218,14 +221,6 @@ begin
     ClientSocketAp2.Port := StrToInt(EditPort2.Text) ;
     ClientSocketAp2.Open;//Activates the client
     LabelEtat1.Visible := False;
-
- (*if(ClientSocketAp2.Socket.Connected=True)
-    then
-    begin
-      LabelEtat1.Visible := True;
-      ClientSocketAp2.Active := False;//Disconnects the client
-      ButtonConnect2.Caption:='Connect';
-    end;     *)
 end;
 
 procedure TForm1.ButtonConnect3Click(Sender: TObject);
@@ -383,6 +378,39 @@ begin
       //Button1.Enabled:=false;//Disables the “Send” button
       //Edit1.Enabled:=false;//Disables the edit box
    end;
+end;
+
+procedure TForm1.ButtonTopClick(Sender: TObject);
+begin
+  sIpAp1 := '169.254.4.61';
+  iPortAp1 := 5025;
+  sInstructionAp1 := '*TST?';
+  EditIP1.Text := sIpAp1;
+  EditPort1.Text := IntToStr(iPortAp1);
+  EditSend1.Text := sInstructionAp1;
+
+  // Connexion
+  Memo1.Lines.Add('tentative de connexion');
+  ClientSocketAp1.Host := sIpAp1;
+  ClientSocketAp1.Port := iPortAp1;
+  ClientSocketAp1.Open;
+  Memo1.Lines.Add('finie');
+
+    LabelEtat1.Visible := False;
+
+
+  //envoi
+  Memo1.Lines.Add('tentative d''envoi');
+  EditSend1.Text:= sInstructionAp1;
+    ClientSocketAp1.Socket.SendText(sInstructionAp1);//Send the messages to the server
+    LabelSent1.Visible := true;
+
+  //Je lis meme si y'a rien
+  Memo1.Lines.Add('Lecture');
+  EditReception1.Text := ClientSocketAp1.Socket.ReceiveText;
+  LabelSent1.Visible := false;
+
+
 end;
 
 procedure TForm1.Button10Click(Sender: TObject);
