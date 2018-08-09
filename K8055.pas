@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, FMX.StdCtrls, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, Math, Buttons,ScktComp(* , FMX.StdCtrls *);
+  StdCtrls, ExtCtrls, ComCtrls, Math, Buttons,ScktComp, ActiveX,
+  VisaComLib_TLB;
 
 type
   TForm1 = class(TForm)
@@ -154,6 +155,8 @@ type
     procedure ClientSocket3OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
     procedure ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
     procedure ButtonTopClick(Sender: TObject);
+    procedure ServerSocketGetSocket(Sender: TObject; Socket: NativeInt;
+      var ClientSocket: TServerClientWinSocket);
   private
     { Private declarations }
   public
@@ -173,6 +176,15 @@ var
   nbAppareilsConnectes: integer;
   sIpAp1: String;
   iPortAp1: integer;
+
+
+  rm : IResourceManager3;
+  io : IMessage;
+  sess : IVisaSession;
+  retCount : Integer;
+  readResult : WideString;
+  //connexion : TCWVisa;
+
 
 implementation
 
@@ -215,11 +227,21 @@ begin
 end;
 
 procedure TForm1.ButtonConnect2Click(Sender: TObject);
+var
+  fn : String;
 begin
     //127.0.0.1 is the standard IP address to loop back to your own machine
-    ClientSocketAp2.Host:= EditIP2.Text ;  //'127.0.0.1';
-    ClientSocketAp2.Port := StrToInt(EditPort2.Text) ;
-    ClientSocketAp2.Open;//Activates the client
+    //ClientSocketAp2.Host:= EditIP2.Text ;  //'127.0.0.1';
+    //ClientSocketAp2.Port := StrToInt(EditPort2.Text) ;
+    CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
+    fn := 'TCPIP::' + EditIP2.Text + '::' + EditPort2.Text + '::SOCKET';
+    rm := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
+    rm.Open(fn, NO_LOCK, 0, '', sess); // Use the resource manager to create a VISA COM Session
+    sess.QueryInterface(IID_IMessage, io); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
+
+    Memo1.Lines.Add(fn);
+    //ClientSocketAp2.Open;//Activates the client
+
     LabelEtat1.Visible := False;
 end;
 
@@ -333,11 +355,12 @@ begin
 end;
 
 procedure TForm1.ButtonSend2Click(Sender: TObject);
-var
-    Str : String;
 begin
-    Str:=EditSend2.Text;
-    ClientSocketAp2.Socket.SendText(str);//Send the messages to the server
+    io.WriteString(EditSend2.Text, retCount); // Write to the instrument
+    io.ReadString(1000, readResult); // read the result
+
+    EditReception2.Text := readResult;
+    //ClientSocketAp2.Socket.SendText(str);//Send the messages to the server
     LabelSent2.Visible := true;
 end;
 
@@ -384,7 +407,7 @@ procedure TForm1.ButtonTopClick(Sender: TObject);
 begin
   sIpAp1 := '169.254.4.61';
   iPortAp1 := 5025;
-  sInstructionAp1 := '*TST?';
+  sInstructionAp1 := '*RST?';
   EditIP1.Text := sIpAp1;
   EditPort1.Text := IntToStr(iPortAp1);
   EditSend1.Text := sInstructionAp1;
@@ -492,9 +515,19 @@ procedure TForm1.ServerSocketClientRead(Sender: TObject;
 Begin
 //Read the message received from the client and add it to the memo text
 // The client identifier appears in front of the message
-  EditReception1.Text:= Socket.ReceiveText;
+  EditReception4.Text:= Socket.ReceiveText;
 end;
 
+
+procedure TForm1.ServerSocketGetSocket(Sender: TObject; Socket: NativeInt;
+  var ClientSocket: TServerClientWinSocket);
+begin
+ EditIP4.Text := ClientSocket.LocalHost ;
+ EditPort4.Text := inttostr( ClientSocket.LocalPort) ;
+
+
+
+end;
 
 procedure TForm1.ClientSocket1Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
 begin
@@ -650,7 +683,4 @@ begin
     EditReception1.Text := Socket.ReceiveText;
     LabelSent4.Visible := false;
 end;
-
-
-
 end.
