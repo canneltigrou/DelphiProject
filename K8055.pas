@@ -115,6 +115,7 @@ type
     procedure ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
     procedure afficherError( ErrorEvent: TErrorEvent; Appareil : string);
     procedure ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+    procedure ButtonConnect3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -210,15 +211,27 @@ var
   fn : String;
 begin
     CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
-    fn := 'TCPIP0::169.254.4.61::hislip0::INSTR';
+    fn := EditIP2.Text;
     //fn := 'TCPIP::' + EditIP2.Text + '::' + EditPort2.Text + '::SOCKET';
     rmCapa1 := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
     rmCapa1.Open(fn, NO_LOCK, 0, '', sessCapa1); // Use the resource manager to create a VISA COM Session
     sessCapa1.QueryInterface(IID_IMessage, ioCapa1); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
     Memo1.Lines.Add(fn);
     //ClientSocketAp2.Open;//Activates the client
+end;
 
-
+procedure TForm1.ButtonConnect3Click(Sender: TObject);
+var
+  fn : String;
+begin
+    CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
+    fn := EditIP3.Text;
+    //fn := 'TCPIP::' + EditIP2.Text + '::' + EditPort2.Text + '::SOCKET';
+    rmCapa2 := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
+    rmCapa2.Open(fn, NO_LOCK, 0, '', sessCapa2); // Use the resource manager to create a VISA COM Session
+    sessCapa2.QueryInterface(IID_IMessage, ioCapa2); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
+    Memo1.Lines.Add(fn);
+    //ClientSocketAp2.Open;//Activates the client
 end;
 
 procedure TForm1.ButtonConnect4Click(Sender: TObject);
