@@ -37,17 +37,8 @@ type
     EditPort4: TEdit;
     EditReception4: TEdit;
     LabelRecuAp4: TLabel;
-    ClientSocketAp1: TClientSocket;
-    ClientSocketAp2: TClientSocket;
-    ClientSocketAp3: TClientSocket;
+
     ClientSocketAp4: TClientSocket;
-    ServerSocket: TServerSocket;
-    LabelEtatConnexion: TLabel;
-    ButtonEnvoiBroadcast: TButton;
-    Label1: TLabel;
-    EditEnvoiBroadcast: TEdit;
-    GroupBoxServer: TGroupBox;
-    ButtonStartServer: TButton;
     LabelAdressIP4: TLabel;
     LabelPort4: TLabel;
     ButtonConnect4: TButton;
@@ -56,46 +47,36 @@ type
     ButtonTop: TButton;
     ButtonSend4: TButton;
     LabelEtat4: TLabel;
-    CbTypeAp4: TComboBox;
     GroupBoxAp3: TGroupBox;
     Label5: TLabel;
     Label6: TLabel;
-    Label7: TLabel;
     Label8: TLabel;
     LabelEtat3: TLabel;
     EditIP3: TEdit;
-    EditPort3: TEdit;
     EditReception3: TEdit;
     ButtonConnect3: TButton;
     EditSend3: TEdit;
     ButtonSend3: TButton;
-    CbTypeAp3: TComboBox;
     GroupBoxAp2: TGroupBox;
     Label10: TLabel;
     Label11: TLabel;
-    Label13: TLabel;
     Label14: TLabel;
     LabelEtat2: TLabel;
     EditIP2: TEdit;
-    EditPort2: TEdit;
     EditReception2: TEdit;
     ButtonConnect2: TButton;
     EditSend2: TEdit;
     ButtonSend2: TButton;
-    CbTypeAp2: TComboBox;
     GroupBoxAp1: TGroupBox;
     Label16: TLabel;
     Label17: TLabel;
-    Label18: TLabel;
     Label19: TLabel;
     LabelEtat1: TLabel;
     EditIP1: TEdit;
-    EditPort1: TEdit;
     EditReception1: TEdit;
     ButtonConnect1: TButton;
     EditSend1: TEdit;
     ButtonSend1: TButton;
-    CbTypeAp1: TComboBox;
     LabelConnexion1: TLabel;
     LabelConnexion3: TLabel;
     LabelConnexion2: TLabel;
@@ -105,7 +86,6 @@ type
     LabelSent3: TLabel;
     LabelSent4: TLabel;
     Memo1: TMemo;
-    ButtonDisconnect2: TButton;
 
     procedure FormCreate(Sender: TObject);
 
@@ -123,40 +103,18 @@ type
     procedure CbOutputAp4Click(Sender: TObject);
     procedure ButtonDisconnectAutomateClick(Sender: TObject);
     procedure ButtonFrequenceClick(Sender: TObject);
-    procedure ButtonEnvoiBroadcastClick(Sender: TObject);
-    procedure ServerSocketClientConnect(Sender: TObject;  Socket: TCustomWinSocket);
-    procedure ButtonStartServerClick(Sender: TObject);
-    procedure ServerSocketClientRead(Sender: TObject;
-  Socket: TCustomWinSocket);
     procedure ButtonConnect1Click(Sender: TObject);
     procedure ButtonSend1Click(Sender: TObject);
     procedure ButtonSend3Click(Sender: TObject);
     procedure ButtonSend2Click(Sender: TObject);
     procedure ButtonSend4Click(Sender: TObject);
-    procedure ButtonConnect3Click(Sender: TObject);
     procedure ButtonConnect2Click(Sender: TObject);
     procedure ButtonConnect4Click(Sender: TObject);
-    procedure ClientSocket1Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
-    procedure ClientSocket2Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
-    procedure ClientSocket3Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
     procedure ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
-    procedure ClientSocketAp1Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
-    procedure ClientSocketAp2Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
-    procedure ClientSocketAp3Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
     procedure ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
-    procedure ClientSocketAp1Read(Sender: TObject; Socket: TCustomWinSocket);
-    procedure ClientSocketAp2Read(Sender: TObject; Socket: TCustomWinSocket);
-    procedure ClientSocketAp3Read(Sender: TObject; Socket: TCustomWinSocket);
     procedure ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
     procedure afficherError( ErrorEvent: TErrorEvent; Appareil : string);
-    procedure ButtonDisconnect2Click(Sender: TObject);
-    procedure ClientSocket1OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
-    procedure ClientSocket2OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
-    procedure ClientSocket3OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
     procedure ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
-    procedure ButtonTopClick(Sender: TObject);
-    procedure ServerSocketGetSocket(Sender: TObject; Socket: NativeInt;
-      var ClientSocket: TServerClientWinSocket);
   private
     { Private declarations }
   public
@@ -174,16 +132,31 @@ var
   sInstructionAp4: String;
   sInstuctionBroadcast: String;
   nbAppareilsConnectes: integer;
-  sIpAp1: String;
-  iPortAp1: integer;
 
 
-  rm : IResourceManager3;
-  io : IMessage;
-  sess : IVisaSession;
-  retCount : Integer;
-  readResult : WideString;
+
+
+
+
+  rmMultiM : IResourceManager3;
+  ioMultiM : IMessage;
+  sessMultiM : IVisaSession;
+  retCountMultiM : Integer;
+  readResultMultiM : WideString;
   //connexion : TCWVisa;
+
+  rmCapa1 : IResourceManager3;
+  ioCapa1 : IMessage;
+  sessCapa1 : IVisaSession;
+  retCountCapa1 : Integer;
+  readResultCapa1 : WideString;
+
+  rmCapa2 : IResourceManager3;
+  ioCapa2 : IMessage;
+  sessCapa2 : IVisaSession;
+  retCountCapa2 : Integer;
+  readResultCapa2 : WideString;
+
 
 
 implementation
@@ -217,46 +190,35 @@ function Connected: boolean; stdcall; external 'K8055d.dll';
 
 
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
+var
+  fn : String;
 begin
-    ClientSocketAp1.Host:= EditIP2.Text ;  //'127.0.0.1';
-    ClientSocketAp1.Port := StrToInt(EditPort2.Text) ;
-    ClientSocketAp1.Open;//Activates the client
-    LabelEtat1.Visible := False;
-
-
+    CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
+    //fn := 'TCPIP0::169.254.4.61::hislip0::INSTR';
+    fn := EditIP1.Text;
+    rmMultiM := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
+    rmMultiM.Open(fn, NO_LOCK, 0, '', sessMultiM); // Use the resource manager to create a VISA COM Session
+    sessMultiM.QueryInterface(IID_IMessage, ioMultiM); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
+    Memo1.Lines.Add(fn);
+    EditSend1.Text := sInstructionAp1;
+    //LabelEtat1.Visible := False;
 end;
+
 
 procedure TForm1.ButtonConnect2Click(Sender: TObject);
 var
   fn : String;
 begin
-    //127.0.0.1 is the standard IP address to loop back to your own machine
-    //ClientSocketAp2.Host:= EditIP2.Text ;  //'127.0.0.1';
-    //ClientSocketAp2.Port := StrToInt(EditPort2.Text) ;
     CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
-    fn := 'TCPIP::' + EditIP2.Text + '::' + EditPort2.Text + '::SOCKET';
-    rm := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
-    rm.Open(fn, NO_LOCK, 0, '', sess); // Use the resource manager to create a VISA COM Session
-    sess.QueryInterface(IID_IMessage, io); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
-
+    fn := 'TCPIP0::169.254.4.61::hislip0::INSTR';
+    //fn := 'TCPIP::' + EditIP2.Text + '::' + EditPort2.Text + '::SOCKET';
+    rmCapa1 := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
+    rmCapa1.Open(fn, NO_LOCK, 0, '', sessCapa1); // Use the resource manager to create a VISA COM Session
+    sessCapa1.QueryInterface(IID_IMessage, ioCapa1); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
     Memo1.Lines.Add(fn);
     //ClientSocketAp2.Open;//Activates the client
 
-    LabelEtat1.Visible := False;
-end;
 
-procedure TForm1.ButtonConnect3Click(Sender: TObject);
-begin
-    //127.0.0.1 is the standard IP address to loop back to your own machine
-    ClientSocketAp3.Address:= EditIP3.Text ;  //'127.0.0.1';
-    ClientSocketAp3.Active := True;//Activates the client
-
- if(ClientSocketAp1.Socket.Connected=True)
-    then
-    begin
-      ClientSocketAp3.Active := False;//Disconnects the client
-      ButtonConnect3.Caption:='Connect';
-    end;
 end;
 
 procedure TForm1.ButtonConnect4Click(Sender: TObject);
@@ -295,18 +257,6 @@ end;
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   CloseDevice;
-end;
-
-
-// Ici : un client se connecte, normalement un appareil de mesure
-procedure TForm1.ServerSocketClientConnect(Sender: TObject;  Socket: TCustomWinSocket);
-begin
-  Socket.SendText('Connected');//Sends a message to the client
-//If at least a client is connected to the server, then the server can communicate
-//Enables the Send button and the edit box
-  ButtonEnvoiBroadcast.Enabled:=true;
-  EditIP1.Text := Socket.LocalAddress;
-  EditPort1.Text := Socket.LocalPort.ToString;
 end;
 
 
@@ -349,28 +299,31 @@ procedure TForm1.ButtonSend1Click(Sender: TObject);
 var
     Str : String;
 begin
-    Str:=EditSend1.Text;
-    ClientSocketAp1.Socket.SendText(str);//Send the messages to the server
+    ioMultiM.WriteString(EditSend1.Text, retCountMultiM); // Write to the instrument
     LabelSent1.Visible := true;
+    ioMultiM.ReadString(1000, readResultMultiM); // read the result
+    EditReception1.Text := readResultMultiM;
+    LabelSent1.Visible := false;
 end;
 
 procedure TForm1.ButtonSend2Click(Sender: TObject);
 begin
-    io.WriteString(EditSend2.Text, retCount); // Write to the instrument
-    io.ReadString(1000, readResult); // read the result
-
-    EditReception2.Text := readResult;
-    //ClientSocketAp2.Socket.SendText(str);//Send the messages to the server
+    ioCapa1.WriteString(EditSend2.Text, retCountCapa1); // Write to the instrument
     LabelSent2.Visible := true;
+    ioCapa1.ReadString(1000, readResultCapa1); // read the result
+    EditReception2.Text := readResultCapa1;
+    LabelSent2.Visible := false;
 end;
 
 procedure TForm1.ButtonSend3Click(Sender: TObject);
 var
     Str : String;
 begin
-    Str:=EditSend3.Text;
-    ClientSocketAp3.Socket.SendText(str);//Send the messages to the server
+    ioCapa2.WriteString(EditSend3.Text, retCountCapa2); // Write to the instrument
     LabelSent3.Visible := true;
+    ioCapa2.ReadString(1000, readResultCapa2); // read the result
+    LabelSent3.Visible := false;
+    EditReception3.Text := readResultCapa2;
 end;
 
 procedure TForm1.ButtonSend4Click(Sender: TObject);
@@ -382,59 +335,6 @@ begin
     LabelSent4.Visible := true;
 end;
 
-procedure TForm1.ButtonStartServerClick(Sender: TObject);
-
-begin
-   if(ServerSocket.Active = False)//The button caption is ‘Start’
-   then
-   begin
-      ServerSocket.Active := True;//Activates the server socket
-      LabelEtatConnexion.Caption:='Server Started';
-      ButtonStartServer.Caption:='Stop';//Set the button caption
-   end
-   else//The button caption is ‘Stop’
-   begin
-      ServerSocket.Active := False;//Stops the server socket
-      LabelEtatConnexion.Caption:= 'Server Stopped';
-      ButtonStartServer.Caption:='Start';
-     //If the server is closed, then it cannot send any messages
-      //Button1.Enabled:=false;//Disables the “Send” button
-      //Edit1.Enabled:=false;//Disables the edit box
-   end;
-end;
-
-procedure TForm1.ButtonTopClick(Sender: TObject);
-begin
-  sIpAp1 := '169.254.4.61';
-  iPortAp1 := 5025;
-  sInstructionAp1 := '*RST?';
-  EditIP1.Text := sIpAp1;
-  EditPort1.Text := IntToStr(iPortAp1);
-  EditSend1.Text := sInstructionAp1;
-
-  // Connexion
-  Memo1.Lines.Add('tentative de connexion');
-  ClientSocketAp1.Host := sIpAp1;
-  ClientSocketAp1.Port := iPortAp1;
-  ClientSocketAp1.Open;
-  Memo1.Lines.Add('finie');
-
-    LabelEtat1.Visible := False;
-
-
-  //envoi
-  Memo1.Lines.Add('tentative d''envoi');
-  EditSend1.Text:= sInstructionAp1;
-    ClientSocketAp1.Socket.SendText(sInstructionAp1);//Send the messages to the server
-    LabelSent1.Visible := true;
-
-  //Je lis meme si y'a rien
-  Memo1.Lines.Add('Lecture');
-  EditReception1.Text := ClientSocketAp1.Socket.ReceiveText;
-  LabelSent1.Visible := false;
-
-
-end;
 
 procedure TForm1.Button10Click(Sender: TObject);
 var out_digital: integer;
@@ -475,28 +375,10 @@ end;
 
 
 
-procedure TForm1.ButtonDisconnect2Click(Sender: TObject);
-begin
-  ClientSocketAp2.Close;
-end;
-
 procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
     CloseDevice;
     label12.caption:='Disconnected'
-end;
-
-(* Bouton test : permet d'envoyer la commande spécifié dans la textBox.
-sera exécuté automatiquement par la suite  *)
-procedure TForm1.ButtonEnvoiBroadcastClick(Sender: TObject);
-        var
-  i: integer;
-begin
-     sInstuctionBroadcast :=EditEnvoiBroadcast.Text;//Take the string (message) sent by the server
-     EditEnvoiBroadcast.Text:='';//Clears the edit box
-     //Sends the messages to all clients connected to the server
-     for i:=0 to ServerSocket.Socket.ActiveConnections-1 do
-        ServerSocket.Socket.Connections[i].SendText(sInstuctionBroadcast);//Sent
 end;
 
 
@@ -505,56 +387,17 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
 
+   //on connecte tout d'abord les différents appareils
+   // pour l'instant l'appareil 1
 
-end;
-
-
-
-procedure TForm1.ServerSocketClientRead(Sender: TObject;
-  Socket: TCustomWinSocket);
-Begin
-//Read the message received from the client and add it to the memo text
-// The client identifier appears in front of the message
-  EditReception4.Text:= Socket.ReceiveText;
-end;
-
-
-procedure TForm1.ServerSocketGetSocket(Sender: TObject; Socket: NativeInt;
-  var ClientSocket: TServerClientWinSocket);
-begin
- EditIP4.Text := ClientSocket.LocalHost ;
- EditPort4.Text := inttostr( ClientSocket.LocalPort) ;
+   sInstructionAp1 := 'MEAS:VOLT:DC?';
+   EditIP1.Text := 'TCPIP0::169.254.4.61::hislip0::INSTR';
 
 
 
 end;
 
-procedure TForm1.ClientSocket1Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
-begin
-   Socket.SendText('Disconnected');//Send the “Disconnected” message to the server
-//str is set to “Disconnected” when the Disconnect button is pressed
-//A client cannot send messages if it is not connected to a server
-   ButtonSend1.Enabled:=False;
-   ButtonConnect1.Caption:='Connect';
-end;
 
-procedure TForm1.ClientSocket2Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
-begin
-   Socket.SendText('Disconnected');//Send the “Disconnected” message to the server
-//str is set to “Disconnected” when the Disconnect button is pressed
-//A client cannot send messages if it is not connected to a server
-   ButtonSend2.Enabled:=False;
-   ButtonConnect2.Caption:='Connect';
-end;
-
-procedure TForm1.ClientSocket3Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
-begin
-   Socket.SendText('Disconnected');//Send the “Disconnected” message to the server
-//str is set to “Disconnected” when the Disconnect button is pressed
-//A client cannot send messages if it is not connected to a server
-   ButtonSend3.Enabled:=False;
-   ButtonConnect3.Caption:='Connect';
-end;
 
 procedure TForm1.ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
 begin
@@ -565,23 +408,6 @@ begin
    ButtonConnect4.Caption:='Connect';
 end;
 
-procedure TForm1.ClientSocket2OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
-begin
-   ButtonSend2.Enabled:= True;
-  // ButtonConnect2.Caption:='Connect';
-end;
-
-procedure TForm1.ClientSocket1OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
-begin
-   ButtonSend1.Enabled:= True;
-  // ButtonConnect2.Caption:='Connect';
-end;
-
-procedure TForm1.ClientSocket3OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
-begin
-   ButtonSend3.Enabled:= True;
-  // ButtonConnect2.Caption:='Connect';
-end;
 
 procedure TForm1.ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
 begin
@@ -612,40 +438,6 @@ begin
 end;
 
 
-
-
-procedure TForm1.ClientSocketAp1Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
-begin
-  afficherError( ErrorEvent , 'Ap1')  ;
-  ErrorCode:=0;
-  ClientSocketAp1.Active := False;
-// This can happen when no active server is started
-  //Memo1.Text:=Memo1.Text+'No connection found'+#13#10;
-  labelConnexion1.Visible := True;
-end;
-
-procedure TForm1.ClientSocketAp2Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
-begin
-  afficherError( ErrorEvent , 'Ap2')  ;
-  ErrorCode:=0;
-  ClientSocketAp2.Active := False;
-// This can happen when no active server is started
-  //Memo1.Text:=Memo1.Text+'No connection found'+#13#10;
-  labelConnexion2.Visible := True;
-end;
-
-procedure TForm1.ClientSocketAp3Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
-begin
-  afficherError( ErrorEvent , 'Ap3')  ;
-  ErrorCode:=0;
-  ClientSocketAp3.Active := False;
-// This can happen when no active server is started
-  //Memo1.Text:=Memo1.Text+'No connection found'+#13#10;
-  labelConnexion3.Visible := True;
-end;
-
-
-
 procedure TForm1.ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent;
 var ErrorCode: Integer);
 begin
@@ -656,26 +448,6 @@ begin
   labelConnexion4.Visible := True;
 end;
 
-procedure TForm1.ClientSocketAp1Read(Sender: TObject; Socket: TCustomWinSocket);
-begin
-//Reads and displays the message received from the server;
-    EditReception1.Text := Socket.ReceiveText;
-    LabelSent1.Visible := false;
-end;
-
-procedure TForm1.ClientSocketAp2Read(Sender: TObject; Socket: TCustomWinSocket);
-begin
-//Reads and displays the message received from the server;
-    EditReception1.Text := Socket.ReceiveText;
-    LabelSent2.Visible := false;
-end;
-
-procedure TForm1.ClientSocketAp3Read(Sender: TObject; Socket: TCustomWinSocket);
-begin
-//Reads and displays the message received from the server;
-    EditReception1.Text := Socket.ReceiveText;
-    LabelSent3.Visible := false;
-end;
 
 procedure TForm1.ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
 begin
