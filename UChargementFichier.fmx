@@ -1,0 +1,40 @@
+object FChargementFichier: TFChargementFichier
+  Left = 0
+  Top = 0
+  Caption = 'Chargement de fichier'
+  ClientHeight = 176
+  ClientWidth = 300
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop, iPhone, iPad]
+  DesignerMasterStyle = 0
+  object editPathFile: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    TabOrder = 0
+    Position.X = 8.000000000000000000
+    Position.Y = 64.000000000000000000
+    Size.Width = 265.000000000000000000
+    Size.Height = 25.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object buttonOK: TButton
+    Position.X = 104.000000000000000000
+    Position.Y = 120.000000000000000000
+    TabOrder = 1
+    Text = 'OK'
+    OnClick = buttonOKClick
+  end
+  object LabelErreur: TLabel
+    StyledSettings = [Family, Size, Style]
+    Position.X = 40.000000000000000000
+    Position.Y = 24.000000000000000000
+    Size.Width = 241.000000000000000000
+    Size.Height = 17.000000000000000000
+    Size.PlatformDefault = False
+    StyleLookup = 'labelstyle'
+    TextSettings.FontColor = claCrimson
+    Text = 'Erreur : Veuillez entrer un chemin valide.'
+    Visible = False
+    TabOrder = 2
+  end
+end

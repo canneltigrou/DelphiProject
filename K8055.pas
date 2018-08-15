@@ -5,7 +5,7 @@ interface
 uses
   Windows, FMX.StdCtrls, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, Math, Buttons,ScktComp, ActiveX,
-  VisaComLib_TLB;
+  VisaComLib_TLB, Generics.Collections;//UChargementFichier;
 
 type
   TForm1 = class(TForm)
@@ -86,6 +86,12 @@ type
     LabelSent3: TLabel;
     LabelSent4: TLabel;
     Memo1: TMemo;
+    ButtonLoadFile: TButton;
+    EditCodeLu: TEdit;
+    ButtonFindValues: TButton;
+    ButtonTest: TButton;
+    Label1: TLabel;
+    EditEssaisVal: TEdit;
 
     procedure FormCreate(Sender: TObject);
 
@@ -116,6 +122,10 @@ type
     procedure afficherError( ErrorEvent: TErrorEvent; Appareil : string);
     procedure ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
     procedure ButtonConnect3Click(Sender: TObject);
+    procedure ButtonLoadFileClick(Sender: TObject);
+    procedure ButtonTestClick(Sender: TObject);
+    procedure TraiterResAp1();
+    procedure CheckBox1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -133,11 +143,6 @@ var
   sInstructionAp4: String;
   sInstuctionBroadcast: String;
   nbAppareilsConnectes: integer;
-
-
-
-
-
 
   rmMultiM : IResourceManager3;
   ioMultiM : IMessage;
@@ -157,6 +162,12 @@ var
   sessCapa2 : IVisaSession;
   retCountCapa2 : Integer;
   readResultCapa2 : WideString;
+
+
+  //dictionary: TDictionary<String, TDictionary<String , TStringList>>;
+  //dict : TDictionary<integer, char>;
+  dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[N°OF] = Article
+  dictionaryValues : TDictionary<String, TDictionary<String, Integer>>; // dictionaryValues[Article] = les valeurs importante du excel pour cet aticle
 
 
 
@@ -317,6 +328,7 @@ begin
     ioMultiM.ReadString(1000, readResultMultiM); // read the result
     EditReception1.Text := readResultMultiM;
     LabelSent1.Visible := false;
+    TraiterResAp1();
 end;
 
 procedure TForm1.ButtonSend2Click(Sender: TObject);
@@ -349,6 +361,7 @@ begin
 end;
 
 
+
 procedure TForm1.Button10Click(Sender: TObject);
 var out_digital: integer;
 out_analog: array[0..1] of integer;
@@ -359,6 +372,31 @@ begin
   CbOutputAp2.checked:=(out_digital and 2)>0;
   CbOutputAp3.checked:=(out_digital and 4)>0;
   CbOutputAp4.checked:=(out_digital and 8)>0;
+end;
+
+
+procedure LireFichier();
+begin
+  //
+   (*wLoadFile := TFChargementFichier.Create(nil);
+    try
+      if wLoadFile.ShowModal = mrOk then
+        sFileName := wLoadFile.nameWritten
+    finally
+      wLoadFile.Free;
+    end;           *)
+
+
+
+//
+end;
+
+
+
+procedure TForm1.ButtonLoadFileClick(Sender: TObject);
+begin
+// lecture du fichier
+  LireFichier();
 end;
 
 procedure TForm1.CbOutputAp1Click(Sender: TObject);
@@ -387,6 +425,12 @@ end;
 
 
 
+
+procedure TForm1.CheckBox1Click(Sender: TObject);
+begin
+// top départ de l'appareil 1
+  ButtonSend1Click(Sender);
+end;
 
 procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
@@ -468,4 +512,72 @@ begin
     EditReception1.Text := Socket.ReceiveText;
     LabelSent4.Visible := false;
 end;
+
+
+
+(* ******************************************************************
+*********   Annalyse Appareil 1 Multimetre **************************
+******************************************************************* *)
+
+
+function ParseResultat(sResult: String) : Double;
+var
+  lFormatSettings:TFormatSettings;
+begin
+  lFormatSettings.DecimalSeparator := '.';
+  Result := StrToFloat(sResult, lFormatSettings);
+end;
+
+function AnnalyseResultatAp1(resultat: Double; vRef: Double):Boolean;
+// on veut comparer les résultats en microA. : tension / 500ohm * 1000000
+// on compare à la colone 'Essais val_1' colonne 0 feuil8 sur Excel
+var
+  valRef : Double;
+begin
+  //valRef :=  30000;     // exemple. sera pris de la hashmap
+  valRef := vRef;
+  if(resultat / 500 * 1000000 > valRef)
+  then
+    Result := False
+  else
+    Result := True
+end;
+
+procedure TForm1.TraiterResAp1();
+var
+  resultatDouble : Double;
+  tmp : Boolean;
+begin
+  CbOutputAp1.checked := false;
+  resultatDouble := ParseResultat(EditReception1.Text);
+  tmp := AnnalyseResultatAp1( resultatDouble, ParseResultat(EditEssaisVal.Text));
+  if(tmp = True)
+  then
+  begin
+    LabelEtat1.Caption := 'OK';
+
+  end
+  else
+  begin
+    LabelEtat1.Caption := 'KO';
+    CbOutputAp1.checked := true;
+    SetDigitalChannel(1);
+  end;
+
+
+end;
+
+procedure TForm1.ButtonTestClick(Sender: TObject);
+begin
+
+    TraiterResAp1();
+
+end;
+
+
+
+
+
+
+
 end.
