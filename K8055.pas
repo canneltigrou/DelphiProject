@@ -3,8 +3,8 @@ unit K8055;
 interface
 
 uses
-  Windows, FMX.StdCtrls, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, Math, Buttons,ScktComp, ActiveX,
+  Windows, StdCtrls, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  ExtCtrls, ComCtrls, Math, Buttons, ScktComp, ActiveX,
   VisaComLib_TLB, Generics.Collections, ComObj, System.Variants;//UChargementFichier;
 
 type
@@ -38,7 +38,7 @@ type
     EditReception4: TEdit;
     LabelRecuAp4: TLabel;
 
-    ClientSocketAp4: TClientSocket;
+
     LabelAdressIP4: TLabel;
     LabelPort4: TLabel;
     ButtonConnect4: TButton;
@@ -93,6 +93,7 @@ type
     Label1: TLabel;
     EditEssaisVal: TEdit;
     LabelEnCours: TLabel;
+    ClientSocketAp4: TClientSocket;
 
     procedure FormCreate(Sender: TObject);
 
@@ -651,11 +652,25 @@ end;
 ******************************************************************* *)
 
 
+function StripNonAlphaNumeric(const AValue: string): string;
+var
+  SrcPtr, DestPtr: PChar;
+  chatTmp : Char;
+  I : Integer;
+begin
+Result := '';
+  for I := 0 to AValue.Length do
+  begin
+    if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+'] then
+      Result := Result + AValue.Chars[I]
+  end;
+end;
+
 function ParseResultat(sResult: String) : Double;
 var
   lFormatSettings:TFormatSettings;
 begin
-  sResult := StringReplace(sResult, sLineBreak, '', [rfReplaceAll]);
+  sResult := StripNonAlphaNumeric(sResult);
   lFormatSettings.DecimalSeparator := '.';
   Result := StrToFloat(sResult, lFormatSettings);
 end;
