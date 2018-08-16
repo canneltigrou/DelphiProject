@@ -655,6 +655,7 @@ function ParseResultat(sResult: String) : Double;
 var
   lFormatSettings:TFormatSettings;
 begin
+  sResult := StringReplace(sResult, sLineBreak, '', [rfReplaceAll]);
   lFormatSettings.DecimalSeparator := '.';
   Result := StrToFloat(sResult, lFormatSettings);
 end;
