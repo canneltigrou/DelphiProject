@@ -5,7 +5,7 @@ interface
 uses
   Windows, FMX.StdCtrls, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   StdCtrls, ExtCtrls, ComCtrls, Math, Buttons,ScktComp, ActiveX,
-  VisaComLib_TLB, Generics.Collections;//UChargementFichier;
+  VisaComLib_TLB, Generics.Collections, ComObj, System.Variants;//UChargementFichier;
 
 type
   TForm1 = class(TForm)
@@ -92,6 +92,7 @@ type
     ButtonTest: TButton;
     Label1: TLabel;
     EditEssaisVal: TEdit;
+    LabelEnCours: TLabel;
 
     procedure FormCreate(Sender: TObject);
 
@@ -126,6 +127,7 @@ type
     procedure ButtonTestClick(Sender: TObject);
     procedure TraiterResAp1();
     procedure CheckBox1Click(Sender: TObject);
+    procedure ButtonFindValuesClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -167,8 +169,8 @@ var
   //dictionary: TDictionary<String, TDictionary<String , TStringList>>;
   //dict : TDictionary<integer, char>;
   dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[N°OF] = Article
-  dictionaryValues : TDictionary<String, TDictionary<String, Integer>>; // dictionaryValues[Article] = les valeurs importante du excel pour cet aticle
-
+  dictionaryValues : TDictionary<String, TDictionary<String, Double>>; // dictionaryValues[Article] = les valeurs importante du excel pour cet aticle
+  currentCode : String;
 
 
 implementation
@@ -313,6 +315,13 @@ begin
 end;
 
 
+procedure TForm1.ButtonFindValuesClick(Sender: TObject);
+begin
+  currentCode := dictionaryRef[EditCodeLu.Text];
+  EditEssaisVal.Text := (dictionaryValues[currentCode])['Essais val_1'].ToString;
+
+end;
+
 procedure TForm1.ButtonFrequenceClick(Sender: TObject);
 begin
   OutputAnalogChannel(1,strtoint(EditFrequence.Text));
@@ -376,27 +385,149 @@ end;
 
 
 procedure LireFichier();
+var
+vMSExcel : variant;
+    vXLWorkbooks, vXLWorkbook, vReadOnly, vLink : variant;
+    sFileName : string;
+    sFullName : string;
+    aSheetName : AnsiString;
+    vWorksheet : variant;
+    sValue1, sRange1, sValue2, sRange2, sValue3, sRange3 : string;
+    vCell : variant;
+    j : integer;
+    tmpDict : TDictionary<String, Double>;
+    lFormatSettings : TFormatSettings;
 begin
-  //
-   (*wLoadFile := TFChargementFichier.Create(nil);
-    try
-      if wLoadFile.ShowModal = mrOk then
-        sFileName := wLoadFile.nameWritten
-    finally
-      wLoadFile.Free;
-    end;           *)
+    lFormatSettings.DecimalSeparator := ',';
+
+  // ouvre excel
+    vMSExcel := CreateOleObject('Excel.Application');
+    vMSExcel.Visible := false;
+
+    sFileName := 'liste.xlsx';
+    // ouvre le fichier en lecture seule
+    sFullName := GetCurrentDir + '\' + sFileName;
+    vLink := unassigned;
+    vReadOnly := true;
+    vXLWorkbooks := vMSExcel.Workbooks;
+    vXLWorkbook := vXLWorkbooks.Open(sFullName, vLink, vReadOnly);
 
 
+    // remplissage de la 1ere hashmap  :
 
-//
+    // accède à la feuille voulue
+    aSheetName := 'Feuil5';
+    vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
+
+    j := 2;
+    sRange1 := 'A2';
+    vCell := vWorksheet.Range[sRange1];
+    sValue1 := vCell.Value;
+    while sValue1 <> '' do
+    begin
+      sRange2 := 'B' + IntToStr(j);
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+
+      //Memo1.Lines.Add(sValue1 + ' ; ' + sValue2);
+      dictionaryRef.Add(sValue1, sValue2);
+
+      Inc(j, 1);
+
+      sRange1 := 'A' + IntToStr(j);
+      vCell := vWorksheet.Range[sRange1];
+      sValue1 := vCell.Value;
+    end;
+
+    // remplissage de la 2eme hashmap  :
+
+    // accède à la feuille voulue
+    aSheetName := 'Feuil8';
+    vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
+
+    j := 2;
+    sRange1 := 'A2';
+    vCell := vWorksheet.Range[sRange1];
+    sValue1 := vCell.Value;
+    while sValue1 <> '' do
+    begin
+      tmpDict := TDictionary<String, Double>.Create();
+      sRange2 := 'O1';
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+      sRange3 := 'O' + IntToStr(j)  ;
+      vCell := vWorksheet.Range[sRange3];
+      sValue3 := vCell.Value;
+      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+
+      sRange2 := 'J1';
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+      sRange3 := 'J' + IntToStr(j)  ;
+      vCell := vWorksheet.Range[sRange3];
+      sValue3 := vCell.Value;
+      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+
+      sRange2 := 'K1';
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+      sRange3 := 'K' + IntToStr(j)  ;
+      vCell := vWorksheet.Range[sRange3];
+      sValue3 := vCell.Value;
+      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+
+      sRange2 := 'M1';
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+      sRange3 := 'M' + IntToStr(j)  ;
+      vCell := vWorksheet.Range[sRange3];
+      sValue3 := vCell.Value;
+      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+
+      sRange2 := 'Q1';
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+      sRange3 := 'Q' + IntToStr(j)  ;
+      vCell := vWorksheet.Range[sRange3];
+      sValue3 := vCell.Value;
+      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+
+      sRange2 := 'F1';
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+      sRange3 := 'F' + IntToStr(j)  ;
+      vCell := vWorksheet.Range[sRange3];
+      sValue3 := vCell.Value;
+      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+
+
+      //Memo1.Lines.Add(sValue1 + ' ; ' + sValue2);
+      dictionaryValues.Add(sValue1, tmpDict);
+
+      Inc(j, 1);
+
+      sRange1 := 'A' + IntToStr(j);
+      vCell := vWorksheet.Range[sRange1];
+      sValue1 := vCell.Value;
+    end;
+
+    vMSExcel.Quit;
+    vMSExcel := Unassigned;
+
 end;
 
 
 
 procedure TForm1.ButtonLoadFileClick(Sender: TObject);
 begin
+  LabelEnCours.Visible := True;
+  dictionaryRef:= TDictionary<String, String>.create;
+  dictionaryValues := TDictionary<String,Tdictionary<String, Double>>.create;
 // lecture du fichier
   LireFichier();
+  LabelEnCours.Visible := False;
+
+  EditReception4.Text := dictionaryRef['M151364'];
 end;
 
 procedure TForm1.CbOutputAp1Click(Sender: TObject);
@@ -550,7 +681,7 @@ var
 begin
   CbOutputAp1.checked := false;
   resultatDouble := ParseResultat(EditReception1.Text);
-  tmp := AnnalyseResultatAp1( resultatDouble, ParseResultat(EditEssaisVal.Text));
+  tmp := AnnalyseResultatAp1( resultatDouble, dictionaryValues[currentCode]['Essais val_1']);
   if(tmp = True)
   then
   begin
@@ -569,9 +700,7 @@ end;
 
 procedure TForm1.ButtonTestClick(Sender: TObject);
 begin
-
     TraiterResAp1();
-
 end;
 
 
