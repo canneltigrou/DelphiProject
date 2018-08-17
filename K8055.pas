@@ -650,8 +650,9 @@ begin
   begin
     CheckBox1.Checked := True;
     ButtonSend1Click(Sender);
-  end;
-
+  end
+  else
+    CheckBox1.checked:=(i and 1)>0;
   CheckBox2.checked:=(i and 2)>0;
   CheckBox3.checked:=(i and 4)>0;
   CheckBox4.checked:=(i and 8)>0;
