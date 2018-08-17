@@ -645,7 +645,6 @@ begin
   Memo1.Lines.Add(inttostr(ReadCounter(1)));
 
   i:=ReadAllDigital;
-  CheckBox1.checked:=(i and 1)>0;
   if((not CheckBox1.Checked) and ((i and 1)>0))
   then
   begin
