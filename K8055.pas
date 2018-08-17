@@ -129,6 +129,7 @@ type
     procedure TraiterResAp1();
     procedure CheckBox1Click(Sender: TObject);
     procedure ButtonFindValuesClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -645,6 +646,31 @@ begin
     LabelSent4.Visible := false;
 end;
 
+(*********************************************************************
+************************ automate ************************************
+******************************************************************** *)
+
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+var i, Data1, Data2: integer;
+begin
+  timer1.enabled:=false;
+  Memo1.Lines.Add(inttostr(ReadCounter(1)));
+
+  i:=ReadAllDigital;
+  CheckBox1.checked:=(i and 1)>0;
+  CheckBox2.checked:=(i and 2)>0;
+  CheckBox3.checked:=(i and 4)>0;
+  CheckBox4.checked:=(i and 8)>0;
+  CheckBox5.checked:=(i and 16)>0;
+  timer1.enabled:=true;
+end;
+
+
+
+
+
+
 
 
 (* ******************************************************************
@@ -654,8 +680,6 @@ end;
 
 function StripNonAlphaNumeric(const AValue: string): string;
 var
-  SrcPtr, DestPtr: PChar;
-  chatTmp : Char;
   I : Integer;
 begin
 Result := '';
@@ -718,11 +742,6 @@ procedure TForm1.ButtonTestClick(Sender: TObject);
 begin
     TraiterResAp1();
 end;
-
-
-
-
-
 
 
 end.
