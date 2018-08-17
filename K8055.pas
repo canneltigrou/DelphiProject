@@ -18,13 +18,14 @@ type
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
-    GroupBoxOutputs: TGroupBox;
     CheckBox4: TCheckBox;
     CheckBox5: TCheckBox;
-    CbOutputAp1: TCheckBox;
-    CbOutputAp2: TCheckBox;
-    CbOutputAp3: TCheckBox;
-    CbOutputAp4: TCheckBox;
+    GroupBoxOutputs: TGroupBox;
+    CbOutput1: TCheckBox;
+    CbOutput2: TCheckBox;
+    CbOutput3: TCheckBox;
+    CbOutput4: TCheckBox;
+    CbOutput5: TCheckBox;
     SpeedButtonTest: TSpeedButton;
     ButtonDisconnectAutomate: TButton;
     EditFrequence: TEdit;
@@ -44,12 +45,9 @@ type
     ButtonConnect4: TButton;
     LabelEnvoi4: TLabel;
     EditSend4: TEdit;
-    ButtonTop: TButton;
     ButtonSend4: TButton;
-    LabelEtat4: TLabel;
     GroupBoxAp3: TGroupBox;
     Label5: TLabel;
-    Label6: TLabel;
     Label8: TLabel;
     LabelEtat3: TLabel;
     EditIP3: TEdit;
@@ -59,7 +57,6 @@ type
     ButtonSend3: TButton;
     GroupBoxAp2: TGroupBox;
     Label10: TLabel;
-    Label11: TLabel;
     Label14: TLabel;
     LabelEtat2: TLabel;
     EditIP2: TEdit;
@@ -69,7 +66,6 @@ type
     ButtonSend2: TButton;
     GroupBoxAp1: TGroupBox;
     Label16: TLabel;
-    Label17: TLabel;
     Label19: TLabel;
     LabelEtat1: TLabel;
     EditIP1: TEdit;
@@ -94,6 +90,18 @@ type
     EditEssaisVal: TEdit;
     LabelEnCours: TLabel;
     ClientSocketAp4: TClientSocket;
+    GroupBoxLoadFile: TGroupBox;
+    Label2: TLabel;
+    EditCapaMin: TEdit;
+    EditCapaMax: TEdit;
+    Label4: TLabel;
+    Label6: TLabel;
+    EditTangente: TEdit;
+    EditTension: TEdit;
+    Label7: TLabel;
+    Label9: TLabel;
+    EditImpedance: TEdit;
+
 
     procedure FormCreate(Sender: TObject);
 
@@ -104,11 +112,6 @@ type
     procedure RadioButton2Click(Sender: TObject);
     procedure RadioButton3Click(Sender: TObject);
     procedure RadioButton4Click(Sender: TObject);
-    procedure Button10Click(Sender: TObject);
-    procedure CbOutputAp1Click(Sender: TObject);
-    procedure CbOutputAp2Click(Sender: TObject);
-    procedure CbOutputAp3Click(Sender: TObject);
-    procedure CbOutputAp4Click(Sender: TObject);
     procedure ButtonDisconnectAutomateClick(Sender: TObject);
     procedure ButtonFrequenceClick(Sender: TObject);
     procedure ButtonConnect1Click(Sender: TObject);
@@ -208,16 +211,31 @@ function Connected: boolean; stdcall; external 'K8055d.dll';
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
 var
   fn : String;
+  hResultat : HRESULT;
 begin
+    LabelConnexion1.Visible := False;
     CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
     //fn := 'TCPIP0::169.254.4.61::hislip0::INSTR';
     fn := EditIP1.Text;
+    hResultat := S_OK;
+    try
     rmMultiM := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
-    rmMultiM.Open(fn, NO_LOCK, 0, '', sessMultiM); // Use the resource manager to create a VISA COM Session
+    hResultat := rmMultiM.Open(fn, NO_LOCK, 0, '', sessMultiM); // Use the resource manager to create a VISA COM Session
     sessMultiM.QueryInterface(IID_IMessage, ioMultiM); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
     Memo1.Lines.Add(fn);
     EditSend1.Text := sInstructionAp1;
-    //LabelEtat1.Visible := False;
+    finally
+       if(hResultat = S_OK)
+    then
+    begin
+      LabelConnexion1.Caption := 'Appareil Connecté !';
+      ButtonConnect1.Enabled := False;
+    end
+    else
+      LabelConnexion1.Caption := 'Erreur lors de la connexion !';
+    LabelConnexion1.Visible := True;
+    end;
+
 end;
 
 
@@ -238,15 +256,16 @@ end;
 procedure TForm1.ButtonConnect3Click(Sender: TObject);
 var
   fn : String;
+  hResultat : HRESULT;
 begin
     CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
     fn := EditIP3.Text;
     //fn := 'TCPIP::' + EditIP2.Text + '::' + EditPort2.Text + '::SOCKET';
     rmCapa2 := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
-    rmCapa2.Open(fn, NO_LOCK, 0, '', sessCapa2); // Use the resource manager to create a VISA COM Session
+    hResultat := rmCapa2.Open(fn, NO_LOCK, 0, '', sessCapa2); // Use the resource manager to create a VISA COM Session
     sessCapa2.QueryInterface(IID_IMessage, ioCapa2); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
     Memo1.Lines.Add(fn);
-    //ClientSocketAp2.Open;//Activates the client
+
 end;
 
 procedure TForm1.ButtonConnect4Click(Sender: TObject);
@@ -321,6 +340,11 @@ procedure TForm1.ButtonFindValuesClick(Sender: TObject);
 begin
   currentCode := dictionaryRef[EditCodeLu.Text];
   EditEssaisVal.Text := (dictionaryValues[currentCode])['Essais val_1'].ToString;
+  EditCapaMin.Text :=  (dictionaryValues[currentCode])['Cap_lim_bas'].ToString;
+  EditCapaMax.Text :=  (dictionaryValues[currentCode])['Cap_lim_haut'].ToString;
+  EditTangente.Text :=  (dictionaryValues[currentCode])['Essais val_0'].ToString;
+  EditImpedance.Text :=  (dictionaryValues[currentCode])['Essais val_2'].ToString;
+  EditTension.Text :=  (dictionaryValues[currentCode])['Tension nominale'].ToString;
 
 end;
 
@@ -371,19 +395,6 @@ begin
     LabelSent4.Visible := true;
 end;
 
-
-
-procedure TForm1.Button10Click(Sender: TObject);
-var out_digital: integer;
-out_analog: array[0..1] of integer;
-begin
-  out_digital:=ReadBackDigitalOut;
-  ReadBackAnalogOut(@out_analog[0]);
-  CbOutputAp1.checked:=(out_digital and 1)>0;
-  CbOutputAp2.checked:=(out_digital and 2)>0;
-  CbOutputAp3.checked:=(out_digital and 4)>0;
-  CbOutputAp4.checked:=(out_digital and 8)>0;
-end;
 
 
 procedure LireFichier();
@@ -528,41 +539,13 @@ begin
 // lecture du fichier
   LireFichier();
   LabelEnCours.Visible := False;
-
-  EditReception4.Text := dictionaryRef['M151364'];
+  ButtonLoadFile.Enabled := False;
 end;
-
-procedure TForm1.CbOutputAp1Click(Sender: TObject);
-begin
-  if CbOutputAp1.checked then SetDigitalChannel(1)
-    else ClearDigitalChannel(1);
-end;
-
-procedure TForm1.CbOutputAp2Click(Sender: TObject);
-begin
-  if CbOutputAp2.checked then SetDigitalChannel(2)
-    else ClearDigitalChannel(2);
-end;
-
-procedure TForm1.CbOutputAp3Click(Sender: TObject);
-begin
-  if CbOutputAp3.checked then SetDigitalChannel(3)
-    else ClearDigitalChannel(3);
-end;
-
-procedure TForm1.CbOutputAp4Click(Sender: TObject);
-begin
-  if CbOutputAp4.checked then SetDigitalChannel(4)
-    else ClearDigitalChannel(4);
-end;
-
-
-
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
 begin
 // top départ de l'appareil 1
-  ButtonSend1Click(Sender);
+  //ButtonSend1Click(Sender);
 end;
 
 procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
@@ -583,6 +566,10 @@ begin
    sInstructionAp1 := 'MEAS:VOLT:DC?';
    EditIP1.Text := 'TCPIP0::169.254.4.61::hislip0::INSTR';
 
+   SetCounterDebounceTime(1,2);
+
+   // connectons les appareils
+   ButtonConnect1Click(Sender);
 
 
 end;
@@ -652,13 +639,20 @@ end;
 
 
 procedure TForm1.Timer1Timer(Sender: TObject);
-var i, Data1, Data2: integer;
+var i: integer;
 begin
   timer1.enabled:=false;
   Memo1.Lines.Add(inttostr(ReadCounter(1)));
 
   i:=ReadAllDigital;
   CheckBox1.checked:=(i and 1)>0;
+  if((not CheckBox1.Checked) and ((i and 1)>0))
+  then
+  begin
+    CheckBox1.Checked := True;
+    ButtonSend1Click(Sender);
+  end;
+
   CheckBox2.checked:=(i and 2)>0;
   CheckBox3.checked:=(i and 4)>0;
   CheckBox4.checked:=(i and 8)>0;
@@ -719,7 +713,7 @@ var
   resultatDouble : Double;
   tmp : Boolean;
 begin
-  CbOutputAp1.checked := false;
+  CbOutput1.checked := false;
   resultatDouble := ParseResultat(EditReception1.Text);
   tmp := AnnalyseResultatAp1( resultatDouble, dictionaryValues[currentCode]['Essais val_1']);
   if(tmp = True)
@@ -731,7 +725,7 @@ begin
   else
   begin
     LabelEtat1.Caption := 'KO';
-    CbOutputAp1.checked := true;
+    CbOutput1.checked := true;
     SetDigitalChannel(1);
   end;
 
