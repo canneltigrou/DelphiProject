@@ -380,8 +380,6 @@ begin
   out_digital:=ReadBackDigitalOut;
   ReadBackAnalogOut(@out_analog[0]);
   CbOutputAp1.checked:=(out_digital and 1)>0;
-  if CbOutputAp1.checked then ButtonSend1Click(Sender);
-
   CbOutputAp2.checked:=(out_digital and 2)>0;
   CbOutputAp3.checked:=(out_digital and 4)>0;
   CbOutputAp4.checked:=(out_digital and 8)>0;
