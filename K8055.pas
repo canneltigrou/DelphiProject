@@ -5,7 +5,8 @@ interface
 uses
   Windows, StdCtrls, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, Math, Buttons, ScktComp, ActiveX,
-  VisaComLib_TLB, Generics.Collections, ComObj, System.Variants;//UChargementFichier;
+  VisaComLib_TLB, Generics.Collections, ComObj, System.Variants, //UChargementFichier;
+  uFormConnection, appareilMultimetre;
 
 type
   TForm1 = class(TForm)
@@ -136,6 +137,7 @@ type
   private
     { Private declarations }
   public
+    FenetreDemarrage: TForm;
     { Public declarations }
   end;
 
@@ -301,6 +303,9 @@ end;
 
 
 (* Connexion Ethernet avec le 1er appareil de mesure *)
+
+
+
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   CloseDevice;
@@ -556,23 +561,36 @@ end;
 
 
 procedure TForm1.FormCreate(Sender: TObject);
-
+var
+  formConnect : TFormConnection;
+  resModal : Integer;
 begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
 
    //on connecte tout d'abord les différents appareils
    // pour l'instant l'appareil 1
 
+   SetCounterDebounceTime(1,2);
    sInstructionAp1 := 'MEAS:VOLT:DC?';
    EditIP1.Text := 'TCPIP0::169.254.4.61::hislip0::INSTR';
 
-   SetCounterDebounceTime(1,2);
-
-   // connectons les appareils
-   ButtonConnect1Click(Sender);
 
 
+   formConnect := TFormConnection.Create(self);
+   formConnect.Show;
+   formConnect.AddMemoLine('Connexion à l''appareil 1 : le Multimètre');
+   try
+      ButtonConnect1Click(Sender);
+   finally
+      formConnect.AddMemoLine(LabelConnexion1.Caption);
+
+
+
+   end;
 end;
+
+
+
 
 
 
@@ -661,8 +679,31 @@ begin
 end;
 
 
+(* ******************************************************************
+*********   Appareil 2 Capacimetre  (Capa, tg)  *********************
+******************************************************************* *)
+
+procedure ParametrisationAp2(EditSend : TEdit; Sender: TObject);
+var
+  text: String;
+begin
+    (*
+    text := ': FUNC : IMP CSD';
+    EditSend.Text := text;
+    Form1.ButtonSend2Click(Sender);
+
+    : FREQ 100   *)
+
+    ioCapa1.WriteString(': FUNC : IMP CSD', retCountCapa1); // Write to the instrument
+    //ioCapa1.ReadString(1000, readResultCapa1); // read the result
+    ioCapa1.WriteString(': FREQ 100 ', retCountCapa1); // Write to the instrument
+    //ioCapa1.ReadString(1000, readResultCapa1); // read the result
+    ioCapa1.WriteString(': TRIG : SOUR BUS', retCountCapa1); // Write to the instrument
+    //ioCapa1.ReadString(1000, readResultCapa1); // read the result
 
 
+
+end;
 
 
 
@@ -735,6 +776,8 @@ end;
 procedure TForm1.ButtonTestClick(Sender: TObject);
 begin
     TraiterResAp1();
+
+
 end;
 
 
