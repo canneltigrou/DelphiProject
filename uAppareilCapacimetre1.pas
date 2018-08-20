@@ -1,4 +1,4 @@
-unit uAppareilCapacimetre1;
+﻿unit uAppareilCapacimetre1;
 
 // ****************************************************************************
 // Unité "uAppareilCapacimetre1" pour la classe AppareilCapacimetre1.
@@ -8,6 +8,12 @@ interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil;
+
+
+  type
+  TStringList = array of string;
+  TDoubleList = array of Double;
+  TBoolList = array of Boolean;
 
 //--------------------------Déclaration de la classe AppareilCapacimetre1--------------------
 
@@ -25,11 +31,7 @@ type AppareilCapacimetre1 = class(Appareil)
 
         //Fonctions
         Function Configurer(memo : TMemo):HRESULT;
-        Function Traiter_donnee(resText : String): TList;
-        function AnnalyseResultatCapaMin(resultat: Double):Boolean;
-        function AnnalyseResultatCapaMax(resultat: Double):Boolean;
-        function AnnalyseResultatCapaTangente(resultat: Double):Boolean;
-
+        Function Traiter_donnee(resText : String): TBoolList;
 
         // Acces propriétés
         property valeurCapaMin : Double read CapaMin write CapaMin ;
@@ -72,102 +74,58 @@ end;
 
 
 // ----------------- Fonctions pour Traitement des mesures ---------------------
-
-function StripNonAlphaNumeric(const AValue: string): string;
+function StripNonAlphaNumeric(const AValue: string): TStringList;
 var
-  I : Integer;
+  I, cpt : Integer;
+  tmp : String;
 begin
-Result := '';
+  SetLength(Result, 2);
+  tmp := '';
+  cpt := 0;
   for I := 0 to AValue.Length do
   begin
-    if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+'] then
-      Result := Result + AValue.Chars[I]
+    if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+', '.'] then
+      tmp := tmp + AValue.Chars[I]
+    else
+    if AValue.Chars[I] = ',' then
+      begin
+          if(cpt < 2) then
+          begin
+            Result[cpt] := tmp;
+            tmp:= '';
+          end;
+          cpt := cpt + 1;
+      end;
   end;
+  Result[1] := tmp;
 end;
 
 // a partir d'un string venant de la réponse de l'appareil, renvoie un double.
-function ParseResultat(sResult: String) : Double;
+function ParseResultat(sResult: string) : TDoubleList;
 var
   lFormatSettings:TFormatSettings;
+  tmpResult:TStringList;
 begin
-  sResult := StripNonAlphaNumeric(sResult);
   lFormatSettings.DecimalSeparator := '.';
-  Result := StrToFloat(sResult, lFormatSettings);
+  SetLength(Result, 2);
+  tmpResult := StripNonAlphaNumeric(sResult);
+  Result[0] := StrToFloat(tmpResult[0], lFormatSettings);
+  Result[1] := StrToFloat(tmpResult[1], lFormatSettings);
 end;
-
-function AppareilCapacimetre1.AnnalyseResultatCapaMin(resultat: Double):Boolean;
-begin
-  if(resultat > CapaMin)
-  then
-    Result := False
-  else
-    Result := True
-end;
-
-function AppareilCapacimetre1.AnnalyseResultatCapaMax(resultat: Double):Boolean;
-begin
-  Result := (resultat > CapaMin);
-end;
-
-function AppareilCapacimetre1.AnnalyseResultatTangente(resultat: Double):Boolean;
-begin
-  if(resultat > CapaMin)
-  then
-    Result := False
-  else
-    Result := True
-end;
-
-
-function AnnalyseResultat(resultat: Double):Boolean;
-var
-  valRef : Double;
-begin
-  valRef := vRef;
-  if(resultat / 500 * 1000000 > valRef)
-  then
-    Result := False
-  else
-    Result := True
-end;
-
-function AnnalyseResultat(resultat: Double; vRef: Double):Boolean;
-var
-  valRef : Double;
-begin
-  valRef := vRef;
-  if(resultat / 500 * 1000000 > valRef)
-  then
-    Result := False
-  else
-    Result := True
-end;
-
-
-
-
 
 
 
 // prend en parametre la réponse de l'appareil. Permet de traiter cette réponse.
 // envoie True si la réponse est dans les normes. False sinon.
-function AppareilCapacimetre1.Traiter_donnee(resText : string):TList;
+function AppareilCapacimetre1.Traiter_donnee(resText : string):TBoolList;
 var
-  resultatDouble : Double;
-  resList : Array[1..3] of boolean;
+  resultatDouble : TDoubleList;
 begin
-  //resList := Tlist<Integer>.Create;
-
-
   resultatDouble := ParseResultat(resText);
-
-  resList[0] := (resultatDouble[0] > CapaMin);
-  resList[1] := (resultatDouble[1] < CapaMax);
-  resList[2] := (resultatDouble[2]
-
-
-  tmp := AnnalyseResultat(resultatDouble, valRef);
-  result := tmp;
+  SetLength(result, 3);
+  result[0] := (resultatDouble[0] > CapaMin);
+  result[1] := (resultatDouble[0] < CapaMax);
+  result[2] := (resultatDouble[1] < tangente);
 end;
 
 

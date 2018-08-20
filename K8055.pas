@@ -1,4 +1,4 @@
-unit K8055;
+﻿unit K8055;
 
 interface
 
@@ -108,12 +108,7 @@ type
     procedure FormCreate(Sender: TObject);
 
     procedure ButtonConnectAutomateClick(Sender: TObject);
-    procedure SpeedButtonTestClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure RadioButton1Click(Sender: TObject);
-    procedure RadioButton2Click(Sender: TObject);
-    procedure RadioButton3Click(Sender: TObject);
-    procedure RadioButton4Click(Sender: TObject);
     procedure ButtonDisconnectAutomateClick(Sender: TObject);
     procedure ButtonFrequenceClick(Sender: TObject);
     procedure ButtonConnect1Click(Sender: TObject);
@@ -139,7 +134,6 @@ type
   private
     { Private declarations }
   public
-    FenetreDemarrage: TForm;
     { Public declarations }
   end;
 
@@ -148,14 +142,9 @@ var
   n: integer;
 
   appareil1: AppareilMultimetre;
-
   appareil2: AppareilCapacimetre1;
-
   appareil3: AppareilCapacimetre2;
 
-
-  //dictionary: TDictionary<String, TDictionary<String , TStringList>>;
-  //dict : TDictionary<integer, char>;
   dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[N°OF] = Article
   dictionaryValues : TDictionary<String, TDictionary<String, Double>>; // dictionaryValues[Article] = les valeurs importante du excel pour cet aticle
   currentCode : String;
@@ -190,14 +179,59 @@ function ReadBackDigitalOut:Longint; stdcall; external 'K8055d.dll';
 procedure ReadBackAnalogOut(Buffer: Pointer); stdcall; external 'K8055d.dll';
 function Connected: boolean; stdcall; external 'K8055d.dll';
 
-// Connexion aux appareils
-procedure SeConnecter(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton);
-procedure LireFichier();
 
 
 (* *************************************************************************
 ************* CREATE *******************************************************
 *************************************************************************** *)
+
+function SeConnecter(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton) : HRESULT;
+var
+  hResultat : HRESULT;
+begin
+    LabelConnexion.Visible := False;
+    hResultat := S_OK;
+    try
+        hResultat := mon_appareil.Connecter(memo);
+        EditSend.Text := mon_appareil.instruction;
+    finally
+        begin
+          result := hResultat;
+          if(hResultat = S_OK)
+          then
+          begin
+            LabelConnexion.Caption := 'Appareil Connecté!';
+            ButtonConnect.Enabled := False;
+          end
+          else
+            LabelConnexion.Caption := 'Erreur lors de la connexion !' ;
+          LabelConnexion.Visible := True;
+        end;
+    end;
+end;
+
+function Configurer(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton) : HRESULT;
+var
+  hResultat : HRESULT;
+begin
+    hResultat := S_OK;
+    try
+        hResultat := mon_appareil.Configurer(memo);
+    finally
+        begin
+          result := hResultat;
+          if(hResultat = S_OK)
+          then
+          begin
+            LabelConnexion.Caption := 'Appareil Configuré!';
+            //ButtonConnect.Enabled := False;
+          end
+          else
+            LabelConnexion.Caption := 'Erreur lors de la configuration !';
+          LabelConnexion.Visible := True;
+        end;
+    end;
+end;
 
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -207,19 +241,42 @@ var
 begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
 
-   //on connecte tout d'abord les différents appareils
-   // pour l'instant l'appareil 1
-
    SetCounterDebounceTime(1,2);
+   // on cré les différents appareils pour les connexions
    appareil1 := AppareilMultimetre.Create;
+   appareil2 := AppareilCapacimetre1.Create;
+   appareil3 := AppareilCapacimetre2.Create;
 
+   // ici rien ne s'affiche, cette Form n'est pas encore créé.
+   // nous allons donc créer une fenetre TFormConnection pour tenir informer de ce qui se fait.
    formConnect := TFormConnection.Create(self);
    formConnect.Show;
+
+   //on connecte tout d'abord les différents appareils
    formConnect.AddMemoLine('Connexion à l''appareil 1 : le Multimètre');
    try
       SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
    finally
       formConnect.AddMemoLine(LabelConnexion1.Caption);
+      try
+        if(ButtonConnect1.Enabled = false)then
+          Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+      finally
+        formConnect.AddMemoLine(LabelConnexion1.Caption);
+        try
+            SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
+        finally
+            formConnect.AddMemoLine(LabelConnexion2.Caption);
+            try
+                if(ButtonConnect2.Enabled = false)then
+                    Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+            finally
+            formConnect.AddMemoLine(LabelConnexion1.Caption);
+      end;
+   end;
+
+
+      end;
    end;
 end;
 
@@ -234,30 +291,6 @@ end;
 *************            Les appareils de mesures                **************
 *************************************************************************** *)
 
-procedure SeConnecter(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton);
-var
-  hResultat : HRESULT;
-begin
-    LabelConnexion.Visible := False;
-    hResultat := S_OK;
-    try
-        hResultat := Appareil1.Connecter(memo);
-        EditSend.Text := Appareil1.instruction;
-    finally
-        begin
-          if(hResultat = S_OK)
-          then
-          begin
-            LabelConnexion.Caption := 'Appareil Connecté!' + int(hResultat).ToString;
-            ButtonConnect.Enabled := False;
-          end
-          else
-            LabelConnexion.Caption := 'Erreur lors de la connexion !' + int(hResultat).ToString ;
-          LabelConnexion.Visible := True;
-        end;
-    end;
-
-end;
 
 
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
@@ -267,31 +300,15 @@ end;
 
 
 procedure TForm1.ButtonConnect2Click(Sender: TObject);
-var
-  hResultat : HRESULT;
 begin
-    hResultat := S_OK;
-    try
-    hResultat := Appareil2.Connecter(memo1);
-    EditSend2.Text := Appareil2.instruction;
-    finally
-    begin
-      if(hResultat = S_OK)
-      then
-      begin
-        LabelConnexion2.Caption := 'Appareil Connecté!';
-        ButtonConnect2.Enabled := False;
-      end
-      else
-        LabelConnexion2.Caption := 'Erreur lors de la connexion !';
-    end;
-    end;
+    SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
 end;
 
 procedure TForm1.ButtonConnect3Click(Sender: TObject);
 begin
     SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
 end;
+
 
 procedure TForm1.ButtonConnect4Click(Sender: TObject);
 begin
@@ -300,7 +317,7 @@ begin
     ClientSocketAp4.Port:= StrToInt(EditPort4.Text) ;
     ClientSocketAp4.Active := True;//Activates the client
 
-  (*if(ClientSocketAp4.Socket.Connected=True)
+  (* if(ClientSocketAp4.Socket.Connected=True)
     then
     begin
       LabelEtat1.Visible := True;
@@ -309,29 +326,6 @@ begin
     end;
     *)
 end;
-
-
-(*
-procedure TForm1.RadioButton1Click(Sender: TObject);
-begin
-  SetCurrentDevice(0);
-end;
-
-procedure TForm1.RadioButton2Click(Sender: TObject);
-begin
-  SetCurrentDevice(1);
-end;
-
-procedure TForm1.RadioButton3Click(Sender: TObject);
-begin
-  SetCurrentDevice(2);
-end;
-
-procedure TForm1.RadioButton4Click(Sender: TObject);
-begin
-  SetCurrentDevice(3);
-end;
-*)
 
 
 procedure TForm1.ButtonFindValuesClick(Sender: TObject);
@@ -365,7 +359,7 @@ end;
 procedure TForm1.ButtonSend2Click(Sender: TObject);
 begin
     LabelSent2.Visible := true;
-    EditReception1.Text := appareil2.Mesurer();
+    EditReception2.Text := appareil2.Mesurer();
     LabelSent2.Visible := false;
     TraiterResAp2();
 end;
@@ -504,8 +498,6 @@ begin
       sValue3 := vCell.Value;
       tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
 
-
-      //Memo1.Lines.Add(sValue1 + ' ; ' + sValue2);
       dictionaryValues.Add(sValue1, tmpDict);
 
       Inc(j, 1);
@@ -607,8 +599,8 @@ end;
 
 procedure TForm1.ButtonConnectAutomateClick(Sender: TObject);
 var h,CardAddr:integer;
-out_digital: longint;
-out_analog: array[0..1] of longint;
+//out_digital: longint;
+//out_analog: array[0..1] of longint;
 begin
   CardAddr:= 3-(integer(sk5.Checked) + integer(sk6.Checked) * 2);
   h:= OpenDevice(CardAddr);
@@ -638,8 +630,26 @@ begin
   end
   else
     CheckBox1.checked:=(i and 1)>0;
-  CheckBox2.checked:=(i and 2)>0;
-  CheckBox3.checked:=(i and 4)>0;
+
+  if((not CheckBox2.Checked) and ((i and 2)>0))
+  then
+  begin
+    CheckBox2.Checked := True;
+    ButtonSend2Click(Sender);
+    TraiterResAp2();
+  end
+  else
+    CheckBox2.checked:=(i and 2)>0;
+
+  if((not CheckBox3.Checked) and ((i and 4)>0))
+  then
+  begin
+    CheckBox3.Checked := True;
+    ButtonSend3Click(Sender);
+    TraiterResAp3();
+  end
+  else
+    CheckBox3.checked:=(i and 4)>0;
   CheckBox4.checked:=(i and 8)>0;
   CheckBox5.checked:=(i and 16)>0;
   timer1.enabled:=true;
@@ -652,26 +662,6 @@ begin
   //SetPWM(1,255-TrackBar1.position,2);
 end;
 
-(* ******************************************************************
-*********   Appareil 2 Capacimetre  (Capa, tg)  *********************
-******************************************************************* *)
-
-procedure ParametrisationAp2(EditSend : TEdit; Sender: TObject);
-var
-  text: String;
-begin
-    (*
-    text := ': FUNC : IMP CSD';
-    EditSend.Text := text;
-    Form1.ButtonSend2Click(Sender);
-
-    : FREQ 100   *)
-
-
-
-end;
-
-
 
 
 (* ******************************************************************
@@ -680,7 +670,6 @@ end;
 
 procedure TForm1.TraiterResAp1();
 var
-  resultatDouble : Double;
   res : Boolean;
 begin
   CbOutput1.checked := false;
@@ -697,15 +686,78 @@ begin
     CbOutput1.checked := true;
     SetDigitalChannel(1);
   end;
-
-  memo1.Lines.Add();
-
-
 end;
+
+(* *******************************************************************
+*********   Annalyse Appareil 2 Capacimetre **************************
+*********     Capacité + Tangente           **************************
+******************************************************************* *)
+procedure TForm1.TraiterResAp2();
+var
+  res : TBoolList;
+begin
+  SetLength(res, 3);
+  res := appareil2.Traiter_donnee(EditReception2.Text);
+  if(res[0] = True)
+  then
+  begin
+    LabelEtat2.Caption := 'OK';
+    CbOutput2.checked := false;
+    ClearDigitalChannel(2);
+  end
+  else
+  begin
+    LabelEtat2.Caption := 'KO';
+    CbOutput2.checked := true;
+    SetDigitalChannel(2);
+  end;
+  if(res[1] = True)
+  then
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption + ' - OK';
+    CbOutput3.checked := false;
+    ClearDigitalChannel(3);
+  end
+  else
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption + ' - KO';
+    CbOutput3.checked := true;
+    SetDigitalChannel(3);
+  end;
+  if(res[2] = True)
+  then
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption + ' - OK';
+    CbOutput4.checked := false;
+    ClearDigitalChannel(4);
+  end
+  else
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption  + ' - KO';
+    CbOutput4.checked := true;
+    SetDigitalChannel(4);
+  end;
+end;
+
+
+(* *******************************************************************
+*********   Annalyse Appareil 2 Capacimetre **************************
+*********     Capacité + Tangente           **************************
+******************************************************************* *)
+procedure TForm1.TraiterResAp3();
+begin
+     //
+end;
+
+
+(* ****************************************************************************
+*************           TEST              *************************************
+***************************************************************************** *)
 
 procedure TForm1.ButtonTestClick(Sender: TObject);
 begin
     TraiterResAp1();
+    TraiterResAp2();
 end;
 
 

@@ -35,6 +35,7 @@ type Appareil = class
         function Send(mess :string):string; // si envoi manuel depuis l'IHM.
                                             //Renvoie la réponse de l'appareil
         function Mesurer():string;
+        function Configurer(memo : TMemo) : HRESULT; Virtual; Abstract;  // Must be implemented in child
 
         // Acces propriétés
         property adress : string read adresse write adresse ;
