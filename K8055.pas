@@ -1,4 +1,4 @@
-ï»¿unit K8055;
+﻿unit K8055;
 
 interface
 
@@ -131,7 +131,6 @@ type
     procedure TraiterResAp3();
     procedure ButtonFindValuesClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    function ParseResultat(sResult: String) : Double;
   private
     { Private declarations }
   public
@@ -201,7 +200,7 @@ begin
           if(hResultat = S_OK)
           then
           begin
-            LabelConnexion.Caption := 'Appareil ConnectÃ©!';
+            LabelConnexion.Caption := 'Appareil Connecte!';
             ButtonConnect.Enabled := False;
           end
           else
@@ -224,7 +223,7 @@ begin
           if(hResultat = S_OK)
           then
           begin
-            LabelConnexion.Caption := 'Appareil ConfigurÃ©!';
+            LabelConnexion.Caption := 'Appareil Configure!';
             //ButtonConnect.Enabled := False;
           end
           else
@@ -248,29 +247,32 @@ begin
    appareil2 := AppareilCapacimetre1.Create;
    appareil3 := AppareilCapacimetre2.Create;
 
-   // ici rien ne s'affiche, cette Form n'est pas encore crÃ©Ã©.
+   // ici rien ne s'affiche, cette Form n'est pas encore cree.
    // nous allons donc crÃ©er une fenetre TFormConnection pour tenir informer de ce qui se fait.
    formConnect := TFormConnection.Create(self);
    formConnect.Show;
 
    //on connecte tout d'abord les diffÃ©rents appareils
-   formConnect.AddMemoLine('Connexion Ã  l''appareil 1 : le MultimÃ¨tre');
+   formConnect.AddMemoLine('Connexion a l''appareil 1 : le Multimetre');
    try
       SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
    finally
       formConnect.AddMemoLine(LabelConnexion1.Caption);
       try
+        formConnect.AddMemoLine('Configuration de l''appareil 1 : le Multimetre');
         if(ButtonConnect1.Enabled = false)then
           Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
       finally
         formConnect.AddMemoLine(LabelConnexion1.Caption);
+        formConnect.AddMemoLine('Connexion a l''appareil 2 : le Capacimetre');
         try
             SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
         finally
             formConnect.AddMemoLine(LabelConnexion2.Caption);
             try
+              formConnect.AddMemoLine('Configuration de l''appareil 2 : le Capacimetre');
                 if(ButtonConnect2.Enabled = false)then
-                    Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+                    Configurer(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
             finally
             formConnect.AddMemoLine(LabelConnexion1.Caption);
       end;

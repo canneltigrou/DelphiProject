@@ -79,7 +79,7 @@ begin
             memo.Lines.Add('  Appareil Connecté !')
           else
           begin
-            memo.Lines.Add('   Erreur lors de la connexion !' + int(hResultat).ToString);
+            memo.Lines.Add('   Erreur lors de la connexion !');
           end;
         end;
     end;

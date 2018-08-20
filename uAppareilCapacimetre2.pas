@@ -34,7 +34,7 @@ implementation
 
 constructor AppareilCapacimetre2.Create();
   begin
-    Appareil.Create('TCPIP0::169.254.221.61::inst0::INSTR', ':FETC?');
+    Appareil(Self).Create('TCPIP0::169.254.221.61::inst0::INSTR', ':FETC?');
     valRef := 0;
   end;
 

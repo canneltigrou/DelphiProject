@@ -34,7 +34,7 @@ implementation
 
 constructor AppareilMultimetre.Create();
   begin
-    Appareil.Create('TCPIP0::169.254.4.61::hislip0::INSTR', 'MEAS:VOLT:DC?');
+    Appareil(Self).Create('TCPIP0::169.254.4.61::hislip0::INSTR', 'MEAS:VOLT:DC?');
     valRef := 0;
   end;
 
@@ -56,7 +56,7 @@ begin
 Result := '';
   for I := 0 to AValue.Length do
   begin
-    if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+'] then
+    if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+', '.', ','] then
       Result := Result + AValue.Chars[I]
   end;
 end;

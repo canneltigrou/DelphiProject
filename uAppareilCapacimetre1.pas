@@ -44,7 +44,7 @@ implementation
 
 constructor AppareilCapacimetre1.Create();
   begin
-    Appareil.Create('TCPIP0::169.254.227.5::inst0::INSTR', ':FETC?');
+    Appareil(Self).Create('TCPIP0::169.254.227.5::inst0::INSTR', ':FETC?');
     capaMin := 0;
     capaMax := 0;
     tangente := 0;
