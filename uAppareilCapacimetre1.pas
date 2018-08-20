@@ -1,7 +1,7 @@
 unit uAppareilCapacimetre1;
 
 // ****************************************************************************
-// Unité "uAppareilCapacimetre1" pour la classe AppareilCapacimetre1.
+// UnitÃ© "uAppareilCapacimetre1" pour la classe AppareilCapacimetre1.
 // Descend de la classe Appareil.
 
 interface
@@ -9,7 +9,7 @@ interface
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil;
 
-//--------------------------Déclaration de la classe AppareilCapacimetre1--------------------
+//--------------------------DÃ©claration de la classe AppareilCapacimetre1--------------------
 
 type AppareilCapacimetre1 = class(Appareil)
 
@@ -21,7 +21,7 @@ type AppareilCapacimetre1 = class(Appareil)
       public
         constructor Create();
 
-        // Procédures
+        // ProcÃ©dures
 
         //Fonctions
         Function Configurer(memo : TMemo):HRESULT;
@@ -31,7 +31,7 @@ type AppareilCapacimetre1 = class(Appareil)
         function AnnalyseResultatCapaTangente(resultat: Double):Boolean;
 
 
-        // Acces propriétés
+        // Acces propriÃ©tÃ©s
         property valeurCapaMin : Double read CapaMin write CapaMin ;
         property valeurCapaMax : Double read CapaMax write CapaMax ;
         property valeurTangente : Double read tangente write tangente ;
@@ -85,7 +85,7 @@ Result := '';
   end;
 end;
 
-// a partir d'un string venant de la réponse de l'appareil, renvoie un double.
+// a partir d'un string venant de la rÃ©ponse de l'appareil, renvoie un double.
 function ParseResultat(sResult: String) : Double;
 var
   lFormatSettings:TFormatSettings;
@@ -96,6 +96,20 @@ begin
 end;
 
 function AppareilCapacimetre1.AnnalyseResultatCapaMin(resultat: Double):Boolean;
+begin
+  if(resultat > CapaMin)
+  then
+    Result := False
+  else
+    Result := True
+end;
+
+function AppareilCapacimetre1.AnnalyseResultatCapaMax(resultat: Double):Boolean;
+begin
+  Result := (resultat > CapaMin);
+end;
+
+function AppareilCapacimetre1.AnnalyseResultatTangente(resultat: Double):Boolean;
 begin
   if(resultat > CapaMin)
   then
@@ -135,21 +149,26 @@ end;
 
 
 
-// prend en parametre la réponse de l'appareil. Permet de traiter cette réponse.
-// envoie True si la réponse est dans les normes. False sinon.
+// prend en parametre la rÃ©ponse de l'appareil. Permet de traiter cette rÃ©ponse.
+// envoie True si la rÃ©ponse est dans les normes. False sinon.
 function AppareilCapacimetre1.Traiter_donnee(resText : string):TList;
 var
   resultatDouble : Double;
   resList : Array[1..3] of boolean;
 begin
-  resList := Tlist<Integer>.Create;
+  //resList := Tlist<Integer>.Create;
+
 
   resultatDouble := ParseResultat(resText);
+
+  resList[0] := (resultatDouble[0] > CapaMin);
+  resList[1] := (resultatDouble[1] < CapaMax);
+  resList[2] := (resultatDouble[2]
+
+
   tmp := AnnalyseResultat(resultatDouble, valRef);
   result := tmp;
 end;
-
-
 
 
 
