@@ -1,4 +1,4 @@
-﻿unit K8055;
+ï»¿unit K8055;
 
 interface
 
@@ -131,6 +131,7 @@ type
     procedure TraiterResAp3();
     procedure ButtonFindValuesClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    function ParseResultat(sResult: String) : Double;
   private
     { Private declarations }
   public
@@ -145,7 +146,7 @@ var
   appareil2: AppareilCapacimetre1;
   appareil3: AppareilCapacimetre2;
 
-  dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[N°OF] = Article
+  dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[NÂ°OF] = Article
   dictionaryValues : TDictionary<String, TDictionary<String, Double>>; // dictionaryValues[Article] = les valeurs importante du excel pour cet aticle
   currentCode : String;
 
@@ -200,7 +201,7 @@ begin
           if(hResultat = S_OK)
           then
           begin
-            LabelConnexion.Caption := 'Appareil Connecté!';
+            LabelConnexion.Caption := 'Appareil ConnectÃ©!';
             ButtonConnect.Enabled := False;
           end
           else
@@ -223,7 +224,7 @@ begin
           if(hResultat = S_OK)
           then
           begin
-            LabelConnexion.Caption := 'Appareil Configuré!';
+            LabelConnexion.Caption := 'Appareil ConfigurÃ©!';
             //ButtonConnect.Enabled := False;
           end
           else
@@ -242,18 +243,18 @@ begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
 
    SetCounterDebounceTime(1,2);
-   // on cré les différents appareils pour les connexions
+   // on crÃ© les diffÃ©rents appareils pour les connexions
    appareil1 := AppareilMultimetre.Create;
    appareil2 := AppareilCapacimetre1.Create;
    appareil3 := AppareilCapacimetre2.Create;
 
-   // ici rien ne s'affiche, cette Form n'est pas encore créé.
-   // nous allons donc créer une fenetre TFormConnection pour tenir informer de ce qui se fait.
+   // ici rien ne s'affiche, cette Form n'est pas encore crÃ©Ã©.
+   // nous allons donc crÃ©er une fenetre TFormConnection pour tenir informer de ce qui se fait.
    formConnect := TFormConnection.Create(self);
    formConnect.Show;
 
-   //on connecte tout d'abord les différents appareils
-   formConnect.AddMemoLine('Connexion à l''appareil 1 : le Multimètre');
+   //on connecte tout d'abord les diffÃ©rents appareils
+   formConnect.AddMemoLine('Connexion Ã  l''appareil 1 : le MultimÃ¨tre');
    try
       SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
    finally
@@ -414,7 +415,7 @@ begin
 
     // remplissage de la 1ere hashmap  :
 
-    // accède à la feuille voulue
+    // accÃ¨de Ã  la feuille voulue
     aSheetName := 'Feuil5';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
 
@@ -439,7 +440,7 @@ begin
 
     // remplissage de la 2eme hashmap  :
 
-    // accède à la feuille voulue
+    // accÃ¨de Ã  la feuille voulue
     aSheetName := 'Feuil8';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
 
@@ -538,8 +539,8 @@ end;
 
 procedure TForm1.ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
 begin
-   Socket.SendText('Disconnected');//Send the Disconnected message to the server
-//str is set to Disconnected when the Disconnect button is pressed
+   Socket.SendText('Disconnected');//Send the ÂDisconnectedÂ message to the server
+//str is set to ÂDisconnectedÂ when the Disconnect button is pressed
 //A client cannot send messages if it is not connected to a server
    ButtonSend4.Enabled:=False;
    ButtonConnect4.Caption:='Connect';
@@ -558,13 +559,13 @@ begin
     Memo1.Lines.Add(Appareil + ' : Erreur inattendu');
 
   if ErrorEvent=eeSend then
-     Memo1.Lines.Add(Appareil + ' : Erreur d''écriture sur la connexion socket');
+     Memo1.Lines.Add(Appareil + ' : Erreur d''Ã©criture sur la connexion socket');
 
   if ErrorEvent=eeReceive then
     Memo1.Lines.Add(Appareil +' : Erreur de lecture sur la connexion socket');
 
   if ErrorEvent=eeConnect then
-    Memo1.Lines.Add(Appareil + ' : Une demande de connexion déjà acceptée n''a pas pu être achevée');
+    Memo1.Lines.Add(Appareil + ' : Une demande de connexion dÃ©jÃ  acceptÃ©e n''a pas pu Ãªtre achevÃ©e');
 
   if ErrorEvent=eeDisconnect then
     Memo1.Lines.Add(Appareil + ' : Erreur de fermeture d''une connexion');
@@ -690,7 +691,7 @@ end;
 
 (* *******************************************************************
 *********   Annalyse Appareil 2 Capacimetre **************************
-*********     Capacité + Tangente           **************************
+*********     CapacitÃ© + Tangente           **************************
 ******************************************************************* *)
 procedure TForm1.TraiterResAp2();
 var
@@ -742,7 +743,7 @@ end;
 
 (* *******************************************************************
 *********   Annalyse Appareil 2 Capacimetre **************************
-*********     Capacité + Tangente           **************************
+*********     CapacitÃ© + Tangente           **************************
 ******************************************************************* *)
 procedure TForm1.TraiterResAp3();
 begin
