@@ -15,7 +15,7 @@ object FormConnection: TFormConnection
   TextHeight = 13
   object Memo1: TMemo
     Left = 64
-    Top = 40
+    Top = 24
     Width = 385
     Height = 153
     Ctl3D = True
@@ -23,5 +23,15 @@ object FormConnection: TFormConnection
     ParentCtl3D = False
     ScrollBars = ssVertical
     TabOrder = 0
+  end
+  object ButtonOK: TButton
+    Left = 374
+    Top = 183
+    Width = 75
+    Height = 25
+    Caption = 'OK'
+    Enabled = False
+    TabOrder = 1
+    OnClick = ButtonOKClick
   end
 end

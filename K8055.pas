@@ -156,7 +156,7 @@ var
 
   //dictionary: TDictionary<String, TDictionary<String , TStringList>>;
   //dict : TDictionary<integer, char>;
-  dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[N°OF] = Article
+  dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[NÂ°OF] = Article
   dictionaryValues : TDictionary<String, TDictionary<String, Double>>; // dictionaryValues[Article] = les valeurs importante du excel pour cet aticle
   currentCode : String;
 
@@ -207,7 +207,7 @@ var
 begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
 
-   //on connecte tout d'abord les différents appareils
+   //on connecte tout d'abord les diffÃ©rents appareils
    // pour l'instant l'appareil 1
 
    SetCounterDebounceTime(1,2);
@@ -215,7 +215,7 @@ begin
 
    formConnect := TFormConnection.Create(self);
    formConnect.Show;
-   formConnect.AddMemoLine('Connexion à l''appareil 1 : le Multimètre');
+   formConnect.AddMemoLine('Connexion Ã  l''appareil 1 : le MultimÃ¨tre');
    try
       SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
    finally
@@ -248,7 +248,7 @@ begin
           if(hResultat = S_OK)
           then
           begin
-            LabelConnexion.Caption := 'Appareil Connecté!' + int(hResultat).ToString;
+            LabelConnexion.Caption := 'Appareil ConnectÃ©!' + int(hResultat).ToString;
             ButtonConnect.Enabled := False;
           end
           else
@@ -275,16 +275,16 @@ begin
     hResultat := Appareil2.Connecter(memo1);
     EditSend2.Text := Appareil2.instruction;
     finally
-        begin
-          if(hResultat = S_OK)
-          then
-          begin
-            LabelConnexion2.Caption := 'Appareil Connecté!';
-            ButtonConnect2.Enabled := False;
-          end
-          else
-            LabelConnexion2.Caption := 'Erreur lors de la connexion !';
-        end;
+    begin
+      if(hResultat = S_OK)
+      then
+      begin
+        LabelConnexion2.Caption := 'Appareil ConnectÃ©!';
+        ButtonConnect2.Enabled := False;
+      end
+      else
+        LabelConnexion2.Caption := 'Erreur lors de la connexion !';
+    end;
     end;
 end;
 
@@ -420,7 +420,7 @@ begin
 
     // remplissage de la 1ere hashmap  :
 
-    // accède à la feuille voulue
+    // accÃ¨de Ã  la feuille voulue
     aSheetName := 'Feuil5';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
 
@@ -445,7 +445,7 @@ begin
 
     // remplissage de la 2eme hashmap  :
 
-    // accède à la feuille voulue
+    // accÃ¨de Ã  la feuille voulue
     aSheetName := 'Feuil8';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
 
@@ -546,8 +546,8 @@ end;
 
 procedure TForm1.ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
 begin
-   Socket.SendText('Disconnected');//Send the “Disconnected” message to the server
-//str is set to “Disconnected” when the Disconnect button is pressed
+   Socket.SendText('Disconnected');//Send the Â“DisconnectedÂ” message to the server
+//str is set to Â“DisconnectedÂ” when the Disconnect button is pressed
 //A client cannot send messages if it is not connected to a server
    ButtonSend4.Enabled:=False;
    ButtonConnect4.Caption:='Connect';
@@ -566,13 +566,13 @@ begin
     Memo1.Lines.Add(Appareil + ' : Erreur inattendu');
 
   if ErrorEvent=eeSend then
-     Memo1.Lines.Add(Appareil + ' : Erreur d''écriture sur la connexion socket');
+     Memo1.Lines.Add(Appareil + ' : Erreur d''Ã©criture sur la connexion socket');
 
   if ErrorEvent=eeReceive then
     Memo1.Lines.Add(Appareil +' : Erreur de lecture sur la connexion socket');
 
   if ErrorEvent=eeConnect then
-    Memo1.Lines.Add(Appareil + ' : Une demande de connexion déjà acceptée n''a pas pu être achevée');
+    Memo1.Lines.Add(Appareil + ' : Une demande de connexion dÃ©jÃ  acceptÃ©e n''a pas pu Ãªtre achevÃ©e');
 
   if ErrorEvent=eeDisconnect then
     Memo1.Lines.Add(Appareil + ' : Erreur de fermeture d''une connexion');
