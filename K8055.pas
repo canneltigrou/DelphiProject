@@ -1,4 +1,4 @@
-unit K8055;
+ï»¿unit K8055;
 
 interface
 
@@ -6,7 +6,8 @@ uses
   Windows, StdCtrls, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ExtCtrls, ComCtrls, Math, Buttons, ScktComp, ActiveX,
   VisaComLib_TLB, Generics.Collections, ComObj, System.Variants, //UChargementFichier;
-  uFormConnection, appareilMultimetre;
+  uFormConnection, uAppareilMultimetre, uAppareilCapacimetre1,
+  uAppareilCapacimetre2, uAppareil;
 
 type
   TForm1 = class(TForm)
@@ -107,12 +108,7 @@ type
     procedure FormCreate(Sender: TObject);
 
     procedure ButtonConnectAutomateClick(Sender: TObject);
-    procedure SpeedButtonTestClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure RadioButton1Click(Sender: TObject);
-    procedure RadioButton2Click(Sender: TObject);
-    procedure RadioButton3Click(Sender: TObject);
-    procedure RadioButton4Click(Sender: TObject);
     procedure ButtonDisconnectAutomateClick(Sender: TObject);
     procedure ButtonFrequenceClick(Sender: TObject);
     procedure ButtonConnect1Click(Sender: TObject);
@@ -131,52 +127,26 @@ type
     procedure ButtonLoadFileClick(Sender: TObject);
     procedure ButtonTestClick(Sender: TObject);
     procedure TraiterResAp1();
-    procedure CheckBox1Click(Sender: TObject);
+    procedure TraiterResAp2();
+    procedure TraiterResAp3();
     procedure ButtonFindValuesClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     function ParseResultat(sResult: String) : Double;
   private
     { Private declarations }
   public
-    FenetreDemarrage: TForm;
     { Public declarations }
   end;
 
 var
   Form1: TForm1;
   n: integer;
-  BitmapGood: TBitmap;
-  BitmapBad: TBitmap;
-  sInstructionAp1: String;
-  sInstructionAp2: String;
-  sInstructionAp3: String;
-  sInstructionAp4: String;
-  sInstuctionBroadcast: String;
-  nbAppareilsConnectes: integer;
 
-  rmMultiM : IResourceManager3;
-  ioMultiM : IMessage;
-  sessMultiM : IVisaSession;
-  retCountMultiM : Integer;
-  readResultMultiM : WideString;
-  //connexion : TCWVisa;
+  appareil1: AppareilMultimetre;
+  appareil2: AppareilCapacimetre1;
+  appareil3: AppareilCapacimetre2;
 
-  rmCapa1 : IResourceManager3;
-  ioCapa1 : IMessage;
-  sessCapa1 : IVisaSession;
-  retCountCapa1 : Integer;
-  readResultCapa1 : WideString;
-
-  rmCapa2 : IResourceManager3;
-  ioCapa2 : IMessage;
-  sessCapa2 : IVisaSession;
-  retCountCapa2 : Integer;
-  readResultCapa2 : WideString;
-
-
-  //dictionary: TDictionary<String, TDictionary<String , TStringList>>;
-  //dict : TDictionary<integer, char>;
-  dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[N�OF] = Article
+  dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[NÂ°OF] = Article
   dictionaryValues : TDictionary<String, TDictionary<String, Double>>; // dictionaryValues[Article] = les valeurs importante du excel pour cet aticle
   currentCode : String;
 
@@ -211,101 +181,105 @@ procedure ReadBackAnalogOut(Buffer: Pointer); stdcall; external 'K8055d.dll';
 function Connected: boolean; stdcall; external 'K8055d.dll';
 
 
-procedure TForm1.ButtonConnect1Click(Sender: TObject);
+
+(* *************************************************************************
+************* CREATE *******************************************************
+*************************************************************************** *)
+
+function SeConnecter(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton) : HRESULT;
 var
-  fn : String;
   hResultat : HRESULT;
 begin
-    LabelConnexion1.Visible := False;
-    CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
-    //fn := 'TCPIP0::169.254.4.61::hislip0::INSTR';
-    fn := EditIP1.Text;
+    LabelConnexion.Visible := False;
     hResultat := S_OK;
     try
-    rmMultiM := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
-    hResultat := rmMultiM.Open(fn, NO_LOCK, 0, '', sessMultiM); // Use the resource manager to create a VISA COM Session
-    sessMultiM.QueryInterface(IID_IMessage, ioMultiM); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
-    Memo1.Lines.Add(fn);
-    EditSend1.Text := sInstructionAp1;
+        hResultat := mon_appareil.Connecter(memo);
+        EditSend.Text := mon_appareil.instruction;
     finally
-       if(hResultat = S_OK)
-    then
-    begin
-      LabelConnexion1.Caption := 'Appareil Connect� !';
-      ButtonConnect1.Enabled := False;
-    end
-    else
-      LabelConnexion1.Caption := 'Erreur lors de la connexion !';
-    LabelConnexion1.Visible := True;
+        begin
+          result := hResultat;
+          if(hResultat = S_OK)
+          then
+          begin
+            LabelConnexion.Caption := 'Appareil ConnectÃ©!';
+            ButtonConnect.Enabled := False;
+          end
+          else
+            LabelConnexion.Caption := 'Erreur lors de la connexion !' ;
+          LabelConnexion.Visible := True;
+        end;
     end;
-
 end;
 
-
-procedure TForm1.ButtonConnect2Click(Sender: TObject);
+function Configurer(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton) : HRESULT;
 var
-  fn : String;
-begin
-    CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
-    fn := EditIP2.Text;
-    //fn := 'TCPIP::' + EditIP2.Text + '::' + EditPort2.Text + '::SOCKET';
-    rmCapa1 := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
-    rmCapa1.Open(fn, NO_LOCK, 0, '', sessCapa1); // Use the resource manager to create a VISA COM Session
-    sessCapa1.QueryInterface(IID_IMessage, ioCapa1); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
-    Memo1.Lines.Add(fn);
-    //ClientSocketAp2.Open;//Activates the client
-end;
-
-procedure TForm1.ButtonConnect3Click(Sender: TObject);
-var
-  fn : String;
   hResultat : HRESULT;
 begin
-    CoInitializeEx (NIL, COINIT_APARTMENTTHREADED);  // Start COM on this thread
-    fn := EditIP3.Text;
-    //fn := 'TCPIP::' + EditIP2.Text + '::' + EditPort2.Text + '::SOCKET';
-    rmCapa2 := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
-    hResultat := rmCapa2.Open(fn, NO_LOCK, 0, '', sessCapa2); // Use the resource manager to create a VISA COM Session
-    sessCapa2.QueryInterface(IID_IMessage, ioCapa2); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
-    Memo1.Lines.Add(fn);
-
-end;
-
-procedure TForm1.ButtonConnect4Click(Sender: TObject);
-begin
-    //127.0.0.1 is the standard IP address to loop back to your own machine
-    ClientSocketAp4.Address:= EditIP4.Text ;  //'127.0.0.1';
-    ClientSocketAp4.Active := True;//Activates the client
-
- if(ClientSocketAp4.Socket.Connected=True)
-    then
-    begin
-      LabelEtat1.Visible := True;
-      ClientSocketAp4.Active := False;//Disconnects the client
-      ButtonConnect4.Caption:='Connect';
+    hResultat := S_OK;
+    try
+        hResultat := mon_appareil.Configurer(memo);
+    finally
+        begin
+          result := hResultat;
+          if(hResultat = S_OK)
+          then
+          begin
+            LabelConnexion.Caption := 'Appareil ConfigurÃ©!';
+            //ButtonConnect.Enabled := False;
+          end
+          else
+            LabelConnexion.Caption := 'Erreur lors de la configuration !';
+          LabelConnexion.Visible := True;
+        end;
     end;
 end;
 
-procedure TForm1.ButtonConnectAutomateClick(Sender: TObject);
-var h,CardAddr:integer;
-out_digital: longint;
-out_analog: array[0..1] of longint;
+
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  formConnect : TFormConnection;
+  resModal : Integer;
 begin
-  CardAddr:= 3-(integer(sk5.Checked) + integer(sk6.Checked) * 2);
-  h:= OpenDevice(CardAddr);
-  case h of
-    0..3: label12.caption:='Card '+ inttostr(h)+' connected';
-    -1: label12.caption:='Card '+ inttostr(CardAddr)+' not found';
-  end;
-  if h>=0 then
-    Timer1.Enabled:=True;
+(*Canvas.InitializeBitmap(BitmapGood1);   *)
+
+   SetCounterDebounceTime(1,2);
+   // on crÃ© les diffÃ©rents appareils pour les connexions
+   appareil1 := AppareilMultimetre.Create;
+   appareil2 := AppareilCapacimetre1.Create;
+   appareil3 := AppareilCapacimetre2.Create;
+
+   // ici rien ne s'affiche, cette Form n'est pas encore crÃ©Ã©.
+   // nous allons donc crÃ©er une fenetre TFormConnection pour tenir informer de ce qui se fait.
+   formConnect := TFormConnection.Create(self);
+   formConnect.Show;
+
+   //on connecte tout d'abord les diffÃ©rents appareils
+   formConnect.AddMemoLine('Connexion Ã  l''appareil 1 : le MultimÃ¨tre');
+   try
+      SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+   finally
+      formConnect.AddMemoLine(LabelConnexion1.Caption);
+      try
+        if(ButtonConnect1.Enabled = false)then
+          Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+      finally
+        formConnect.AddMemoLine(LabelConnexion1.Caption);
+        try
+            SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
+        finally
+            formConnect.AddMemoLine(LabelConnexion2.Caption);
+            try
+                if(ButtonConnect2.Enabled = false)then
+                    Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+            finally
+            formConnect.AddMemoLine(LabelConnexion1.Caption);
+      end;
+   end;
+
+
+      end;
+   end;
 end;
-
-
-
-(* Connexion Ethernet avec le 1er appareil de mesure *)
-
-
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -314,31 +288,44 @@ end;
 
 
 
-procedure TForm1.SpeedButtonTestClick(Sender: TObject);
+(* ***************************************************************************
+*************            Les appareils de mesures                **************
+*************************************************************************** *)
+
+
+
+procedure TForm1.ButtonConnect1Click(Sender: TObject);
 begin
-  //timer2.enabled:=SpeedButton1.Down;
+    SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
 end;
 
 
-
-procedure TForm1.RadioButton1Click(Sender: TObject);
+procedure TForm1.ButtonConnect2Click(Sender: TObject);
 begin
-  SetCurrentDevice(0);
+    SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
 end;
 
-procedure TForm1.RadioButton2Click(Sender: TObject);
+procedure TForm1.ButtonConnect3Click(Sender: TObject);
 begin
-  SetCurrentDevice(1);
+    SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
 end;
 
-procedure TForm1.RadioButton3Click(Sender: TObject);
-begin
-  SetCurrentDevice(2);
-end;
 
-procedure TForm1.RadioButton4Click(Sender: TObject);
+procedure TForm1.ButtonConnect4Click(Sender: TObject);
 begin
-  SetCurrentDevice(3);
+    //127.0.0.1 is the standard IP address to loop back to your own machine
+    ClientSocketAp4.Address:= EditIP4.Text ;  //'127.0.0.1';
+    ClientSocketAp4.Port:= StrToInt(EditPort4.Text) ;
+    ClientSocketAp4.Active := True;//Activates the client
+
+  (* if(ClientSocketAp4.Socket.Connected=True)
+    then
+    begin
+      LabelEtat1.Visible := True;
+      ClientSocketAp4.Active := False;//Disconnects the client
+      ButtonConnect4.Caption:='Connect';
+    end;
+    *)
 end;
 
 
@@ -346,50 +333,44 @@ procedure TForm1.ButtonFindValuesClick(Sender: TObject);
 begin
   currentCode := dictionaryRef[EditCodeLu.Text];
   EditEssaisVal.Text := (dictionaryValues[currentCode])['Essais val_1'].ToString;
+  Appareil1.valeurRef := (dictionaryValues[currentCode])['Essais val_1'];
   EditCapaMin.Text :=  (dictionaryValues[currentCode])['Cap_lim_bas'].ToString;
+  appareil2.valeurCapaMin := (dictionaryValues[currentCode])['Cap_lim_bas'];
   EditCapaMax.Text :=  (dictionaryValues[currentCode])['Cap_lim_haut'].ToString;
+  appareil2.valeurCapaMax := (dictionaryValues[currentCode])['Cap_lim_haut'];
   EditTangente.Text :=  (dictionaryValues[currentCode])['Essais val_0'].ToString;
+  appareil2.valeurTangente := (dictionaryValues[currentCode])['Essais val_0'];
   EditImpedance.Text :=  (dictionaryValues[currentCode])['Essais val_2'].ToString;
+  appareil3.valeurImpedance := (dictionaryValues[currentCode])['Essais val_2'];
   EditTension.Text :=  (dictionaryValues[currentCode])['Tension nominale'].ToString;
-
 end;
 
-procedure TForm1.ButtonFrequenceClick(Sender: TObject);
-begin
-  OutputAnalogChannel(1,strtoint(EditFrequence.Text));
-  //SetPWM(1,255-TrackBar1.position,2);
-end;
+
 
 procedure TForm1.ButtonSend1Click(Sender: TObject);
 var
     Str : String;
 begin
-    ioMultiM.WriteString(EditSend1.Text, retCountMultiM); // Write to the instrument
     LabelSent1.Visible := true;
-    ioMultiM.ReadString(1000, readResultMultiM); // read the result
-    EditReception1.Text := readResultMultiM;
+    EditReception1.Text := appareil1.Mesurer();
     LabelSent1.Visible := false;
     TraiterResAp1();
 end;
 
 procedure TForm1.ButtonSend2Click(Sender: TObject);
 begin
-    ioCapa1.WriteString(EditSend2.Text, retCountCapa1); // Write to the instrument
     LabelSent2.Visible := true;
-    ioCapa1.ReadString(1000, readResultCapa1); // read the result
-    EditReception2.Text := readResultCapa1;
+    EditReception2.Text := appareil2.Mesurer();
     LabelSent2.Visible := false;
+    TraiterResAp2();
 end;
 
 procedure TForm1.ButtonSend3Click(Sender: TObject);
-var
-    Str : String;
 begin
-    ioCapa2.WriteString(EditSend3.Text, retCountCapa2); // Write to the instrument
     LabelSent3.Visible := true;
-    ioCapa2.ReadString(1000, readResultCapa2); // read the result
+    EditReception3.Text := appareil2.Mesurer();
     LabelSent3.Visible := false;
-    EditReception3.Text := readResultCapa2;
+    TraiterResAp3();
 end;
 
 procedure TForm1.ButtonSend4Click(Sender: TObject);
@@ -434,7 +415,7 @@ begin
 
     // remplissage de la 1ere hashmap  :
 
-    // acc�de � la feuille voulue
+    // accÃ¨de Ã  la feuille voulue
     aSheetName := 'Feuil5';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
 
@@ -447,7 +428,6 @@ begin
       sRange2 := 'B' + IntToStr(j);
       vCell := vWorksheet.Range[sRange2];
       sValue2 := vCell.Value;
-
       //Memo1.Lines.Add(sValue1 + ' ; ' + sValue2);
       dictionaryRef.Add(sValue1, sValue2);
 
@@ -460,7 +440,7 @@ begin
 
     // remplissage de la 2eme hashmap  :
 
-    // acc�de � la feuille voulue
+    // accÃ¨de Ã  la feuille voulue
     aSheetName := 'Feuil8';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
 
@@ -519,8 +499,6 @@ begin
       sValue3 := vCell.Value;
       tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
 
-
-      //Memo1.Lines.Add(sValue1 + ' ; ' + sValue2);
       dictionaryValues.Add(sValue1, tmpDict);
 
       Inc(j, 1);
@@ -548,11 +526,6 @@ begin
   ButtonLoadFile.Enabled := False;
 end;
 
-procedure TForm1.CheckBox1Click(Sender: TObject);
-begin
-// top d�part de l'appareil 1
-  //ButtonSend1Click(Sender);
-end;
 
 procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
@@ -561,44 +534,13 @@ begin
 end;
 
 
-procedure TForm1.FormCreate(Sender: TObject);
-var
-  formConnect : TFormConnection;
-  resModal : Integer;
-begin
-(*Canvas.InitializeBitmap(BitmapGood1);   *)
-
-   //on connecte tout d'abord les diff�rents appareils
-   // pour l'instant l'appareil 1
-
-   SetCounterDebounceTime(1,2);
-   sInstructionAp1 := 'MEAS:VOLT:DC?';
-   EditIP1.Text := 'TCPIP0::169.254.4.61::hislip0::INSTR';
-
-
-
-   formConnect := TFormConnection.Create(self);
-   formConnect.Show;
-   formConnect.AddMemoLine('Connexion � l''appareil 1 : le Multim�tre');
-   try
-      ButtonConnect1Click(Sender);
-   finally
-      formConnect.AddMemoLine(LabelConnexion1.Caption);
-
-
-
-   end;
-end;
-
-
-
 
 
 
 procedure TForm1.ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
 begin
-   Socket.SendText('Disconnected');//Send the �Disconnected� message to the server
-//str is set to �Disconnected� when the Disconnect button is pressed
+   Socket.SendText('Disconnected');//Send the ÂDisconnectedÂ message to the server
+//str is set to ÂDisconnectedÂ when the Disconnect button is pressed
 //A client cannot send messages if it is not connected to a server
    ButtonSend4.Enabled:=False;
    ButtonConnect4.Caption:='Connect';
@@ -617,13 +559,13 @@ begin
     Memo1.Lines.Add(Appareil + ' : Erreur inattendu');
 
   if ErrorEvent=eeSend then
-     Memo1.Lines.Add(Appareil + ' : Erreur d''�criture sur la connexion socket');
+     Memo1.Lines.Add(Appareil + ' : Erreur d''Ã©criture sur la connexion socket');
 
   if ErrorEvent=eeReceive then
     Memo1.Lines.Add(Appareil +' : Erreur de lecture sur la connexion socket');
 
   if ErrorEvent=eeConnect then
-    Memo1.Lines.Add(Appareil + ' : Une demande de connexion d�j� accept�e n''a pas pu �tre achev�e');
+    Memo1.Lines.Add(Appareil + ' : Une demande de connexion dÃ©jÃ  acceptÃ©e n''a pas pu Ãªtre achevÃ©e');
 
   if ErrorEvent=eeDisconnect then
     Memo1.Lines.Add(Appareil + ' : Erreur de fermeture d''une connexion');
@@ -634,8 +576,8 @@ begin
 end;
 
 
-procedure TForm1.ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent;
-var ErrorCode: Integer);
+procedure TForm1.ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;
+  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
 begin
    afficherError( ErrorEvent , 'Ap4')  ;
 
@@ -656,6 +598,22 @@ end;
 ************************ automate ************************************
 ******************************************************************** *)
 
+procedure TForm1.ButtonConnectAutomateClick(Sender: TObject);
+var h,CardAddr:integer;
+//out_digital: longint;
+//out_analog: array[0..1] of longint;
+begin
+  CardAddr:= 3-(integer(sk5.Checked) + integer(sk6.Checked) * 2);
+  h:= OpenDevice(CardAddr);
+  case h of
+    0..3: label12.caption:='Card '+ inttostr(h)+' connected';
+    -1: label12.caption:='Card '+ inttostr(CardAddr)+' not found';
+  end;
+  if h>=0 then
+    Timer1.Enabled:=True;
+  ClearAllDigital;
+end;
+
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 var i: integer;
@@ -669,43 +627,41 @@ begin
   begin
     CheckBox1.Checked := True;
     ButtonSend1Click(Sender);
+    TraiterResAp1();
   end
   else
     CheckBox1.checked:=(i and 1)>0;
-  CheckBox2.checked:=(i and 2)>0;
-  CheckBox3.checked:=(i and 4)>0;
+
+  if((not CheckBox2.Checked) and ((i and 2)>0))
+  then
+  begin
+    CheckBox2.Checked := True;
+    ButtonSend2Click(Sender);
+    TraiterResAp2();
+  end
+  else
+    CheckBox2.checked:=(i and 2)>0;
+
+  if((not CheckBox3.Checked) and ((i and 4)>0))
+  then
+  begin
+    CheckBox3.Checked := True;
+    ButtonSend3Click(Sender);
+    TraiterResAp3();
+  end
+  else
+    CheckBox3.checked:=(i and 4)>0;
   CheckBox4.checked:=(i and 8)>0;
   CheckBox5.checked:=(i and 16)>0;
   timer1.enabled:=true;
 end;
 
 
-(* ******************************************************************
-*********   Appareil 2 Capacimetre  (Capa, tg)  *********************
-******************************************************************* *)
-
-procedure ParametrisationAp2(EditSend : TEdit; Sender: TObject);
-var
-  text: String;
+procedure TForm1.ButtonFrequenceClick(Sender: TObject);
 begin
-    (*
-    text := ': FUNC : IMP CSD';
-    EditSend.Text := text;
-    Form1.ButtonSend2Click(Sender);
-
-    : FREQ 100   *)
-
-    ioCapa1.WriteString(': FUNC : IMP CSD', retCountCapa1); // Write to the instrument
-    //ioCapa1.ReadString(1000, readResultCapa1); // read the result
-    ioCapa1.WriteString(': FREQ 100 ', retCountCapa1); // Write to the instrument
-    //ioCapa1.ReadString(1000, readResultCapa1); // read the result
-    ioCapa1.WriteString(': TRIG : SOUR BUS', retCountCapa1); // Write to the instrument
-    //ioCapa1.ReadString(1000, readResultCapa1); // read the result
-
-
-
+  OutputAnalogChannel(1,strtoint(EditFrequence.Text));
+  //SetPWM(1,255-TrackBar1.position,2);
 end;
-
 
 
 
@@ -713,57 +669,17 @@ end;
 *********   Annalyse Appareil 1 Multimetre **************************
 ******************************************************************* *)
 
-
-function StripNonAlphaNumeric(const AValue: string): string;
-var
-  I : Integer;
-begin
-Result := '';
-  for I := 0 to AValue.Length do
-  begin
-    if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+', ',' , '.'] then
-      Result := Result + AValue.Chars[I]
-  end;
-end;
-
-function TForm1.ParseResultat(sResult: String) : Double;
-var
-  lFormatSettings:TFormatSettings;
-begin
-  sResult := StripNonAlphaNumeric(sResult);
-  lFormatSettings.DecimalSeparator := '.';
-  Result := StrToFloat(sResult, lFormatSettings);
-  memo1.lines.Add(floatToStr(Result));
-end;
-
-function AnnalyseResultatAp1(resultat: Double; vRef: Double):Boolean;
-// on veut comparer les r�sultats en microA. : tension / 500ohm * 1000000
-// on compare � la colone 'Essais val_1' colonne 0 feuil8 sur Excel
-var
-  valRef : Double;
-begin
-  //valRef :=  30000;     // exemple. sera pris de la hashmap
-  valRef := vRef;
-  if(resultat / 500 * 1000000 > valRef)
-  then
-    Result := False
-  else
-    Result := True
-end;
-
 procedure TForm1.TraiterResAp1();
 var
-  resultatDouble : Double;
-  tmp : Boolean;
+  res : Boolean;
 begin
   CbOutput1.checked := false;
-  resultatDouble := ParseResultat(EditReception1.Text);
-  tmp := AnnalyseResultatAp1( resultatDouble, dictionaryValues[currentCode]['Essais val_1']);
-  if(tmp = True)
+  res := appareil1.Traiter_donnee(EditReception1.Text);
+  if(res = True)
   then
   begin
     LabelEtat1.Caption := 'OK';
-
+    ClearDigitalChannel(1);
   end
   else
   begin
@@ -771,15 +687,78 @@ begin
     CbOutput1.checked := true;
     SetDigitalChannel(1);
   end;
-
-
 end;
+
+(* *******************************************************************
+*********   Annalyse Appareil 2 Capacimetre **************************
+*********     CapacitÃ© + Tangente           **************************
+******************************************************************* *)
+procedure TForm1.TraiterResAp2();
+var
+  res : TBoolList;
+begin
+  SetLength(res, 3);
+  res := appareil2.Traiter_donnee(EditReception2.Text);
+  if(res[0] = True)
+  then
+  begin
+    LabelEtat2.Caption := 'OK';
+    CbOutput2.checked := false;
+    ClearDigitalChannel(2);
+  end
+  else
+  begin
+    LabelEtat2.Caption := 'KO';
+    CbOutput2.checked := true;
+    SetDigitalChannel(2);
+  end;
+  if(res[1] = True)
+  then
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption + ' - OK';
+    CbOutput3.checked := false;
+    ClearDigitalChannel(3);
+  end
+  else
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption + ' - KO';
+    CbOutput3.checked := true;
+    SetDigitalChannel(3);
+  end;
+  if(res[2] = True)
+  then
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption + ' - OK';
+    CbOutput4.checked := false;
+    ClearDigitalChannel(4);
+  end
+  else
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption  + ' - KO';
+    CbOutput4.checked := true;
+    SetDigitalChannel(4);
+  end;
+end;
+
+
+(* *******************************************************************
+*********   Annalyse Appareil 2 Capacimetre **************************
+*********     CapacitÃ© + Tangente           **************************
+******************************************************************* *)
+procedure TForm1.TraiterResAp3();
+begin
+     //
+end;
+
+
+(* ****************************************************************************
+*************           TEST              *************************************
+***************************************************************************** *)
 
 procedure TForm1.ButtonTestClick(Sender: TObject);
 begin
     TraiterResAp1();
-
-
+    TraiterResAp2();
 end;
 
 
