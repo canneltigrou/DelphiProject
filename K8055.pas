@@ -134,6 +134,7 @@ type
     procedure CheckBox1Click(Sender: TObject);
     procedure ButtonFindValuesClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    function ParseResultat(sResult: String) : Double;
   private
     { Private declarations }
   public
@@ -720,18 +721,19 @@ begin
 Result := '';
   for I := 0 to AValue.Length do
   begin
-    if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+'] then
+    if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+', ',' , '.'] then
       Result := Result + AValue.Chars[I]
   end;
 end;
 
-function ParseResultat(sResult: String) : Double;
+function TForm1.ParseResultat(sResult: String) : Double;
 var
   lFormatSettings:TFormatSettings;
 begin
   sResult := StripNonAlphaNumeric(sResult);
   lFormatSettings.DecimalSeparator := '.';
   Result := StrToFloat(sResult, lFormatSettings);
+  memo1.lines.Add(floatToStr(Result));
 end;
 
 function AnnalyseResultatAp1(resultat: Double; vRef: Double):Boolean;
