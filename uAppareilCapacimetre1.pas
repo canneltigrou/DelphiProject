@@ -127,6 +127,7 @@ end;
 
 // prend en parametre la réponse de l'appareil. Permet de traiter cette réponse.
 // envoie True si la réponse est dans les normes. False sinon.
+// la tangenteReference etant en pourcentage et la reponse en taux, je *100 le taux
 function AppareilCapacimetre1.Traiter_donnee(resText : string):TBoolList;
 var
   resultatDouble : TDoubleList;
@@ -135,7 +136,7 @@ begin
   SetLength(result, 3);
   result[0] := (resultatDouble[0] > CapaMin);
   result[1] := (resultatDouble[0] < CapaMax);
-  result[2] := (resultatDouble[1] < tangente);
+  result[2] := ((resultatDouble[1] * 100) < tangente);
 end;
 
 
