@@ -410,7 +410,7 @@ begin
     end;
 
     // remplissage de la 2eme hashmap  :
-    (*
+
     // accÃ¨de Ã  la feuille voulue
     aSheetName := 'Feuil8';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
@@ -478,7 +478,7 @@ begin
       vCell := vWorksheet.Range[sRange1];
       sValue1 := vCell.Value;
     end;
-    *)
+
 
     vMSExcel.Quit;
     vMSExcel := Unassigned;
