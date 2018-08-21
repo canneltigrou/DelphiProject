@@ -97,7 +97,6 @@ begin
           cpt := cpt + 1;
       end;
   end;
-  Result[1] := tmp;
 end;
 
 // a partir d'un string venant de la réponse de l'appareil, renvoie un double.

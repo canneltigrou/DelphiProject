@@ -131,6 +131,7 @@ type
     procedure TraiterResAp3();
     procedure ButtonFindValuesClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure EditReception2Change(Sender: TObject);
   private
     { Private declarations }
   public
@@ -237,7 +238,6 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 var
   formConnect : TFormConnection;
-  resModal : Integer;
 begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
 
@@ -350,8 +350,6 @@ end;
 
 
 procedure TForm1.ButtonSend1Click(Sender: TObject);
-var
-    Str : String;
 begin
     LabelSent1.Visible := true;
     EditReception1.Text := appareil1.Mesurer();
@@ -377,10 +375,10 @@ end;
 
 procedure TForm1.ButtonSend4Click(Sender: TObject);
 var
-    Str : String;
+    str : String;
 begin
-    Str:=EditSend4.Text;
-    ClientSocketAp4.Socket.SendText(str);//Send the messages to the server
+    str := EditSend4.Text;
+    ClientSocketAp4.Socket.SendText(AnsiString(str));//Send the messages to the server
     LabelSent4.Visible := true;
 end;
 
@@ -592,8 +590,13 @@ end;
 procedure TForm1.ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
 begin
 //Reads and displays the message received from the server;
-    EditReception1.Text := Socket.ReceiveText;
+    EditReception1.Text := String(Socket.ReceiveText);
     LabelSent4.Visible := false;
+end;
+
+procedure TForm1.EditReception2Change(Sender: TObject);
+begin
+
 end;
 
 (*********************************************************************
