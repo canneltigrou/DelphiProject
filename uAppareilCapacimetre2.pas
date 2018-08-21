@@ -10,7 +10,10 @@ uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil;
 
 //--------------------------Déclaration de la classe AppareilCapacimetre2--------------------
-
+// Il s'agit ici d'un appareil Capacimetre de la technologie keysight
+// et qui permettra de mesurer l'impedance.
+// et de comparer le resultat a une valeur seuil.
+// C'est une classe fille de Appareil, laquelle permet une connexion par ethernet.
 type AppareilCapacimetre2 = class(Appareil)
 
       private
@@ -32,14 +35,22 @@ end;
 
 implementation
 
+// Initialise cet appareil. Cet appareil doit etre un capacimetre de keysight
+// avec une adresse paramétree comme ci dessous
+// IP : 169.254.221.61
+// identité :  TCPIP0::169.254.221.61::inst0::INSTR
 constructor AppareilCapacimetre2.Create();
   begin
+    // Rappel : Create(Adresse_de_l_appareil , Commande_instruction_pour_valeur)
     Appareil(Self).Create('TCPIP0::169.254.221.61::inst0::INSTR', ':FETC?');
-    valRef := 0;
+    valRef := 0; // la valRef sera maj par l'IHM.
   end;
 
 
 //------------------  Configure l'appareil de mesure ---------------------------
+
+// Configure l'appareil de type capacimetre de Keysight
+// pour recevoir une valeur d'impédance.
 function AppareilCapacimetre2.Configurer(memo : TMemo):HRESULT;
 var
    hresultat : HRESULT;
@@ -63,19 +74,28 @@ end;
 
 // ----------------- Fonctions pour Traitement des mesures ---------------------
 
+// ici, on reçoit 2 valeurs par l'appareil. On ne souhaite garder que la 1ere.
+// Les valeurs sont exprimés de types +1.23456E-7 et sont séparées par des virgules.
 function StripNonAlphaNumeric(const AValue: string): string;
 var
   I : Integer;
+  stop : boolean;
 begin
-Result := '';
-  for I := 0 to AValue.Length do
-  begin
-    if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+'] then
-      Result := Result + AValue.Chars[I]
-  end;
+  Result := '';
+  stop := false;
+  I := 0;
+  while((I < AValue.Length) and (not stop)) do
+    begin
+      if AValue.Chars[I] in ['0'..'9', 'e', 'E', '-', '+', '.'] then
+        Result := Result + AValue.Chars[I]
+      else
+        if AValue.Chars[I] = ',' then
+          stop := true;
+    end;
 end;
 
 // a partir d'un string venant de la réponse de l'appareil, renvoie un double.
+// Les valeurs sont exprimés de types +1.23456E-7
 function ParseResultat(sResult: String) : Double;
 var
   lFormatSettings:TFormatSettings;
@@ -83,21 +103,6 @@ begin
   sResult := StripNonAlphaNumeric(sResult);
   lFormatSettings.DecimalSeparator := '.';
   Result := StrToFloat(sResult, lFormatSettings);
-end;
-
-function AnnalyseResultat(resultat: Double; vRef: Double):Boolean;
-// on veut comparer les résultats en microA. : tension / 500ohm * 1000000
-// on compare à la colone 'Essais val_1' colonne 0 feuil8 sur Excel
-var
-  valRef : Double;
-begin
-  //valRef :=  30000;     // exemple. sera pris de la hashmap
-  valRef := vRef;
-  if(resultat / 500 * 1000000 > valRef)
-  then
-    Result := False
-  else
-    Result := True
 end;
 
 // prend en parametre la réponse de l'appareil. Permet de traiter cette réponse.
@@ -108,12 +113,7 @@ var
   tmp : Boolean;
 begin
   resultatDouble := ParseResultat(resText);
-  tmp := AnnalyseResultat(resultatDouble, valRef);
-  result := tmp;
+  result := (resultatDouble < valRef);
 end;
-
-
-
-
 
 end.

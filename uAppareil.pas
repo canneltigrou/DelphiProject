@@ -3,6 +3,10 @@ unit uAppareil;
 // ****************************************************************************
 // Unité "Appaeil.pas" de la classe Appareil, mère de tous les appareils
 // tels que multimetre ou capacimetre.
+// Elle permet de se connecter par ethernet a un appareil de la technologie keysight.
+// Elle utilise pour cela la librairie donnee par keysight telechargeable sur :
+// https://www.keysight.com/upload/cmc_upload/All/readme_IO_Libraries_18_1_23218.htm
+// et le fichier VisaComLib_TLB ici legerement modifié
 
 interface
 
@@ -20,15 +24,15 @@ type Appareil = class
         retCount : Integer;
         readResult : WideString;
 
+        // initialises par les classes filles selon l'appareil en concerne.
         adresse : string;
-        instructionData : string;
+        instructionData : string;   // concerne l'instruction envoyé pour chaque mesure
 
       public
 
         constructor Create(adr:string; instruct: string);
 
         // Procédures
-        //procedure SetAdress(adr:string);
 
         //Fonctions
         function Connecter(memo : TMemo):HRESULT;
@@ -66,8 +70,6 @@ begin
       rm := CoResourceManager.Create;  // Create the VISA COM I/O Resource manager
       hResultat := rm.Open(adresse, NO_LOCK, 0, '', sess); // Use the resource manager to create a VISA COM Session
       sess.QueryInterface(IID_IMessage, io); // The IVisaSession interface is very general and does not have string reading/writing , we want to be able to read and write to the instrument
-
-      //EditSend1.Text := sInstructionAp1;
       except
         hresultat := S_FALSE;
       end;

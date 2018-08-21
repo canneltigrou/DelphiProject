@@ -131,7 +131,6 @@ type
     procedure TraiterResAp3();
     procedure ButtonFindValuesClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    procedure EditReception2Change(Sender: TObject);
   private
     { Private declarations }
   public
@@ -183,7 +182,7 @@ function Connected: boolean; stdcall; external 'K8055d.dll';
 
 
 (* *************************************************************************
-************* CREATE *******************************************************
+*************       Configuration initiale         *************************
 *************************************************************************** *)
 
 function SeConnecter(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton) : HRESULT;
@@ -242,7 +241,7 @@ begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
 
    SetCounterDebounceTime(1,2);
-   // on crÃ© les diffÃ©rents appareils pour les connexions
+   // on cre les differents appareils pour les connexions
    appareil1 := AppareilMultimetre.Create;
    appareil2 := AppareilCapacimetre1.Create;
    appareil3 := AppareilCapacimetre2.Create;
@@ -263,22 +262,33 @@ begin
         if(ButtonConnect1.Enabled = false)then
           Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
       finally
-        formConnect.AddMemoLine(LabelConnexion1.Caption);
-        formConnect.AddMemoLine('Connexion a l''appareil 2 : le Capacimetre');
-        try
-            SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
-        finally
-            formConnect.AddMemoLine(LabelConnexion2.Caption);
-            try
-              formConnect.AddMemoLine('Configuration de l''appareil 2 : le Capacimetre');
-                if(ButtonConnect2.Enabled = false)then
-                    Configurer(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
-            finally
-            formConnect.AddMemoLine(LabelConnexion1.Caption);
-      end;
-   end;
-
-
+          formConnect.AddMemoLine(LabelConnexion1.Caption);
+          formConnect.AddMemoLine('Connexion a l''appareil 2 : le Capacimetre');
+          try
+              SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
+          finally
+              formConnect.AddMemoLine(LabelConnexion2.Caption);
+              try
+                formConnect.AddMemoLine('Configuration de l''appareil 2 : le Capacimetre');
+                  if(ButtonConnect2.Enabled = false)then
+                      Configurer(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
+              finally
+                  formConnect.AddMemoLine(LabelConnexion2.Caption);
+                  formConnect.AddMemoLine('Connexion a l''appareil 3 : le 2eme Capacimetre');
+                  try
+                      SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
+                  finally
+                      formConnect.AddMemoLine(LabelConnexion3.Caption);
+                      try
+                        formConnect.AddMemoLine('Configuration de l''appareil 3 : le 2eme Capacimetre');
+                          if(ButtonConnect3.Enabled = false)then
+                              Configurer(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
+                      finally
+                        formConnect.AddMemoLine(LabelConnexion3.Caption);
+                      end;
+                  end;
+              end;
+          end;
       end;
    end;
 end;
@@ -293,8 +303,6 @@ end;
 (* ***************************************************************************
 *************            Les appareils de mesures                **************
 *************************************************************************** *)
-
-
 
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
 begin
@@ -312,23 +320,6 @@ begin
     SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
 end;
 
-
-procedure TForm1.ButtonConnect4Click(Sender: TObject);
-begin
-    //127.0.0.1 is the standard IP address to loop back to your own machine
-    ClientSocketAp4.Address:= EditIP4.Text ;  //'127.0.0.1';
-    ClientSocketAp4.Port:= StrToInt(EditPort4.Text) ;
-    ClientSocketAp4.Active := True;//Activates the client
-
-  (* if(ClientSocketAp4.Socket.Connected=True)
-    then
-    begin
-      LabelEtat1.Visible := True;
-      ClientSocketAp4.Active := False;//Disconnects the client
-      ButtonConnect4.Caption:='Connect';
-    end;
-    *)
-end;
 
 
 procedure TForm1.ButtonFindValuesClick(Sender: TObject);
@@ -348,41 +339,9 @@ begin
 end;
 
 
-
-procedure TForm1.ButtonSend1Click(Sender: TObject);
-begin
-    LabelSent1.Visible := true;
-    EditReception1.Text := appareil1.Mesurer();
-    LabelSent1.Visible := false;
-    TraiterResAp1();
-end;
-
-procedure TForm1.ButtonSend2Click(Sender: TObject);
-begin
-    LabelSent2.Visible := true;
-    EditReception2.Text := appareil2.Mesurer();
-    LabelSent2.Visible := false;
-    TraiterResAp2();
-end;
-
-procedure TForm1.ButtonSend3Click(Sender: TObject);
-begin
-    LabelSent3.Visible := true;
-    EditReception3.Text := appareil2.Mesurer();
-    LabelSent3.Visible := false;
-    TraiterResAp3();
-end;
-
-procedure TForm1.ButtonSend4Click(Sender: TObject);
-var
-    str : String;
-begin
-    str := EditSend4.Text;
-    ClientSocketAp4.Socket.SendText(AnsiString(str));//Send the messages to the server
-    LabelSent4.Visible := true;
-end;
-
-
+(**********************************************************************
+*********            Chargement du fichier         ********************
+******************************************************************** *)
 
 procedure LireFichier();
 var
@@ -415,7 +374,7 @@ begin
 
     // remplissage de la 1ere hashmap  :
 
-    // accÃ¨de Ã  la feuille voulue
+    // acces a la feuille voulue
     aSheetName := 'Feuil5';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
 
@@ -527,81 +486,16 @@ begin
 end;
 
 
+
+(*********************************************************************
+************************ automate ************************************
+******************************************************************** *)
 procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
     CloseDevice;
     label12.caption:='Disconnected'
 end;
 
-
-
-
-
-procedure TForm1.ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
-begin
-   Socket.SendText('Disconnected');//Send the ÂDisconnectedÂ message to the server
-//str is set to ÂDisconnectedÂ when the Disconnect button is pressed
-//A client cannot send messages if it is not connected to a server
-   ButtonSend4.Enabled:=False;
-   ButtonConnect4.Caption:='Connect';
-end;
-
-
-procedure TForm1.ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
-begin
-   ButtonSend4.Enabled:= True;
-  // ButtonConnect2.Caption:='Connect';
-end;
-
-procedure TForm1.afficherError( ErrorEvent: TErrorEvent; Appareil : string);
-begin
-   if ErrorEvent=eeGeneral then
-    Memo1.Lines.Add(Appareil + ' : Erreur inattendu');
-
-  if ErrorEvent=eeSend then
-     Memo1.Lines.Add(Appareil + ' : Erreur d''Ã©criture sur la connexion socket');
-
-  if ErrorEvent=eeReceive then
-    Memo1.Lines.Add(Appareil +' : Erreur de lecture sur la connexion socket');
-
-  if ErrorEvent=eeConnect then
-    Memo1.Lines.Add(Appareil + ' : Une demande de connexion dÃ©jÃ  acceptÃ©e n''a pas pu Ãªtre achevÃ©e');
-
-  if ErrorEvent=eeDisconnect then
-    Memo1.Lines.Add(Appareil + ' : Erreur de fermeture d''une connexion');
-
-  if ErrorEvent=eeAccept then
-    Memo1.Lines.Add(Appareil + ' : Erreur d''acceptation d''une demande de connexion cliente');
-
-end;
-
-
-procedure TForm1.ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;
-  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
-begin
-   afficherError( ErrorEvent , 'Ap4')  ;
-
-  ErrorCode:=0;
-  ClientSocketAp4.Active := False;
-  labelConnexion4.Visible := True;
-end;
-
-
-procedure TForm1.ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
-begin
-//Reads and displays the message received from the server;
-    EditReception1.Text := String(Socket.ReceiveText);
-    LabelSent4.Visible := false;
-end;
-
-procedure TForm1.EditReception2Change(Sender: TObject);
-begin
-
-end;
-
-(*********************************************************************
-************************ automate ************************************
-******************************************************************** *)
 
 procedure TForm1.ButtonConnectAutomateClick(Sender: TObject);
 var h,CardAddr:integer;
@@ -694,9 +588,17 @@ begin
   end;
 end;
 
+procedure TForm1.ButtonSend1Click(Sender: TObject);
+begin
+    LabelSent1.Visible := true;
+    EditReception1.Text := appareil1.Mesurer();
+    LabelSent1.Visible := false;
+    TraiterResAp1();
+end;
+
 (* *******************************************************************
 *********   Annalyse Appareil 2 Capacimetre **************************
-*********     CapacitÃ© + Tangente           **************************
+*********     Capacite + Tangente           **************************
 ******************************************************************* *)
 procedure TForm1.TraiterResAp2();
 var
@@ -745,14 +647,133 @@ begin
   end;
 end;
 
+procedure TForm1.ButtonSend2Click(Sender: TObject);
+begin
+    LabelSent2.Visible := true;
+    EditReception2.Text := appareil2.Mesurer();
+    LabelSent2.Visible := false;
+    TraiterResAp2();
+end;
+
 
 (* *******************************************************************
-*********   Annalyse Appareil 2 Capacimetre **************************
-*********     CapacitÃ© + Tangente           **************************
+*********   Annalyse Appareil 3 Capacimetre **************************
+*********         Impedance                 **************************
 ******************************************************************* *)
 procedure TForm1.TraiterResAp3();
+var
+  res : Boolean;
 begin
-     //
+  res := appareil3.Traiter_donnee(EditReception3.Text);
+  if(res = True)
+  then
+  begin
+    LabelEtat3.Caption := 'OK';
+    CbOutput5.checked := false;
+    ClearDigitalChannel(5);
+  end
+  else
+  begin
+    LabelEtat3.Caption := 'KO';
+    CbOutput5.checked := true;
+    SetDigitalChannel(5);
+  end;
+end;
+
+procedure TForm1.ButtonSend3Click(Sender: TObject);
+begin
+    LabelSent3.Visible := true;
+    EditReception3.Text := appareil2.Mesurer();
+    LabelSent3.Visible := false;
+    TraiterResAp3();
+end;
+
+(*************************************************************************
+************* Connection a l'appareil 4 : ClientSocket *******************
+************************************************************************** *)
+
+procedure TForm1.ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   Socket.SendText('Disconnected');//Send the ÂDisconnectedÂ message to the server
+//str is set to Disconnected when the Disconnect button is pressed
+//A client cannot send messages if it is not connected to a server
+   ButtonSend4.Enabled:=False;
+   ButtonConnect4.Caption:='Connect';
+end;
+
+procedure TForm1.ButtonConnect4Click(Sender: TObject);
+begin
+    //127.0.0.1 is the standard IP address to loop back to your own machine
+    ClientSocketAp4.Address:= EditIP4.Text ;  //'127.0.0.1';
+    ClientSocketAp4.Port:= StrToInt(EditPort4.Text) ;
+    ClientSocketAp4.Active := True;//Activates the client
+
+  (* if(ClientSocketAp4.Socket.Connected=True)
+    then
+    begin
+      LabelEtat1.Visible := True;
+      ClientSocketAp4.Active := False;//Disconnects the client
+      ButtonConnect4.Caption:='Connect';
+    end;
+    *)
+end;
+
+
+
+procedure TForm1.ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+begin
+   ButtonSend4.Enabled:= True;
+  // ButtonConnect2.Caption:='Connect';
+end;
+
+procedure TForm1.ButtonSend4Click(Sender: TObject);
+var
+    str : String;
+begin
+    str := EditSend4.Text;
+    ClientSocketAp4.Socket.SendText(AnsiString(str));//Send the messages to the server
+    LabelSent4.Visible := true;
+end;
+
+procedure TForm1.afficherError( ErrorEvent: TErrorEvent; Appareil : string);
+begin
+   if ErrorEvent=eeGeneral then
+    Memo1.Lines.Add(Appareil + ' : Erreur inattendu');
+
+  if ErrorEvent=eeSend then
+     Memo1.Lines.Add(Appareil + ' : Erreur d''Ã©criture sur la connexion socket');
+
+  if ErrorEvent=eeReceive then
+    Memo1.Lines.Add(Appareil +' : Erreur de lecture sur la connexion socket');
+
+  if ErrorEvent=eeConnect then
+    Memo1.Lines.Add(Appareil + ' : Une demande de connexion dÃ©jÃ  acceptÃ©e n''a pas pu Ãªtre achevÃ©e');
+
+  if ErrorEvent=eeDisconnect then
+    Memo1.Lines.Add(Appareil + ' : Erreur de fermeture d''une connexion');
+
+  if ErrorEvent=eeAccept then
+    Memo1.Lines.Add(Appareil + ' : Erreur d''acceptation d''une demande de connexion cliente');
+
+end;
+
+
+procedure TForm1.ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;
+  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
+begin
+   afficherError( ErrorEvent , 'Ap4')  ;
+
+  ErrorCode:=0;
+  ClientSocketAp4.Active := False;
+  labelConnexion4.Visible := True;
+end;
+
+
+procedure TForm1.ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
+begin
+//Reads and displays the message received from the server;
+    EditReception1.Text := String(Socket.ReceiveText);
+    LabelSent4.Visible := false;
 end;
 
 

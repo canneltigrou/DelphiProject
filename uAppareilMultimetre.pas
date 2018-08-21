@@ -10,7 +10,10 @@ uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil;
 
 //--------------------------Déclaration de la classe AppareilMultimetre--------------------
-
+// Il s'agit ici d'un appareil Multimetre de la technologie keysight
+// et qui permettra de mesurer le voltage.
+// et de comparer le resultat a une valeur seuil.
+// C'est une classe fille de Appareil, laquelle permet une connexion par ethernet.
 type AppareilMultimetre = class(Appareil)
 
       private
@@ -31,15 +34,21 @@ end;
 
 
 implementation
-
+// Initialise cet appareil. Cet appareil doit etre un multimetre de keysight
+// avec une adresse paramétree comme ci dessous
+// IP : 169.254.4.61
+// identité :  TCPIP0::169.254.4.61::hislip0::INSTR
 constructor AppareilMultimetre.Create();
   begin
+    // Rappel : Create(Adresse_de_l_appareil , Commande_instruction_pour_valeur)
     Appareil(Self).Create('TCPIP0::169.254.4.61::hislip0::INSTR', 'MEAS:VOLT:DC?');
-    valRef := 0;
+    valRef := 0;    // la valRef sera maj par l'IHM.
   end;
 
 
 //------------------  Configure l'appareil de mesure ---------------------------
+// Configure l'appareil de type multimetre de Keysight
+// pour recevoir une valeur de voltage.
 function AppareilMultimetre.Configurer(memo : TMemo):HRESULT;
   begin
     memo.Lines.Add('Pas de configuration requise pour cet appareil');
@@ -48,7 +57,8 @@ function AppareilMultimetre.Configurer(memo : TMemo):HRESULT;
 
 
 // ----------------- Fonctions pour Traitement des mesures ---------------------
-
+// Les valeurs sont exprimés de types +1.23456E-7
+// mais comportent d'autres caracteres comme des retours a la ligne
 function StripNonAlphaNumeric(const AValue: string): string;
 var
   I : Integer;
@@ -71,24 +81,15 @@ begin
   Result := StrToFloat(sResult, lFormatSettings);
 end;
 
-function AnnalyseResultat(resultat: Double; vRef: Double):Boolean;
 // on veut comparer les résultats en microA. : tension / 500ohm * 1000000
 // on compare à la colone 'Essais val_1' colonne 0 feuil8 sur Excel
+// cette valeur seil doit avoir ete mise a jour par l'ihm.
+function AnnalyseResultat(resultat: Double; vRef: Double):Boolean;
 var
-  valRef : Double;
   valTmp : Double;
 begin
-  //valRef :=  30000;     // exemple. sera pris de la hashmap
-  valRef := vRef;
   valTmp := (resultat / 500) * 1000000 ;
-  //memo1.Lines.Add('val recu : ' + floattostr(valTmp));
-  //memo1.Lines.Add('donne : ' + floattostr(valTmp));
-  if(valTmp > valRef)
-  then
-    Result := False
-  else
-    Result := True
-
+  Result := (valTmp < vRef)  ;
 end;
 
 // prend en parametre la réponse de l'appareil. Permet de traiter cette réponse.
@@ -96,15 +97,9 @@ end;
 function AppareilMultimetre.Traiter_donnee(resText : string): boolean;
 var
   resultatDouble : Double;
-  tmp : Boolean;
 begin
   resultatDouble := ParseResultat(resText);
-  tmp := AnnalyseResultat(resultatDouble, valRef);
-  result := tmp;
+  result := AnnalyseResultat(resultatDouble, valRef);
 end;
-
-
-
-
 
 end.

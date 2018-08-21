@@ -16,7 +16,10 @@ uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   TBoolList = array of Boolean;
 
 //--------------------------Déclaration de la classe AppareilCapacimetre1--------------------
-
+// Il s'agit ici d'un appareil Capacimetre de la technologie keysight
+// et qui permettra de mesurer la capacité et la tangente
+// et dee comparer les resultats a des valeurs seuils.
+// C'est une classe fille de Appareil, laquelle permet une connexion par ethernet.
 type AppareilCapacimetre1 = class(Appareil)
 
       private
@@ -41,10 +44,14 @@ end;
 
 
 implementation
-
+// Initialise cet appareil. Cet appareil doit etre un capacimetre de keysight
+// avec une adresse paramétree comme ci dessous
+// IP : 169.254.227.5
+// identité :  TCPIP0::169.254.227.5::inst0::INSTR
 constructor AppareilCapacimetre1.Create();
   begin
     Appareil(Self).Create('TCPIP0::169.254.227.5::inst0::INSTR', ':FETC?');
+    // les valeurs ci-dessous doivent etre maj par l'IHM.
     capaMin := 0;
     capaMax := 0;
     tangente := 0;
@@ -52,6 +59,8 @@ constructor AppareilCapacimetre1.Create();
 
 
 //------------------  Configure l'appareil de mesure ---------------------------
+// Configure l'appareil de type capacimetre de Keysight
+// pour recevoir une valeur de capacite une la tangente.
 function AppareilCapacimetre1.Configurer(memo : TMemo):HRESULT;
 var
    hresultat : HRESULT;
@@ -74,6 +83,8 @@ end;
 
 
 // ----------------- Fonctions pour Traitement des mesures ---------------------
+// ici, on reçoit 3 valeurs par l'appareil. On ne souhaite garder que les 2 premieres.
+// Les valeurs sont exprimés de types +1.23456E-7 et sont séparées par des virgules.
 function StripNonAlphaNumeric(const AValue: string): TStringList;
 var
   I, cpt : Integer;
