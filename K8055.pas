@@ -699,6 +699,8 @@ begin
 //A client cannot send messages if it is not connected to a server
    ButtonSend4.Enabled:=False;
    ButtonConnect4.Caption:='Connect';
+   LabelConnexion4.Caption := 'Déconnecté';
+    LabelConnexion4.Visible := True;
 end;
 
 procedure TForm1.ButtonConnect4Click(Sender: TObject);
@@ -707,7 +709,8 @@ begin
     ClientSocketAp4.Address:= EditIP4.Text ;  //'127.0.0.1';
     ClientSocketAp4.Port:= StrToInt(EditPort4.Text) ;
     ClientSocketAp4.Active := True;//Activates the client
-
+    LabelConnexion4.Caption := 'Connecté';
+    LabelConnexion4.Visible := True;
   (* if(ClientSocketAp4.Socket.Connected=True)
     then
     begin
@@ -741,13 +744,13 @@ begin
     Memo1.Lines.Add(Appareil + ' : Erreur inattendu');
 
   if ErrorEvent=eeSend then
-     Memo1.Lines.Add(Appareil + ' : Erreur d''Ã©criture sur la connexion socket');
+     Memo1.Lines.Add(Appareil + ' : Erreur d''ecriture sur la connexion socket');
 
   if ErrorEvent=eeReceive then
     Memo1.Lines.Add(Appareil +' : Erreur de lecture sur la connexion socket');
 
   if ErrorEvent=eeConnect then
-    Memo1.Lines.Add(Appareil + ' : Une demande de connexion dÃ©jÃ  acceptÃ©e n''a pas pu Ãªtre achevÃ©e');
+    Memo1.Lines.Add(Appareil + ' : Une demande de connexion deja  acceptee n''a pas pu etre achevee');
 
   if ErrorEvent=eeDisconnect then
     Memo1.Lines.Add(Appareil + ' : Erreur de fermeture d''une connexion');
@@ -772,7 +775,7 @@ end;
 procedure TForm1.ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
 begin
 //Reads and displays the message received from the server;
-    EditReception1.Text := String(Socket.ReceiveText);
+    EditReception4.Text := String(Socket.ReceiveText);
     LabelSent4.Visible := false;
 end;
 
