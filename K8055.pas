@@ -131,6 +131,7 @@ type
     procedure TraiterResAp3();
     procedure ButtonFindValuesClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure LireFichier();
   private
     { Private declarations }
   public
@@ -343,7 +344,7 @@ end;
 *********            Chargement du fichier         ********************
 ******************************************************************** *)
 
-procedure LireFichier();
+procedure TForm1.LireFichier();
 var
 vMSExcel : variant;
     vXLWorkbooks, vXLWorkbook, vReadOnly, vLink : variant;
@@ -388,7 +389,18 @@ begin
       vCell := vWorksheet.Range[sRange2];
       sValue2 := vCell.Value;
       //Memo1.Lines.Add(sValue1 + ' ; ' + sValue2);
-      dictionaryRef.Add(sValue1, sValue2);
+      try
+           dictionaryRef.Add(sValue1, sValue2);
+      except
+      on E: Exception do
+        begin
+          ShowMessage(E.message + sLineBreak + 'ligne ' + IntToStr(j) + ' : ' + sValue1 + ' -> ' + sValue2);
+          vMSExcel.Quit;
+          vMSExcel := Unassigned;
+          exit;
+        end
+      end;
+      //dictionaryRef.Add(sValue1, sValue2);
 
       Inc(j, 1);
 
@@ -398,7 +410,7 @@ begin
     end;
 
     // remplissage de la 2eme hashmap  :
-
+    (*
     // accÃ¨de Ã  la feuille voulue
     aSheetName := 'Feuil8';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
@@ -466,6 +478,7 @@ begin
       vCell := vWorksheet.Range[sRange1];
       sValue1 := vCell.Value;
     end;
+    *)
 
     vMSExcel.Quit;
     vMSExcel := Unassigned;
