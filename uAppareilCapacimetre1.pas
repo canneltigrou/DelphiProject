@@ -33,7 +33,7 @@ type AppareilCapacimetre1 = class(Appareil)
         // Procédures
 
         //Fonctions
-        Function Configurer(memo : TMemo):HRESULT;
+        Function Configurer(memo : TMemo):HRESULT; override;
         Function Traiter_donnee(resText : String): TBoolList;
 
         // Acces propriétés

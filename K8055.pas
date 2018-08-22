@@ -801,6 +801,7 @@ procedure TForm1.ButtonTestClick(Sender: TObject);
 begin
     TraiterResAp1();
     TraiterResAp2();
+    TraiterResAp3();
 end;
 
 

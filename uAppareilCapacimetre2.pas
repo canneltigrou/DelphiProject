@@ -25,7 +25,7 @@ type AppareilCapacimetre2 = class(Appareil)
         // Procédures
 
         //Fonctions
-        Function Configurer(memo : TMemo):HRESULT;
+        Function Configurer(memo : TMemo):HRESULT; override;
         Function Traiter_donnee(resText : String):boolean;
 
         // Acces propriétés
@@ -91,6 +91,7 @@ begin
       else
         if AValue.Chars[I] = ',' then
           stop := true;
+      inc(I, 1);
     end;
 end;
 
@@ -110,7 +111,6 @@ end;
 function AppareilCapacimetre2.Traiter_donnee(resText : string): boolean;
 var
   resultatDouble : Double;
-  tmp : Boolean;
 begin
   resultatDouble := ParseResultat(resText);
   result := (resultatDouble < valRef);
