@@ -103,6 +103,9 @@ type
     Label7: TLabel;
     Label9: TLabel;
     EditImpedance: TEdit;
+    CbACK1: TCheckBox;
+    CbACK2: TCheckBox;
+    CbACK3: TCheckBox;
 
 
     procedure FormCreate(Sender: TObject);
@@ -132,6 +135,9 @@ type
     procedure ButtonFindValuesClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure LireFichier();
+    procedure FaireMesureAp1(Sender: TObject);
+    procedure FaireMesureAp2(Sender: TObject);
+    procedure FaireMesureAp3(Sender: TObject);
   private
     { Private declarations }
   public
@@ -538,7 +544,7 @@ begin
   then
   begin
     CheckBox1.Checked := True;
-    ButtonSend1Click(Sender);
+    FaireMesureAp1(Sender);
     TraiterResAp1();
   end
   else
@@ -548,7 +554,7 @@ begin
   then
   begin
     CheckBox2.Checked := True;
-    ButtonSend2Click(Sender);
+    FaireMesureAp2(Sender);
     TraiterResAp2();
   end
   else
@@ -558,7 +564,7 @@ begin
   then
   begin
     CheckBox3.Checked := True;
-    ButtonSend3Click(Sender);
+    FaireMesureAp3(Sender);
     TraiterResAp3();
   end
   else
@@ -601,12 +607,23 @@ begin
   end;
 end;
 
-procedure TForm1.ButtonSend1Click(Sender: TObject);
+procedure TForm1.FaireMesureAp1(Sender: TObject);
 begin
+    EditSend1.Text := appareil1.instruction;
     LabelSent1.Visible := true;
     EditReception1.Text := appareil1.Mesurer();
     LabelSent1.Visible := false;
     TraiterResAp1();
+end;
+
+
+procedure TForm1.ButtonSend1Click(Sender: TObject);
+var
+    str : string;
+begin
+    str := appareil1.Send(EditSend1.Text, cbACK3.Checked);
+    memo1.Lines.Add('message envoyé à l''appareil 1');
+    EditReception1.Text := str;
 end;
 
 (* *******************************************************************
@@ -660,12 +677,24 @@ begin
   end;
 end;
 
-procedure TForm1.ButtonSend2Click(Sender: TObject);
+procedure TForm1.FaireMesureAp2(Sender: TObject);
 begin
+    EditSend2.Text := appareil2.instruction;
     LabelSent2.Visible := true;
     EditReception2.Text := appareil2.Mesurer();
     LabelSent2.Visible := false;
     TraiterResAp2();
+end;
+
+
+
+procedure TForm1.ButtonSend2Click(Sender: TObject);
+var
+    str : string;
+begin
+    str := appareil2.Send(EditSend2.Text, cbACK2.Checked);
+    memo1.Lines.Add('message envoyé à l''appareil 2');
+    EditReception2.Text := str;
 end;
 
 
@@ -693,12 +722,23 @@ begin
   end;
 end;
 
-procedure TForm1.ButtonSend3Click(Sender: TObject);
+
+procedure TForm1.FaireMesureAp3(Sender: TObject);
 begin
+    EditSend3.Text := appareil3.instruction;
     LabelSent3.Visible := true;
     EditReception3.Text := appareil2.Mesurer();
     LabelSent3.Visible := false;
     TraiterResAp3();
+end;
+
+procedure TForm1.ButtonSend3Click(Sender: TObject);
+var
+    str : string;
+begin
+    str := appareil3.Send(EditSend3.Text, cbACK3.Checked);
+    memo1.Lines.Add('message envoyé à l''appareil 3');
+    EditReception3.Text := str;
 end;
 
 (*************************************************************************

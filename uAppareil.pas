@@ -36,7 +36,7 @@ type Appareil = class
 
         //Fonctions
         function Connecter(memo : TMemo):HRESULT;
-        function Send(mess :string):string; // si envoi manuel depuis l'IHM.
+        function Send(mess :string; ack : boolean):string; // si envoi manuel depuis l'IHM.
                                             //Renvoie la réponse de l'appareil
         function Mesurer():string;
         function Configurer(memo : TMemo) : HRESULT; Virtual; Abstract;  // Must be implemented in child
@@ -96,11 +96,15 @@ begin
 end;
 
 //--------- Envoie la commande entree en parametre a l'appareil ----------------
-function Appareil.Send(mess :string):string;
+function Appareil.Send(mess :string; ack : boolean):string;
 begin
+    result := '';
     io.WriteString(mess, retCount); // Write to the instrument
-    io.ReadString(1000, readResult); // read the result
-    result := readResult;
+    if(ack) then
+    begin
+        io.ReadString(1000, readResult); // read the result
+        result := readResult;
+    end;
 end;
 
 end.
