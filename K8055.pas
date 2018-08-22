@@ -727,7 +727,7 @@ procedure TForm1.FaireMesureAp3(Sender: TObject);
 begin
     EditSend3.Text := appareil3.instruction;
     LabelSent3.Visible := true;
-    EditReception3.Text := appareil2.Mesurer();
+    EditReception3.Text := appareil3.Mesurer();
     LabelSent3.Visible := false;
     TraiterResAp3();
 end;
