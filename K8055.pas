@@ -36,7 +36,7 @@ type
     Label3: TLabel;
     ButtonFrequence: TButton;
     GroupBoxAutomate: TGroupBox;
-    Label12: TLabel;
+    LabelEtatAutomate: TLabel;
     GroupBoxAp4: TGroupBox;
     EditIP4: TEdit;
     EditPort4: TEdit;
@@ -509,7 +509,7 @@ end;
 procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
     CloseDevice;
-    label12.caption:='Disconnected'
+    LabelEtatAutomate.caption:='Disconnected'
 end;
 
 
@@ -521,8 +521,8 @@ begin
   CardAddr:= 3-(integer(sk5.Checked) + integer(sk6.Checked) * 2);
   h:= OpenDevice(CardAddr);
   case h of
-    0..3: label12.caption:='Card '+ inttostr(h)+' connected';
-    -1: label12.caption:='Card '+ inttostr(CardAddr)+' not found';
+    0..3: LabelEtatAutomate.caption:='Card '+ inttostr(h)+' connected';
+    -1: LabelEtatAutomate.caption:='Card '+ inttostr(CardAddr)+' not found';
   end;
   if h>=0 then
     Timer1.Enabled:=True;
@@ -790,6 +790,7 @@ procedure TForm1.ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSock
 var
     str : string;
 begin
+   LabelConnexion4.Caption := 'Connecté';
    ButtonSend4.Enabled:= True;
    // envoi des instructions
    str := 'SYSTem:LOCK ON';
@@ -801,6 +802,7 @@ begin
    ClientSocketAp4.Socket.SendText(AnsiString(str));//Send the messages to the server
    //LabelSent4.Visible := true;
    Memo1.Lines.Add('Envoi à l''appareil4 de : ' + EditSend4.Text);
+
 end;
 
 procedure TForm1.ButtonSend4Click(Sender: TObject);
@@ -861,7 +863,6 @@ begin
         ClientSocketAp4.Address:= EditIP4.Text ;  //'127.0.0.1';
         ClientSocketAp4.Port:= StrToInt(EditPort4.Text) ;
         ClientSocketAp4.Active := True;//Activates the client
-        LabelConnexion4.Caption := 'Connecté';
         LabelConnexion4.Visible := True;
 
 
@@ -903,36 +904,39 @@ begin
    try
       SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
    finally
-      formConnect.AddMemoLine(LabelConnexion1.Caption);
+      formConnect.AddMemoLine('  >> ' + LabelConnexion1.Caption);
       try
-        formConnect.AddMemoLine('Configuration de l''appareil 1 : le Multimetre');
+        formConnect.AddMemoLine('Configuration de l''appareil 1');
         if(ButtonConnect1.Enabled = false)then
           Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
       finally
-          formConnect.AddMemoLine(LabelConnexion1.Caption);
+          formConnect.AddMemoLine('  >> ' + LabelConnexion1.Caption);
           formConnect.AddMemoLine('Connexion a l''appareil 2 : le Capacimetre');
           try
               SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
           finally
-              formConnect.AddMemoLine(LabelConnexion2.Caption);
+              formConnect.AddMemoLine('  >> ' + LabelConnexion2.Caption);
               try
-                formConnect.AddMemoLine('Configuration de l''appareil 2 : le Capacimetre');
+                formConnect.AddMemoLine('Configuration de l''appareil 2');
                   if(ButtonConnect2.Enabled = false)then
                       Configurer(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
               finally
-                  formConnect.AddMemoLine(LabelConnexion2.Caption);
+                  formConnect.AddMemoLine('  >> ' + LabelConnexion2.Caption);
                   formConnect.AddMemoLine('Connexion a l''appareil 3 : le 2eme Capacimetre');
                   try
                       SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
                   finally
-                      formConnect.AddMemoLine(LabelConnexion3.Caption);
+                      formConnect.AddMemoLine('  >> ' + LabelConnexion3.Caption);
                       try
-                        formConnect.AddMemoLine('Configuration de l''appareil 3 : le 2eme Capacimetre');
+                        formConnect.AddMemoLine('Configuration de l''appareil 3');
                           if(ButtonConnect3.Enabled = false)then
                               Configurer(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
                       finally
-                        formConnect.AddMemoLine(LabelConnexion3.Caption);
+                        formConnect.AddMemoLine('  >> ' + LabelConnexion3.Caption);
                         ChargementFile(formConnect.memo, ButtonFindValues);
+                        formConnect.AddMemoLine('Connexion à l''automate');
+                        ButtonConnectAutomateClick(Sender);
+                        formConnect.AddMemoLine('  >> ' + LabelEtatAutomate.Caption);
                       end;
                   end;
               end;
