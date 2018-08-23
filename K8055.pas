@@ -21,7 +21,6 @@ type
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
     CheckBox4: TCheckBox;
-    CheckBox5: TCheckBox;
     GroupBoxOutputs: TGroupBox;
     CbOutput1: TCheckBox;
     CbOutput2: TCheckBox;
