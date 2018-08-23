@@ -10,6 +10,7 @@ type
   TFormConnection = class(TForm)
     Memo1: TMemo;
     ButtonOK: TButton;
+    Label1: TLabel;
     procedure ButtonOKClick(Sender: TObject);
 
 

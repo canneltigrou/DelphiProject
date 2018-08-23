@@ -27,8 +27,9 @@ type
     CbOutput2: TCheckBox;
     CbOutput3: TCheckBox;
     CbOutput4: TCheckBox;
-    CbOutput5: TCheckBox;
     CbOutput6: TCheckBox;
+    CbOutput5: TCheckBox;
+    CbOutput7: TCheckBox;
     SpeedButtonTest: TSpeedButton;
     ButtonDisconnectAutomate: TButton;
     EditFrequence: TEdit;
@@ -110,6 +111,8 @@ type
     EditCapaNominale: TEdit;
     Label11: TLabel;
     Label13: TLabel;
+    Label15: TLabel;
+
 
 
     procedure FormCreate(Sender: TObject);
@@ -141,6 +144,7 @@ type
     procedure FaireMesureAp1(Sender: TObject);
     procedure FaireMesureAp2(Sender: TObject);
     procedure FaireMesureAp3(Sender: TObject);
+    procedure EnvoiTensionAp4();
   private
     { Private declarations }
   public
@@ -299,9 +303,8 @@ begin
                   + sLineBreak + '"Tension nominale" colonne F '
                   + sLineBreak + '"Capacité nominale" colonne G '
               );
-
   end;
-
+  EnvoiTensionAp4();
 end;
 
 
@@ -673,14 +676,14 @@ begin
   then
   begin
     LabelEtat2.Caption := LabelEtat2.Caption + ' - OK';
-    CbOutput6.checked := false;
-    ClearDigitalChannel(6);
+    CbOutput5.checked := false;
+    ClearDigitalChannel(5);
   end
   else
   begin
     LabelEtat2.Caption := LabelEtat2.Caption  + ' - KO';
-    CbOutput6.checked := true;
-    SetDigitalChannel(6);
+    CbOutput5.checked := true;
+    SetDigitalChannel(5);
   end;
 end;
 
@@ -718,14 +721,14 @@ begin
   then
   begin
     LabelEtat3.Caption := 'OK';
-    CbOutput5.checked := false;
-    ClearDigitalChannel(5);
+    CbOutput6.checked := false;
+    ClearDigitalChannel(6);
   end
   else
   begin
     LabelEtat3.Caption := 'KO';
-    CbOutput5.checked := true;
-    SetDigitalChannel(5);
+    CbOutput6.checked := true;
+    SetDigitalChannel(6);
   end;
 end;
 
@@ -784,9 +787,20 @@ end;
 
 
 procedure TForm1.ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
+var
+    str : string;
 begin
    ButtonSend4.Enabled:= True;
-  // ButtonConnect2.Caption:='Connect';
+   // envoi des instructions
+   str := 'SYSTem:LOCK ON';
+   EditSend4.Text := str;
+   ClientSocketAp4.Socket.SendText(AnsiString(str));//Send the messages to the server
+   Memo1.Lines.Add('Envoi à l''appareil4 de : ' + EditSend4.Text);
+   str := 'VOLT ' + (dictionaryValues[currentCode])['Tension nominale'].ToString;;
+   EditSend4.Text := str;
+   ClientSocketAp4.Socket.SendText(AnsiString(str));//Send the messages to the server
+   //LabelSent4.Visible := true;
+   Memo1.Lines.Add('Envoi à l''appareil4 de : ' + EditSend4.Text);
 end;
 
 procedure TForm1.ButtonSend4Click(Sender: TObject);
@@ -839,6 +853,25 @@ begin
     LabelSent4.Visible := false;
 end;
 
+procedure TForm1.EnvoiTensionAp4();
+begin
+    try
+
+        // connexion au serveur
+        ClientSocketAp4.Address:= EditIP4.Text ;  //'127.0.0.1';
+        ClientSocketAp4.Port:= StrToInt(EditPort4.Text) ;
+        ClientSocketAp4.Active := True;//Activates the client
+        LabelConnexion4.Caption := 'Connecté';
+        LabelConnexion4.Visible := True;
+
+
+    except on E: Exception do
+        begin
+              ShowMessage(E.message + sLineBreak + 'Il semblerait que l''appareil se soit déconnecté avant la fin des envois d''instructions.');
+        end;
+    end;
+
+end;
 
 
 
