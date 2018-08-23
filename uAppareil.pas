@@ -14,6 +14,13 @@ uses Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, OleCtrls, ComCtrls,VisaComLib_TLB, ComObj, System.Variants,
   Menus, GIFImg, ExtCtrls, ActiveX;
 
+type
+  TStringList = array of string;
+  TDoubleList = array of Double;
+  TBoolList = array of Boolean;
+
+
+
 //--------------------------Déclaration de la classe Appareil--------------------
 
 type Appareil = class

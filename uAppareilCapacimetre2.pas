@@ -26,7 +26,7 @@ type AppareilCapacimetre2 = class(Appareil)
 
         //Fonctions
         Function Configurer(memo : TMemo):HRESULT; override;
-        Function Traiter_donnee(resText : String):boolean;
+        Function Traiter_donnee(resText : String):TBoolList;
 
         // Acces propriétés
         property valeurImpedance : Double read valRef write valRef ;
@@ -107,12 +107,17 @@ end;
 
 // prend en parametre la réponse de l'appareil. Permet de traiter cette réponse.
 // envoie True si la réponse est dans les normes. False sinon.
-function AppareilCapacimetre2.Traiter_donnee(resText : string): boolean;
+function AppareilCapacimetre2.Traiter_donnee(resText : string): TBoolList;
 var
   resultatDouble : Double;
 begin
+  SetLength(result, 2);
   resultatDouble := ParseResultat(resText);
-  result := ((resultatDouble * 1000) < valRef);
+  if(valRef > 0) then
+      result[0] := ((resultatDouble * 1000) < valRef)   // valRef est en milliOhm, le resultatDouble en Ohm
+  else
+      result[0] := true;
+  result[1] := resultatDouble < 1000;
 end;
 
 end.

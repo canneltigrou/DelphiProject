@@ -10,11 +10,6 @@ uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil;
 
 
-  type
-  TStringList = array of string;
-  TDoubleList = array of Double;
-  TBoolList = array of Boolean;
-
 //--------------------------Déclaration de la classe AppareilCapacimetre1--------------------
 // Il s'agit ici d'un appareil Capacimetre de la technologie keysight
 // et qui permettra de mesurer la capacité et la tangente

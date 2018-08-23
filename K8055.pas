@@ -202,13 +202,14 @@ function Connected: boolean; stdcall; external 'K8055d.dll';
 *************            Les appareils de mesures                **************
 *************************************************************************** *)
 
-function SeConnecter(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton) : HRESULT;
+function SeConnecter(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton; EditIP : TEdit) : HRESULT;
 var
   hResultat : HRESULT;
 begin
     LabelConnexion.Visible := False;
     hResultat := S_OK;
     try
+        EditIP.Text := mon_appareil.adress;
         hResultat := mon_appareil.Connecter(memo);
         EditSend.Text := mon_appareil.instruction;
     finally
@@ -253,18 +254,21 @@ end;
 
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
 begin
-    SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+    appareil1.adress := EditIP2.Text;
+    SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1, EditIP1);
 end;
 
 
 procedure TForm1.ButtonConnect2Click(Sender: TObject);
 begin
-    SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
+    appareil2.adress := EditIP2.Text;
+    SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2, EditIP2);
 end;
 
 procedure TForm1.ButtonConnect3Click(Sender: TObject);
 begin
-    SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
+    appareil3.adress := EditIP3.Text;
+    SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3, EditIP3);
 end;
 
 
@@ -272,7 +276,7 @@ procedure TForm1.ButtonFindValuesClick(Sender: TObject);
 begin
   if(not dictionaryRef.ContainsKey(EditCodeLu.Text)) then
   begin
-      ShowMessage('Mmm... Désolé.' + sLineBreak + 'Il semblerait que cette référence ne soit pas mentionnée dans le fichier que j''ai chargé.'
+      ShowMessage('Oups... Désolé.' + sLineBreak + 'Il semblerait que cette référence ne soit pas mentionnée dans le fichier que j''ai chargé.'
                     + sLineBreak + 'Veuillez réessayer !');
       exit;
 
@@ -305,6 +309,7 @@ begin
               );
   end;
   EnvoiTensionAp4();
+  OutputAnalogChannel(1,strtoint(EditFrequence.Text));
 end;
 
 
@@ -714,10 +719,10 @@ end;
 ******************************************************************* *)
 procedure TForm1.TraiterResAp3();
 var
-  res : Boolean;
+  res : TBoolList;
 begin
   res := appareil3.Traiter_donnee(EditReception3.Text);
-  if(res = True)
+  if(res[0] = True)
   then
   begin
     LabelEtat3.Caption := 'OK';
@@ -729,6 +734,19 @@ begin
     LabelEtat3.Caption := 'KO';
     CbOutput6.checked := true;
     SetDigitalChannel(6);
+  end;
+  if(res[1] = True)
+  then
+  begin
+    LabelEtat3.Caption := LabelEtat3.Caption + ' - OK';
+    CbOutput7.checked := false;
+    ClearDigitalChannel(7);
+  end
+  else
+  begin
+    LabelEtat3.Caption := LabelEtat3.Caption + ' - KO';
+    CbOutput7.checked := true;
+    SetDigitalChannel(7);
   end;
 end;
 
@@ -902,7 +920,7 @@ begin
    //on connecte tout d'abord les diffÃ©rents appareils
    formConnect.AddMemoLine('Connexion a l''appareil 1 : le Multimetre');
    try
-      SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+      SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1, EditIP1);
    finally
       formConnect.AddMemoLine('  >> ' + LabelConnexion1.Caption);
       try
@@ -913,7 +931,7 @@ begin
           formConnect.AddMemoLine('  >> ' + LabelConnexion1.Caption);
           formConnect.AddMemoLine('Connexion a l''appareil 2 : le Capacimetre');
           try
-              SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
+              SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2, EditIP2);
           finally
               formConnect.AddMemoLine('  >> ' + LabelConnexion2.Caption);
               try
@@ -924,7 +942,7 @@ begin
                   formConnect.AddMemoLine('  >> ' + LabelConnexion2.Caption);
                   formConnect.AddMemoLine('Connexion a l''appareil 3 : le 2eme Capacimetre');
                   try
-                      SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
+                      SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3, EditIP3);
                   finally
                       formConnect.AddMemoLine('  >> ' + LabelConnexion3.Caption);
                       try
