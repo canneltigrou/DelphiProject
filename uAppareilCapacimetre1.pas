@@ -26,6 +26,7 @@ type AppareilCapacimetre1 = class(Appareil)
           CapaMin : Double;
           CapaMax : Double;
           tangente : Double;
+          CapaNominale : Double;
 
       public
         constructor Create();
@@ -40,6 +41,7 @@ type AppareilCapacimetre1 = class(Appareil)
         property valeurCapaMin : Double read CapaMin write CapaMin ;
         property valeurCapaMax : Double read CapaMax write CapaMax ;
         property valeurTangente : Double read tangente write tangente ;
+        property valeurCapaNominale : Double read CapaNominale write CapaNominale ;
 end;
 
 
@@ -52,9 +54,10 @@ constructor AppareilCapacimetre1.Create();
   begin
     Appareil(Self).Create('TCPIP0::169.254.227.5::inst0::INSTR', ':FETC?');
     // les valeurs ci-dessous doivent etre maj par l'IHM.
-    capaMin := 0;
-    capaMax := 0;
+    CapaMin := 0;
+    CapaMax := 0;
     tangente := 0;
+    CapaNominale := 0;
   end;
 
 
@@ -137,6 +140,7 @@ begin
   result[0] := (resultatDouble[0] > CapaMin);
   result[1] := (resultatDouble[0] < CapaMax);
   result[2] := ((resultatDouble[1] * 100) < tangente);
+  result[3] := (resultatDouble[0] > (0.4 * CapaNominale));
 end;
 
 

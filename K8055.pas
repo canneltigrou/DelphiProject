@@ -28,6 +28,7 @@ type
     CbOutput3: TCheckBox;
     CbOutput4: TCheckBox;
     CbOutput5: TCheckBox;
+    CbOutput6: TCheckBox;
     SpeedButtonTest: TSpeedButton;
     ButtonDisconnectAutomate: TButton;
     EditFrequence: TEdit;
@@ -106,6 +107,9 @@ type
     CbACK1: TCheckBox;
     CbACK2: TCheckBox;
     CbACK3: TCheckBox;
+    EditCapaNominale: TEdit;
+    Label11: TLabel;
+    Label13: TLabel;
 
 
     procedure FormCreate(Sender: TObject);
@@ -343,6 +347,9 @@ begin
   EditImpedance.Text :=  (dictionaryValues[currentCode])['Essais val_2'].ToString;
   appareil3.valeurImpedance := (dictionaryValues[currentCode])['Essais val_2'];
   EditTension.Text :=  (dictionaryValues[currentCode])['Tension nominale'].ToString;
+  EditCapaNominale.Text :=  (dictionaryValues[currentCode])['Capacité nominale'].ToString;
+  appareil2.valeurCapaNominale := (dictionaryValues[currentCode])['Capacité nominale'];
+
 end;
 
 
@@ -476,6 +483,14 @@ begin
       sValue3 := vCell.Value;
       tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
 
+      sRange2 := 'G1';
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+      sRange3 := 'G' + IntToStr(j)  ;
+      vCell := vWorksheet.Range[sRange3];
+      sValue3 := vCell.Value;
+      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+
       dictionaryValues.Add(sValue1, tmpDict);
 
       Inc(j, 1);
@@ -569,8 +584,8 @@ begin
   end
   else
     CheckBox3.checked:=(i and 4)>0;
-  CheckBox4.checked:=(i and 8)>0;
-  CheckBox5.checked:=(i and 16)>0;
+  //CheckBox4.checked:=(i and 8)>0;
+  //CheckBox5.checked:=(i and 16)>0;
   timer1.enabled:=true;
 end;
 
@@ -674,6 +689,19 @@ begin
     LabelEtat2.Caption := LabelEtat2.Caption  + ' - KO';
     CbOutput4.checked := true;
     SetDigitalChannel(4);
+  end;
+  if(res[3] = True)
+  then
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption + ' - OK';
+    CbOutput6.checked := false;
+    ClearDigitalChannel(6);
+  end
+  else
+  begin
+    LabelEtat2.Caption := LabelEtat2.Caption  + ' - KO';
+    CbOutput6.checked := true;
+    SetDigitalChannel(6);
   end;
 end;
 
