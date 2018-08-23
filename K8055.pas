@@ -138,7 +138,6 @@ type
     procedure TraiterResAp3();
     procedure ButtonFindValuesClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    procedure LireFichier();
     procedure FaireMesureAp1(Sender: TObject);
     procedure FaireMesureAp2(Sender: TObject);
     procedure FaireMesureAp3(Sender: TObject);
@@ -192,8 +191,11 @@ function Connected: boolean; stdcall; external 'K8055d.dll';
 
 
 
-(* *************************************************************************
-*************       Configuration initiale         *************************
+
+
+
+(* ***************************************************************************
+*************            Les appareils de mesures                **************
 *************************************************************************** *)
 
 function SeConnecter(memo : TMemo ; EditSend : TEdit; mon_appareil : Appareil; LabelConnexion : TLabel; ButtonConnect : TButton) : HRESULT;
@@ -245,76 +247,6 @@ begin
 end;
 
 
-procedure TForm1.FormCreate(Sender: TObject);
-var
-  formConnect : TFormConnection;
-begin
-(*Canvas.InitializeBitmap(BitmapGood1);   *)
-
-   SetCounterDebounceTime(1,2);
-   // on cre les differents appareils pour les connexions
-   appareil1 := AppareilMultimetre.Create;
-   appareil2 := AppareilCapacimetre1.Create;
-   appareil3 := AppareilCapacimetre2.Create;
-
-   // ici rien ne s'affiche, cette Form n'est pas encore cree.
-   // nous allons donc crÃ©er une fenetre TFormConnection pour tenir informer de ce qui se fait.
-   formConnect := TFormConnection.Create(self);
-   formConnect.Show;
-
-   //on connecte tout d'abord les diffÃ©rents appareils
-   formConnect.AddMemoLine('Connexion a l''appareil 1 : le Multimetre');
-   try
-      SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
-   finally
-      formConnect.AddMemoLine(LabelConnexion1.Caption);
-      try
-        formConnect.AddMemoLine('Configuration de l''appareil 1 : le Multimetre');
-        if(ButtonConnect1.Enabled = false)then
-          Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
-      finally
-          formConnect.AddMemoLine(LabelConnexion1.Caption);
-          formConnect.AddMemoLine('Connexion a l''appareil 2 : le Capacimetre');
-          try
-              SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
-          finally
-              formConnect.AddMemoLine(LabelConnexion2.Caption);
-              try
-                formConnect.AddMemoLine('Configuration de l''appareil 2 : le Capacimetre');
-                  if(ButtonConnect2.Enabled = false)then
-                      Configurer(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
-              finally
-                  formConnect.AddMemoLine(LabelConnexion2.Caption);
-                  formConnect.AddMemoLine('Connexion a l''appareil 3 : le 2eme Capacimetre');
-                  try
-                      SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
-                  finally
-                      formConnect.AddMemoLine(LabelConnexion3.Caption);
-                      try
-                        formConnect.AddMemoLine('Configuration de l''appareil 3 : le 2eme Capacimetre');
-                          if(ButtonConnect3.Enabled = false)then
-                              Configurer(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
-                      finally
-                        formConnect.AddMemoLine(LabelConnexion3.Caption);
-                      end;
-                  end;
-              end;
-          end;
-      end;
-   end;
-end;
-
-procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-  CloseDevice;
-end;
-
-
-
-(* ***************************************************************************
-*************            Les appareils de mesures                **************
-*************************************************************************** *)
-
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
 begin
     SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
@@ -332,23 +264,43 @@ begin
 end;
 
 
-
 procedure TForm1.ButtonFindValuesClick(Sender: TObject);
 begin
-  currentCode := dictionaryRef[EditCodeLu.Text];
-  EditEssaisVal.Text := (dictionaryValues[currentCode])['Essais val_1'].ToString;
-  Appareil1.valeurRef := (dictionaryValues[currentCode])['Essais val_1'];
-  EditCapaMin.Text :=  (dictionaryValues[currentCode])['Cap_lim_bas'].ToString;
-  appareil2.valeurCapaMin := (dictionaryValues[currentCode])['Cap_lim_bas'];
-  EditCapaMax.Text :=  (dictionaryValues[currentCode])['Cap_lim_haut'].ToString;
-  appareil2.valeurCapaMax := (dictionaryValues[currentCode])['Cap_lim_haut'];
-  EditTangente.Text :=  (dictionaryValues[currentCode])['Essais val_0'].ToString;
-  appareil2.valeurTangente := (dictionaryValues[currentCode])['Essais val_0'];
-  EditImpedance.Text :=  (dictionaryValues[currentCode])['Essais val_2'].ToString;
-  appareil3.valeurImpedance := (dictionaryValues[currentCode])['Essais val_2'];
-  EditTension.Text :=  (dictionaryValues[currentCode])['Tension nominale'].ToString;
-  EditCapaNominale.Text :=  (dictionaryValues[currentCode])['Capacité nominale'].ToString;
-  appareil2.valeurCapaNominale := (dictionaryValues[currentCode])['Capacité nominale'];
+  if(not dictionaryRef.ContainsKey(EditCodeLu.Text)) then
+  begin
+      ShowMessage('Mmm... Désolé.' + sLineBreak + 'Il semblerait que cette référence ne soit pas mentionnée dans le fichier que j''ai chargé.'
+                    + sLineBreak + 'Veuillez réessayer !');
+      exit;
+
+  end;
+  try
+      currentCode := dictionaryRef[EditCodeLu.Text];
+      EditEssaisVal.Text := (dictionaryValues[currentCode])['Essais val_1'].ToString;
+      Appareil1.valeurRef := (dictionaryValues[currentCode])['Essais val_1'];
+      EditCapaMin.Text :=  (dictionaryValues[currentCode])['Cap_lim_bas'].ToString;
+      appareil2.valeurCapaMin := (dictionaryValues[currentCode])['Cap_lim_bas'];
+      EditCapaMax.Text :=  (dictionaryValues[currentCode])['Cap_lim_haut'].ToString;
+      appareil2.valeurCapaMax := (dictionaryValues[currentCode])['Cap_lim_haut'];
+      EditTangente.Text :=  (dictionaryValues[currentCode])['Essais val_0'].ToString;
+      appareil2.valeurTangente := (dictionaryValues[currentCode])['Essais val_0'];
+      EditImpedance.Text :=  (dictionaryValues[currentCode])['Essais val_2'].ToString;
+      appareil3.valeurImpedance := (dictionaryValues[currentCode])['Essais val_2'];
+      EditTension.Text :=  (dictionaryValues[currentCode])['Tension nominale'].ToString;
+      EditCapaNominale.Text :=  (dictionaryValues[currentCode])['Capacité nominale'].ToString;
+      appareil2.valeurCapaNominale := (dictionaryValues[currentCode])['Capacité nominale'];
+  except on E: Exception do
+      ShowMessage(E.message + sLineBreak + 'Peut-etre votre organisation du fichier Excel a-t-elle changé ?'
+                  + sLineBreak + 'Pour ma part j''ai besoin de :'
+                  + sLineBreak + '"Essais val_1" colonne O'
+                  + sLineBreak + '"Cap_lim_bas" colonne J'
+                  + sLineBreak + '"Cap_lim_haut" colonne K'
+                  + sLineBreak + '"Essais val_0" colonne M'
+                  + sLineBreak + '"Essais val_2" colonne P'
+                  + sLineBreak + '"Tension nominale" colonne F '
+                  + sLineBreak + '"Capacité nominale" colonne G '
+              );
+
+  end;
 
 end;
 
@@ -357,9 +309,9 @@ end;
 *********            Chargement du fichier         ********************
 ******************************************************************** *)
 
-procedure TForm1.LireFichier();
+function LireFichier(memo : TMemo): HRESULT;
 var
-vMSExcel : variant;
+    vMSExcel : variant;
     vXLWorkbooks, vXLWorkbook, vReadOnly, vLink : variant;
     sFileName : string;
     sFullName : string;
@@ -372,7 +324,7 @@ vMSExcel : variant;
     lFormatSettings : TFormatSettings;
 begin
     lFormatSettings.DecimalSeparator := ',';
-
+    result := S_FALSE;
   // ouvre excel
     vMSExcel := CreateOleObject('Excel.Application');
     vMSExcel.Visible := false;
@@ -381,9 +333,20 @@ begin
     // ouvre le fichier en lecture seule
     sFullName := GetCurrentDir + '\' + sFileName;
     vLink := unassigned;
-    vReadOnly := true;
-    vXLWorkbooks := vMSExcel.Workbooks;
-    vXLWorkbook := vXLWorkbooks.Open(sFullName, vLink, vReadOnly);
+    try
+        vReadOnly := true;
+        vXLWorkbooks := vMSExcel.Workbooks;
+        vXLWorkbook := vXLWorkbooks.Open(sFullName, vLink, vReadOnly);
+    except
+      on E: Exception do
+        begin
+          ShowMessage(E.message + sLineBreak + 'Vérifiez d''avoir un fichier "liste.xlsx" dans votre dossier !');
+          //result := S_FALSE;
+          vMSExcel.Quit;
+          vMSExcel := Unassigned;
+          exit;
+        end
+    end;
 
 
     // remplissage de la 1ere hashmap  :
@@ -410,6 +373,7 @@ begin
           ShowMessage(E.message + sLineBreak + 'ligne ' + IntToStr(j) + ' : ' + sValue1 + ' -> ' + sValue2);
           vMSExcel.Quit;
           vMSExcel := Unassigned;
+          result := S_FALSE;
           exit;
         end
       end;
@@ -424,7 +388,7 @@ begin
 
     // remplissage de la 2eme hashmap  :
 
-    // accÃ¨de Ã  la feuille voulue
+    // acces de la feuille voulue
     aSheetName := 'Feuil8';
     vWorksheet := vXLWorkbook.WorkSheets[aSheetName];
 
@@ -503,7 +467,26 @@ begin
 
     vMSExcel.Quit;
     vMSExcel := Unassigned;
+    Result := S_OK;
 
+end;
+
+procedure ChargementFile(memo : TMemo; buttonFollowing : TButton);
+var
+    hresultat : HRESULT;
+begin
+    memo.Lines.Add('Chargement du fichier excel...') ;
+    dictionaryRef:= TDictionary<String, String>.create;
+    dictionaryValues := TDictionary<String,Tdictionary<String, Double>>.create;
+    hresultat := LireFichier(memo); // lecture du fichier
+    if hresultat = S_OK then
+    begin
+        memo.Lines.Add('   >> Chargement du fichier terminé avec succes !') ;
+        buttonFollowing.Enabled := True;
+    end
+    else
+        memo.Lines.Add('   >> ERROR : erreur survenue lors du chargementt du fichier');
+    //ButtonLoadFile.Enabled := False;
 end;
 
 
@@ -511,12 +494,8 @@ end;
 procedure TForm1.ButtonLoadFileClick(Sender: TObject);
 begin
   LabelEnCours.Visible := True;
-  dictionaryRef:= TDictionary<String, String>.create;
-  dictionaryValues := TDictionary<String,Tdictionary<String, Double>>.create;
-// lecture du fichier
-  LireFichier();
+  ChargementFile(memo1, ButtonFindValues);
   LabelEnCours.Visible := False;
-  ButtonLoadFile.Enabled := False;
 end;
 
 
@@ -859,6 +838,81 @@ begin
     EditReception4.Text := String(Socket.ReceiveText);
     LabelSent4.Visible := false;
 end;
+
+
+
+
+
+
+(* *************************************************************************
+*************       Configuration initiale         *************************
+*************************************************************************** *)
+
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  formConnect : TFormConnection;
+begin
+(*Canvas.InitializeBitmap(BitmapGood1);   *)
+
+   SetCounterDebounceTime(1,2);
+   // on cre les differents appareils pour les connexions
+   appareil1 := AppareilMultimetre.Create;
+   appareil2 := AppareilCapacimetre1.Create;
+   appareil3 := AppareilCapacimetre2.Create;
+
+   // ici rien ne s'affiche, cette Form n'est pas encore cree.
+   // nous allons donc crÃ©er une fenetre TFormConnection pour tenir informer de ce qui se fait.
+   formConnect := TFormConnection.Create(self);
+   formConnect.Show;
+
+   //on connecte tout d'abord les diffÃ©rents appareils
+   formConnect.AddMemoLine('Connexion a l''appareil 1 : le Multimetre');
+   try
+      SeConnecter(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+   finally
+      formConnect.AddMemoLine(LabelConnexion1.Caption);
+      try
+        formConnect.AddMemoLine('Configuration de l''appareil 1 : le Multimetre');
+        if(ButtonConnect1.Enabled = false)then
+          Configurer(memo1, EditSend1, appareil1, LabelConnexion1, ButtonConnect1);
+      finally
+          formConnect.AddMemoLine(LabelConnexion1.Caption);
+          formConnect.AddMemoLine('Connexion a l''appareil 2 : le Capacimetre');
+          try
+              SeConnecter(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
+          finally
+              formConnect.AddMemoLine(LabelConnexion2.Caption);
+              try
+                formConnect.AddMemoLine('Configuration de l''appareil 2 : le Capacimetre');
+                  if(ButtonConnect2.Enabled = false)then
+                      Configurer(memo1, EditSend2, appareil2, LabelConnexion2, ButtonConnect2);
+              finally
+                  formConnect.AddMemoLine(LabelConnexion2.Caption);
+                  formConnect.AddMemoLine('Connexion a l''appareil 3 : le 2eme Capacimetre');
+                  try
+                      SeConnecter(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
+                  finally
+                      formConnect.AddMemoLine(LabelConnexion3.Caption);
+                      try
+                        formConnect.AddMemoLine('Configuration de l''appareil 3 : le 2eme Capacimetre');
+                          if(ButtonConnect3.Enabled = false)then
+                              Configurer(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
+                      finally
+                        formConnect.AddMemoLine(LabelConnexion3.Caption);
+                        ChargementFile(formConnect.memo, ButtonFindValues);
+                      end;
+                  end;
+              end;
+          end;
+      end;
+   end;
+end;
+
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  CloseDevice;
+end;
+
 
 
 (* ****************************************************************************

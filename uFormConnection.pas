@@ -12,11 +12,16 @@ type
     ButtonOK: TButton;
     procedure ButtonOKClick(Sender: TObject);
 
+
   private
     { Déclarations privées }
   public
     { Déclarations publiques }
     procedure AddMemoLine(message : String);
+
+    // Acces propriétés
+    property memo : TMemo read Memo1 write Memo1 ;
+
   end;
 
 var
