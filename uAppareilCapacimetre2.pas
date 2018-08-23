@@ -61,7 +61,6 @@ begin
     try
         io.WriteString(':FUNC:IMP ZTD', retCount); // Write to the instrument
         io.WriteString(':FREQ 10000', retCount); // Write to the instrument
-        io.WriteString(':TRIG:SOUR BUS', retCount); // Write to the instrument
     except
         hresultat := S_FALSE;
     end;
@@ -113,7 +112,7 @@ var
   resultatDouble : Double;
 begin
   resultatDouble := ParseResultat(resText);
-  result := (resultatDouble < valRef);
+  result := ((resultatDouble * 1000) < valRef);
 end;
 
 end.

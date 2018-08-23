@@ -74,7 +74,6 @@ begin
     try
         io.WriteString(':FUNC:IMP CSD', retCount); // Write to the instrument
         io.WriteString(':FREQ 100', retCount); // Write to the instrument
-        io.WriteString(':TRIG:SOUR BUS', retCount); // Write to the instrument
     except
         hresultat := S_FALSE;
     end;
@@ -137,10 +136,10 @@ var
 begin
   resultatDouble := ParseResultat(resText);
   SetLength(result, 3);
-  result[0] := (resultatDouble[0] > CapaMin);
-  result[1] := (resultatDouble[0] < CapaMax);
+  result[0] := ((resultatDouble[0] * 1000000) > CapaMin);
+  result[1] := ((resultatDouble[0] * 1000000) < CapaMax);
   result[2] := ((resultatDouble[1] * 100) < tangente);
-  result[3] := (resultatDouble[0] > (0.4 * CapaNominale));
+  result[3] := ((resultatDouble[0] * 1000000) > (0.4 * CapaNominale));
 end;
 
 
