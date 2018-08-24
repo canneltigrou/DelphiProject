@@ -117,8 +117,8 @@ end;
 procedure Log.ChargerDansFichier();
 var stg : String;
 begin
-    AssignFile(logFile1,ExtractFilePath(Application.ExeName)+'Choix_' + fileName);
-    AssignFile(logFile2,ExtractFilePath(Application.ExeName)+'Mesures_' + fileName);
+    AssignFile(logFile1,ExtractFilePath(Application.ExeName)+'Choix_' + fileName + '.txt');
+    AssignFile(logFile2,ExtractFilePath(Application.ExeName)+'Mesures_' + fileName + '.txt');
 
     stg := currentMultimetre.toString + #9 + currentCapa1[0].toString + #9 +
             currentCapa1[1].toString + #9 + currentCapa1[2].toString + #9 +
