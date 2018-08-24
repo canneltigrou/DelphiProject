@@ -144,6 +144,12 @@ type
     procedure FaireMesureAp2(Sender: TObject);
     procedure FaireMesureAp3(Sender: TObject);
     procedure EnvoiTensionAp4();
+    procedure EditCapaMinChange(Sender: TObject);
+    procedure EditCapaMaxChange(Sender: TObject);
+    procedure EditTangenteChange(Sender: TObject);
+    procedure EditCapaNominaleChange(Sender: TObject);
+    procedure EditEssaisValChange(Sender: TObject);
+    procedure EditImpedanceChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -886,6 +892,36 @@ begin
 //Reads and displays the message received from the server;
     EditReception4.Text := String(Socket.ReceiveText);
     LabelSent4.Visible := false;
+end;
+
+procedure TForm1.EditCapaMaxChange(Sender: TObject);
+begin
+    appareil2.valeurCapaMax := StrToFloat(EditCapaMax.Text);
+end;
+
+procedure TForm1.EditCapaMinChange(Sender: TObject);
+begin
+    appareil2.valeurCapaMin := StrToFloat(EditCapaMin.Text);
+end;
+
+procedure TForm1.EditCapaNominaleChange(Sender: TObject);
+begin
+    appareil2.valeurCapaNominale := StrToFloat(EditCapaNominale.Text);
+end;
+
+procedure TForm1.EditEssaisValChange(Sender: TObject);
+begin
+    appareil1.valeurRef := StrToFloat(EditEssaisVal.Text);
+end;
+
+procedure TForm1.EditImpedanceChange(Sender: TObject);
+begin
+    appareil3.valeurImpedance := StrToFloat(EditImpedance.Text);
+end;
+
+procedure TForm1.EditTangenteChange(Sender: TObject);
+begin
+    appareil2.valeurTangente := StrToFloat(EditTangente.text);
 end;
 
 procedure TForm1.EnvoiTensionAp4();
