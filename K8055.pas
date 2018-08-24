@@ -827,7 +827,11 @@ begin
    ClientSocketAp4.Socket.SendText(AnsiString(str));//Send the messages to the server
    //LabelSent4.Visible := true;
    Memo1.Lines.Add('Envoi à l''appareil4 de : ' + EditSend4.Text);
-
+   // Activation de la sortie
+   str := 'OUTPut ON';
+   EditSend4.Text := str;
+   ClientSocketAp4.Socket.SendText(AnsiString(str));//Send the messages to the server
+   Memo1.Lines.Add('Envoi à l''appareil4 de : ' + EditSend4.Text);
 end;
 
 procedure TForm1.ButtonSend4Click(Sender: TObject);
