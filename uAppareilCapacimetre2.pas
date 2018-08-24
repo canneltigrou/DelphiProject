@@ -7,7 +7,7 @@ unit uAppareilCapacimetre2;
 interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil;
+  Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil, uUtils, uLog;
 
 //--------------------------Déclaration de la classe AppareilCapacimetre2--------------------
 // Il s'agit ici d'un appareil Capacimetre de la technologie keysight
@@ -26,7 +26,7 @@ type AppareilCapacimetre2 = class(Appareil)
 
         //Fonctions
         Function Configurer(memo : TMemo):HRESULT; override;
-        Function Traiter_donnee(resText : String):TBoolList;
+        Function Traiter_donnee(resText : String; monLog : Log):TBoolList;
 
         // Acces propriétés
         property valeurImpedance : Double read valRef write valRef ;
@@ -107,7 +107,7 @@ end;
 
 // prend en parametre la réponse de l'appareil. Permet de traiter cette réponse.
 // envoie True si la réponse est dans les normes. False sinon.
-function AppareilCapacimetre2.Traiter_donnee(resText : string): TBoolList;
+function AppareilCapacimetre2.Traiter_donnee(resText : string; monLog : Log): TBoolList;
 var
   resultatDouble : Double;
 begin
@@ -118,6 +118,7 @@ begin
   else
       result[0] := true;
   result[1] := resultatDouble < 1000;
+  monLog.Capacimetre2Resultat(result, resultatDouble);
 end;
 
 end.

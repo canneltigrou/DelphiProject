@@ -12,12 +12,8 @@ interface
 
 uses Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, OleCtrls, ComCtrls,VisaComLib_TLB, ComObj, System.Variants,
-  Menus, GIFImg, ExtCtrls, ActiveX;
+  Menus, GIFImg, ExtCtrls, ActiveX, uLog, uUtils;
 
-type
-  TStringList = array of string;
-  TDoubleList = array of Double;
-  TBoolList = array of Boolean;
 
 
 

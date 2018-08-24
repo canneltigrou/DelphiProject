@@ -7,7 +7,7 @@ uses
   ExtCtrls, ComCtrls, Math, Buttons, ScktComp, ActiveX,
   VisaComLib_TLB, Generics.Collections, ComObj, System.Variants, //UChargementFichier;
   uFormConnection, uAppareilMultimetre, uAppareilCapacimetre1,
-  uAppareilCapacimetre2, uAppareil;
+  uAppareilCapacimetre2, uAppareil, uLog, uUtils;
 
 type
   TForm1 = class(TForm)
@@ -130,7 +130,7 @@ type
     procedure ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
     procedure ClientSocketAp4Error(Sender: TObject; Socket: TCustomWinSocket;  ErrorEvent: TErrorEvent; var ErrorCode: Integer);
     procedure ClientSocketAp4Read(Sender: TObject; Socket: TCustomWinSocket);
-    procedure afficherError( ErrorEvent: TErrorEvent; Appareil : string);
+    procedure afficherError( ErrorEvent: TErrorEvent; Mon_appareil : string);
     procedure ClientSocket4OnConnect(Sender: TObject;  Socket: TCustomWinSocket);
     procedure ButtonConnect3Click(Sender: TObject);
     procedure ButtonLoadFileClick(Sender: TObject);
@@ -161,6 +161,9 @@ var
   dictionaryRef : TDictionary<String, String>  ;   // dictionaryRef[NÂ°OF] = Article
   dictionaryValues : TDictionary<String, TDictionary<String, Double>>; // dictionaryValues[Article] = les valeurs importante du excel pour cet aticle
   currentCode : String;
+
+  monLog : Log;
+  flag : Boolean;
 
 
 implementation
@@ -544,6 +547,10 @@ begin
   if((not CheckBox1.Checked) and ((i and 1)>0))
   then
   begin
+    // sera le point de depart pour préciser qu'on change de composant pour le log
+    if flag then
+      monLog.ChangementComposants
+    ;
     CheckBox1.Checked := True;
     FaireMesureAp1(Sender);
     TraiterResAp1();
@@ -593,7 +600,7 @@ var
   res : Boolean;
 begin
   CbOutput1.checked := false;
-  res := appareil1.Traiter_donnee(EditReception1.Text);
+  res := appareil1.Traiter_donnee(EditReception1.Text, monLog);
   if(res = True)
   then
   begin
@@ -606,6 +613,7 @@ begin
     CbOutput1.checked := true;
     SetDigitalChannel(1);
   end;
+  flag := true;
 end;
 
 procedure TForm1.FaireMesureAp1(Sender: TObject);
@@ -636,7 +644,7 @@ var
   res : TBoolList;
 begin
   SetLength(res, 3);
-  res := appareil2.Traiter_donnee(EditReception2.Text);
+  res := appareil2.Traiter_donnee(EditReception2.Text, monLog);
   if(res[0] = True)
   then
   begin
@@ -720,7 +728,7 @@ procedure TForm1.TraiterResAp3();
 var
   res : TBoolList;
 begin
-  res := appareil3.Traiter_donnee(EditReception3.Text);
+  res := appareil3.Traiter_donnee(EditReception3.Text, monLog);
   if(res[0] = True)
   then
   begin
@@ -831,25 +839,25 @@ begin
     LabelSent4.Visible := true;
 end;
 
-procedure TForm1.afficherError( ErrorEvent: TErrorEvent; Appareil : string);
+procedure TForm1.afficherError( ErrorEvent: TErrorEvent; Mon_appareil : string);
 begin
    if ErrorEvent=eeGeneral then
-    Memo1.Lines.Add(Appareil + ' : Erreur inattendu');
+    Memo1.Lines.Add(Mon_appareil + ' : Erreur inattendu');
 
   if ErrorEvent=eeSend then
-     Memo1.Lines.Add(Appareil + ' : Erreur d''ecriture sur la connexion socket');
+     Memo1.Lines.Add(Mon_appareil + ' : Erreur d''ecriture sur la connexion socket');
 
   if ErrorEvent=eeReceive then
-    Memo1.Lines.Add(Appareil +' : Erreur de lecture sur la connexion socket');
+    Memo1.Lines.Add(Mon_appareil +' : Erreur de lecture sur la connexion socket');
 
   if ErrorEvent=eeConnect then
-    Memo1.Lines.Add(Appareil + ' : Une demande de connexion deja  acceptee n''a pas pu etre achevee');
+    Memo1.Lines.Add(Mon_appareil + ' : Une demande de connexion deja  acceptee n''a pas pu etre achevee');
 
   if ErrorEvent=eeDisconnect then
-    Memo1.Lines.Add(Appareil + ' : Erreur de fermeture d''une connexion');
+    Memo1.Lines.Add(Mon_appareil + ' : Erreur de fermeture d''une connexion');
 
   if ErrorEvent=eeAccept then
-    Memo1.Lines.Add(Appareil + ' : Erreur d''acceptation d''une demande de connexion cliente');
+    Memo1.Lines.Add(Mon_appareil + ' : Erreur d''acceptation d''une demande de connexion cliente');
 
 end;
 
@@ -904,12 +912,13 @@ var
   formConnect : TFormConnection;
 begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
-
+   flag := False;
    SetCounterDebounceTime(1,2);
    // on cre les differents appareils pour les connexions
    appareil1 := AppareilMultimetre.Create;
    appareil2 := AppareilCapacimetre1.Create;
    appareil3 := AppareilCapacimetre2.Create;
+   monLog := Log.Create;
 
    // ici rien ne s'affiche, cette Form n'est pas encore cree.
    // nous allons donc crÃ©er une fenetre TFormConnection pour tenir informer de ce qui se fait.
@@ -975,9 +984,13 @@ end;
 
 procedure TForm1.ButtonTestClick(Sender: TObject);
 begin
+   // monLog.ChangementComposants;
+   if flag then
+      monLog.ChangementComposants;
     TraiterResAp1();
     TraiterResAp2();
     TraiterResAp3();
+
 end;
 
 

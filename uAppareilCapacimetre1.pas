@@ -7,7 +7,7 @@
 interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil;
+  Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil, uUtils, uLog;
 
 
 //--------------------------Déclaration de la classe AppareilCapacimetre1--------------------
@@ -30,7 +30,7 @@ type AppareilCapacimetre1 = class(Appareil)
 
         //Fonctions
         Function Configurer(memo : TMemo):HRESULT; override;
-        Function Traiter_donnee(resText : String): TBoolList;
+        Function Traiter_donnee(resText : String; monLog : Log): TBoolList;
 
         // Acces propriétés
         property valeurCapaMin : Double read CapaMin write CapaMin ;
@@ -125,7 +125,7 @@ end;
 // prend en parametre la réponse de l'appareil. Permet de traiter cette réponse.
 // envoie True si la réponse est dans les normes. False sinon.
 // la tangenteReference etant en pourcentage et la reponse en taux, je *100 le taux
-function AppareilCapacimetre1.Traiter_donnee(resText : string):TBoolList;
+function AppareilCapacimetre1.Traiter_donnee(resText : string; monLog : Log):TBoolList;
 var
   resultatDouble : TDoubleList;
 begin
@@ -135,6 +135,7 @@ begin
   result[1] := ((resultatDouble[0] * 1000000) < CapaMax);
   result[2] := ((resultatDouble[1] * 100) < tangente);
   result[3] := ((resultatDouble[0] * 1000000) > (0.4 * CapaNominale));
+  monLog.Capacimetre1Resultat(result, resultatDouble);
 end;
 
 
