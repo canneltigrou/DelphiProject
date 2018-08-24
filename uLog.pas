@@ -94,8 +94,8 @@ begin
     DecodeTime(myDate, myHour, myMin, mySec, myMilli);
     fileName := FormatDateTime('dddddd', myDate) + '_' + myHour.ToString + myMin.ToString + mySec.ToString;
 
-    AssignFile(logFile1,ExtractFilePath(Application.ExeName)+'Choix_' + fileName);
-    AssignFile(logFile2,ExtractFilePath(Application.ExeName)+'Mesures_' + fileName);
+    AssignFile(logFile1,ExtractFilePath(Application.ExeName)+'Choix_' + fileName + '.txt');
+    AssignFile(logFile2,ExtractFilePath(Application.ExeName)+'Mesures_' + fileName + '.txt');
 
     //Effacer le fichier et ecrire
     Stg:='Courant_de_fuite' + #9 + 'Capacite(-)' + #9 + 'Capacite(+)' + #9 + 'Tangente' + #9 + 'Capacite_trop_faible' + #9 + 'Impedance' + #9 + 'Absence_composant'; //Recupere dans la variable Stg le contenu de Edit1

@@ -516,7 +516,11 @@ end;
 procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
     CloseDevice;
-    LabelEtatAutomate.caption:='Disconnected'
+    LabelEtatAutomate.caption:='Disconnected' ;
+    if flag then
+      monLog.ChangementComposants;
+    flag := false;
+
 end;
 
 
