@@ -54,6 +54,7 @@ type Log = class
           procedure MultimetreResultat(res : bool ; resValue : Double);
           procedure Capacimetre1Resultat(res : TBoolList ; resValues : TDoubleList);
           procedure Capacimetre2Resultat(res : TBoolList ; resValue : Double);
+          procedure LogComposant(multimetre : TResultat ; capa1 : TResultats ; capa2 : TResultatsCapa2);
           procedure AjoutCC();
 
           // Acces propriétés
@@ -180,5 +181,15 @@ procedure Log.AjoutCC();
 begin
     Inc(cc, 1);
 end;
+
+procedure Log.LogComposant(multimetre : TResultat ; capa1 : TResultats ; capa2 : TResultatsCapa2);
+begin
+    MultimetreResultat(multimetre.Annalyse, multimetre.Valeur);
+    Capacimetre1Resultat(capa1.Annalyse, capa1.Valeur);
+    Capacimetre2Resultat(capa2.Annalyse, capa2.Valeur);
+    ChargerDansFichier;
+end;
+
+
 
 end.

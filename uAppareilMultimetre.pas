@@ -7,7 +7,7 @@ unit uAppareilMultimetre;
 interface
 
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil, uLog;
+  Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil, uLog, uUtils;
 
 //--------------------------Déclaration de la classe AppareilMultimetre--------------------
 // Il s'agit ici d'un appareil Multimetre de la technologie keysight
@@ -26,7 +26,7 @@ type AppareilMultimetre = class(Appareil)
 
         //Fonctions
         Function Configurer(memo : TMemo):HRESULT;
-        Function Traiter_donnee(resText : String; monLog : Log):boolean;
+        Function Traiter_donnee(resText : String):TResultat;
 
         // Acces propriétés
         property valeurRef : Double read valRef write valRef ;
@@ -94,13 +94,14 @@ end;
 
 // prend en parametre la réponse de l'appareil. Permet de traiter cette réponse.
 // envoie True si la réponse est dans les normes. False sinon.
-function AppareilMultimetre.Traiter_donnee(resText : string; monLog : Log): boolean;
+function AppareilMultimetre.Traiter_donnee(resText : string): TResultat;
 var
   resultatDouble : Double;
 begin
   resultatDouble := ParseResultat(resText);
-  result := AnnalyseResultat(resultatDouble, valRef);
-  monLog.MultimetreResultat(result, resultatDouble);
+  Result.Annalyse := AnnalyseResultat(resultatDouble, valRef);
+  Result.Valeur := resultatDouble;
+  //monLog.MultimetreResultat(result, resultatDouble);
 end;
 
 end.

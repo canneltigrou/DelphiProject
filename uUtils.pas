@@ -12,6 +12,20 @@ type
   TDoubleList = array of Double;
   TBoolList = array of Boolean;
 
+  TResultat = {packed} record
+       Valeur : Double;
+       Annalyse : Boolean;
+  end;
+
+  TResultats = {packed} record
+       Valeur : TDoubleList;
+       Annalyse : TBoolList;
+  end;
+
+  TResultatsCapa2 = {packed} record
+       Valeur : Double;
+       Annalyse : TBoolList;
+  end;
 
 
 implementation

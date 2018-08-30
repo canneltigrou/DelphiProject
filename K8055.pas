@@ -8,6 +8,7 @@ uses
   VisaComLib_TLB, Generics.Collections, ComObj, System.Variants, //UChargementFichier;
   uFormConnection, uAppareilMultimetre, uAppareilCapacimetre1,
   uAppareilCapacimetre2, uAppareil, uLog, uUtils;
+ // TQueue : http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/delphivclwin32/Generics_Collections_TQueue.html
 
 type
   TForm1 = class(TForm)
@@ -111,6 +112,12 @@ type
     Label11: TLabel;
     Label13: TLabel;
     Label15: TLabel;
+    EditPas1_3: TEdit;
+    EditPas3_2: TEdit;
+    Label12: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Label20: TLabel;
 
 
 
@@ -150,6 +157,8 @@ type
     procedure EditCapaNominaleChange(Sender: TObject);
     procedure EditEssaisValChange(Sender: TObject);
     procedure EditImpedanceChange(Sender: TObject);
+    procedure EditPas1_3Change(Sender: TObject);
+    procedure EditPas3_2Change(Sender: TObject);
   private
     { Private declarations }
   public
@@ -169,7 +178,13 @@ var
   currentCode : String;
 
   monLog : Log;
-  flag : Boolean;
+  compteurTop2 : Integer;
+  compteurTop3 : Integer;
+
+  fifoAp1 : TQueue<TResultat>;
+  fifoAp3 : TQueue<TResultatsCapa2>;
+  pas_1_3 : Integer;
+  pas_3_2 : Integer;
 
 
 implementation
@@ -523,10 +538,6 @@ procedure TForm1.ButtonDisconnectAutomateClick(Sender: TObject);
 begin
     CloseDevice;
     LabelEtatAutomate.caption:='Disconnected' ;
-    if flag then
-      monLog.ChangementComposants;
-    flag := false;
-
 end;
 
 
@@ -535,6 +546,9 @@ var h,CardAddr:integer;
 //out_digital: longint;
 //out_analog: array[0..1] of longint;
 begin
+  pas_1_3 := StrToInt(EditPas1_3.Text);
+  pas_3_2 := StrToInt(EditPas3_2.Text);
+
   CardAddr:= 3-(integer(sk5.Checked) + integer(sk6.Checked) * 2);
   h:= OpenDevice(CardAddr);
   case h of
@@ -544,6 +558,10 @@ begin
   if h>=0 then
     Timer1.Enabled:=True;
   ClearAllDigital;
+
+  //EditPas1_3.Enabled := False;
+  //EditPas3_2.Enabled := False;
+
 end;
 
 
@@ -558,9 +576,6 @@ begin
   then
   begin
     // sera le point de depart pour préciser qu'on change de composant pour le log
-    if flag then
-      monLog.ChangementComposants
-    ;
     CheckBox1.Checked := True;
     FaireMesureAp1(Sender);
     TraiterResAp1();
@@ -571,6 +586,7 @@ begin
   if((not CheckBox2.Checked) and ((i and 2)>0))
   then
   begin
+    Inc(compteurTop2, 1);
     CheckBox2.Checked := True;
     FaireMesureAp2(Sender);
     TraiterResAp2();
@@ -581,6 +597,7 @@ begin
   if((not CheckBox3.Checked) and ((i and 4)>0))
   then
   begin
+    Inc(compteurTop3, 1);
     CheckBox3.Checked := True;
     FaireMesureAp3(Sender);
     TraiterResAp3();
@@ -605,12 +622,19 @@ end;
 *********   Annalyse Appareil 1 Multimetre **************************
 ******************************************************************* *)
 
+(* Ici du 1er appareil a effectué une mesure sur un composant précis.
+On ne log pas tout de suite les résultats : on stocke donc le résultat dans la pile
+*)
+
 procedure TForm1.TraiterResAp1();
 var
   res : Boolean;
+  fifoElmt : TResultat;
 begin
   CbOutput1.checked := false;
-  res := appareil1.Traiter_donnee(EditReception1.Text, monLog);
+  fifoElmt := appareil1.Traiter_donnee(EditReception1.Text);
+  fifoAp1.Enqueue(fifoElmt);
+  res := fifoElmt.Annalyse;
   if(res = True)
   then
   begin
@@ -623,7 +647,7 @@ begin
     CbOutput1.checked := true;
     SetDigitalChannel(1);
   end;
-  flag := true;
+
 end;
 
 procedure TForm1.FaireMesureAp1(Sender: TObject);
@@ -649,12 +673,21 @@ end;
 *********   Annalyse Appareil 2 Capacimetre **************************
 *********     Capacite + Tangente           **************************
 ******************************************************************* *)
+
+(* Ici il s'agit du dernier appareil a effectué une mesure sur un composant précis.
+On récupère donc les différentes valeurs dans les fifo concernant ce composant pour log.
+*)
 procedure TForm1.TraiterResAp2();
 var
   res : TBoolList;
+  fifoElmt : TResultats;
 begin
   SetLength(res, 3);
-  res := appareil2.Traiter_donnee(EditReception2.Text, monLog);
+  fifoElmt := appareil2.Traiter_donnee(EditReception2.Text);
+  if compteurTop2 >= (pas_1_3 + pas_3_2) then
+      monLog.LogComposant( fifoAp1.Dequeue, fifoElmt, fifoAp3.Dequeue);
+
+  res := fifoElmt.Annalyse;
   if(res[0] = True)
   then
   begin
@@ -737,8 +770,12 @@ end;
 procedure TForm1.TraiterResAp3();
 var
   res : TBoolList;
+  fifoElmt : TResultatsCapa2;
 begin
-  res := appareil3.Traiter_donnee(EditReception3.Text, monLog);
+  fifoElmt := appareil3.Traiter_donnee(EditReception3.Text);
+  if compteurTop3 >= (pas_1_3) then
+      fifoAp3.Enqueue(fifoElmt);
+  res := fifoElmt.Annalyse;
   if(res[0] = True)
   then
   begin
@@ -809,14 +846,6 @@ begin
     ClientSocketAp4.Active := True;//Activates the client
     LabelConnexion4.Caption := 'Connecté';
     LabelConnexion4.Visible := True;
-  (* if(ClientSocketAp4.Socket.Connected=True)
-    then
-    begin
-      LabelEtat1.Visible := True;
-      ClientSocketAp4.Active := False;//Disconnects the client
-      ButtonConnect4.Caption:='Connect';
-    end;
-    *)
 end;
 
 
@@ -919,6 +948,16 @@ begin
     appareil3.valeurImpedance := StrToFloat(EditImpedance.Text);
 end;
 
+procedure TForm1.EditPas1_3Change(Sender: TObject);
+begin
+    pas_1_3 := StrToInt(EditPas1_3.Text);
+end;
+
+procedure TForm1.EditPas3_2Change(Sender: TObject);
+begin
+    pas_3_2 := StrToInt(EditPas3_2.Text);
+end;
+
 procedure TForm1.EditTangenteChange(Sender: TObject);
 begin
     appareil2.valeurTangente := StrToFloat(EditTangente.text);
@@ -956,13 +995,14 @@ var
   formConnect : TFormConnection;
 begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
-   flag := False;
    SetCounterDebounceTime(1,2);
    // on cre les differents appareils pour les connexions
    appareil1 := AppareilMultimetre.Create;
    appareil2 := AppareilCapacimetre1.Create;
    appareil3 := AppareilCapacimetre2.Create;
    monLog := Log.Create;
+   fifoAp1 := TQueue<TResultat>.Create;
+   fifoAp3 := TQueue<TResultatsCapa2>.Create;
 
    // ici rien ne s'affiche, cette Form n'est pas encore cree.
    // nous allons donc crÃ©er une fenetre TFormConnection pour tenir informer de ce qui se fait.
@@ -1028,13 +1068,11 @@ end;
 
 procedure TForm1.ButtonTestClick(Sender: TObject);
 begin
-   // monLog.ChangementComposants;
-   if flag then
-      monLog.ChangementComposants;
     TraiterResAp1();
+    Inc(compteurTop2,1);
     TraiterResAp2();
+    Inc(compteurTop3,1);
     TraiterResAp3();
-
 end;
 
 
