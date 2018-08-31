@@ -118,6 +118,8 @@ type
     Label17: TLabel;
     Label18: TLabel;
     Label20: TLabel;
+    Panel1: TPanel;
+    Button1: TButton;
 
 
 
@@ -686,7 +688,10 @@ begin
   SetLength(res, 3);
   fifoElmt := appareil2.Traiter_donnee(EditReception2.Text);
   if compteurTop2 >= (pas_1_3 + pas_3_2) then
+  begin
       monLog.LogComposant( fifoAp1.Dequeue, fifoElmt, fifoAp3.Dequeue);
+      Memo1.Lines.Add('Je souhaite imprimer dans le fichier !');
+  end;
 
   res := fifoElmt.Annalyse;
   if(res[0] = True)
