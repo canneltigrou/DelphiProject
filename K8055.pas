@@ -657,7 +657,7 @@ begin
     EditReception1.Text := appareil1.Mesurer();
     memo1.Lines.Add('Instruction de mesure envoyé à l''appareil_1');
     LabelSent1.Visible := false;
-    TraiterResAp1();
+    //TraiterResAp1();
 end;
 
 
@@ -750,7 +750,7 @@ begin
     EditReception2.Text := appareil2.Mesurer();
     LabelSent2.Visible := false;
     memo1.Lines.Add('Instruction de mesure envoyé à l''appareil_2: cpt = ' + IntToStr(compteurTop3));
-    TraiterResAp2();
+    //TraiterResAp2();
 end;
 
 
@@ -814,7 +814,7 @@ begin
     EditReception3.Text := appareil3.Mesurer();
     memo1.Lines.Add('Instruction de mesure envoyé à l''appareil_3 : cpt = ' + IntToStr(compteurTop3));
     LabelSent3.Visible := false;
-    TraiterResAp3();
+    //TraiterResAp3();
 end;
 
 procedure TForm1.ButtonSend3Click(Sender: TObject);

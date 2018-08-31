@@ -184,12 +184,15 @@ end;
 
 procedure Log.LogComposant(multimetre : TResultat ; capa1 : TResultats ; capa2 : TResultatsCapa2);
 begin
-    MultimetreResultat(multimetre.Annalyse, multimetre.Valeur);
-    Capacimetre1Resultat(capa1.Annalyse, capa1.Valeur);
-    Capacimetre2Resultat(capa2.Annalyse, capa2.Valeur);
-    ChargerDansFichier;
+
+    // ON ne log finalement que les résultats OK !
+    if(multimetre.Annalyse and capa2.Annalyse[0] and capa2.Annalyse[1] and capa1.Annalyse[0] and capa1.Annalyse[1] and capa1.Annalyse[2])
+    then
+    begin
+        MultimetreResultat(multimetre.Annalyse, multimetre.Valeur);
+        Capacimetre1Resultat(capa1.Annalyse, capa1.Valeur);
+        Capacimetre2Resultat(capa2.Annalyse, capa2.Valeur);
+        ChargerDansFichier;
+    end;
 end;
-
-
-
 end.
