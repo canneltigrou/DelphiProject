@@ -749,7 +749,7 @@ begin
     LabelSent2.Visible := true;
     EditReception2.Text := appareil2.Mesurer();
     LabelSent2.Visible := false;
-    memo1.Lines.Add('Instruction de mesure envoyé à l''appareil_2: cpt = ' + IntToStr(compteurTop3));
+    memo1.Lines.Add('Instruction de mesure envoyé à l''appareil_2: cpt = ' + IntToStr(compteurTop2));
     //TraiterResAp2();
 end;
 
@@ -998,7 +998,8 @@ var
   formConnect : TFormConnection;
 begin
 (*Canvas.InitializeBitmap(BitmapGood1);   *)
-   SetCounterDebounceTime(1,2);
+   //SetCounterDebounceTime(1,2);
+   Timer1.Interval := 200;
    // on cre les differents appareils pour les connexions
    appareil1 := AppareilMultimetre.Create;
    appareil2 := AppareilCapacimetre1.Create;
