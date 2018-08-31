@@ -118,8 +118,15 @@ type
     Label17: TLabel;
     Label18: TLabel;
     Label20: TLabel;
-    Panel1: TPanel;
+    PanelStats: TPanel;
     Button1: TButton;
+    ButtonCloseStats: TButton;
+    LabelNbOK: TLabel;
+    LabelNbCourantFuite: TLabel;
+    LabelNbImpedance: TLabel;
+    LabelNbCapaMin: TLabel;
+    LabelNbCapaMax: TLabel;
+    LabelNbTangente: TLabel;
 
 
 
@@ -161,6 +168,8 @@ type
     procedure EditImpedanceChange(Sender: TObject);
     procedure EditPas1_3Change(Sender: TObject);
     procedure EditPas3_2Change(Sender: TObject);
+    procedure ButtonCloseStatsClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -275,6 +284,8 @@ begin
         end;
     end;
 end;
+
+
 
 
 procedure TForm1.ButtonConnect1Click(Sender: TObject);
@@ -1083,6 +1094,29 @@ begin
     Inc(compteurTop3,1);
     TraiterResAp3();
 end;
+
+
+(* ****************************************************************************
+*************           TEST              *************************************
+***************************************************************************** *)
+
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+    PanelStats.Visible := true;
+    LabelNbOK.Caption := 'Nombre de composants conformes : ' + IntToStr(monLog.nbOK);
+    LabelNbCourantFuite.Caption := 'Nombre de défauts courant de fuite : ' + IntToStr(monLog.nbCourantFuite);
+    LabelNbImpedance.Caption := 'Nombre de défauts d''impédance : ' + IntToStr(monLog.nbImpedance);
+    LabelNbCapaMin.Caption := 'Nombre de défauts capa (-) : ' + IntToStr(monLog.nbCapaMin);
+    LabelNbCapaMax.Caption := 'Nombre de défauts capa (+) : ' + IntToStr(monLog.nbCapaMax);
+    LabelNbTangente.Caption := 'Nombre de défauts tangente : '+ IntToStr(monLog.nbTangente);
+end;
+
+procedure TForm1.ButtonCloseStatsClick(Sender: TObject);
+begin
+    PanelStats.Visible := false;
+end;
+
 
 
 end.

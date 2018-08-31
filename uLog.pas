@@ -69,6 +69,7 @@ type Log = class
           property nbCapaMax : integer read capaMax;
           property nbImpedance : integer read impedance;
           property nbOK :  integer read nombreOK;
+          property nbTangente : integer read tangente;
 
 end;
 
@@ -193,6 +194,26 @@ begin
         Capacimetre1Resultat(capa1.Annalyse, capa1.Valeur);
         Capacimetre2Resultat(capa2.Annalyse, capa2.Valeur);
         ChargerDansFichier;
+    end;
+
+    if(not multimetre.Annalyse)then
+        Inc(courantFuite, 1)
+    else
+    begin
+      if (capa2.Annalyse[1]) then // ssi composant present
+      begin
+          if (not capa2.Annalyse[0]) then // mauvaise impedance
+              Inc(impedance, 1)
+          else
+          begin
+          if (not capa1.Annalyse[0]) then  // défaut capa -
+              Inc(capaMin, 1);
+          if (not capa1.Annalyse[1]) then  // défaut capa +
+              Inc(capaMax, 1);
+          if (not capa1.Annalyse[2]) then  // défaut tangente
+              Inc(tangente, 1);
+          end
+      end;
     end;
 end;
 end.
