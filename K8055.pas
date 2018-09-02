@@ -7,7 +7,7 @@ uses
   ExtCtrls, ComCtrls, Math, Buttons, ScktComp, ActiveX,
   VisaComLib_TLB, Generics.Collections, ComObj, System.Variants, //UChargementFichier;
   uFormConnection, uAppareilMultimetre, uAppareilCapacimetre1,
-  uAppareilCapacimetre2, uAppareil, uLog, uUtils;
+  uAppareilCapacimetre2, uAppareil, uLog, uUtils, Vcl.Imaging.pngimage;
  // TQueue : http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/delphivclwin32/Generics_Collections_TQueue.html
 
 type
@@ -127,6 +127,10 @@ type
     LabelNbCapaMin: TLabel;
     LabelNbCapaMax: TLabel;
     LabelNbTangente: TLabel;
+    PanelMultimetreParam: TPanel;
+    PanelMultimetreNormal: TPanel;
+    Image1: TImage;
+    ButtonQuitMultimetreParam: TButton;
 
 
 
@@ -170,6 +174,7 @@ type
     procedure EditPas3_2Change(Sender: TObject);
     procedure ButtonCloseStatsClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Image1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -1075,6 +1080,13 @@ begin
    end;
 end;
 
+
+
+procedure TForm1.Image1Click(Sender: TObject);
+begin
+    PanelMultimetreParam.Visible := true;
+end;
+
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   CloseDevice;
@@ -1114,7 +1126,7 @@ end;
 
 procedure TForm1.ButtonCloseStatsClick(Sender: TObject);
 begin
-    PanelStats.Visible := false;
+    PanelMultimetreParam.Visible := false;
 end;
 
 

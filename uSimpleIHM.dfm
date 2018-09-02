@@ -3,7 +3,7 @@ object FormSimpleIHM: TFormSimpleIHM
   Top = 0
   Caption = 'Interface'
   ClientHeight = 507
-  ClientWidth = 676
+  ClientWidth = 675
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,7 +14,7 @@ object FormSimpleIHM: TFormSimpleIHM
   PixelsPerInch = 96
   TextHeight = 13
   object Image1: TImage
-    Left = 615
+    Left = 18
     Top = 8
     Width = 50
     Height = 50
@@ -1199,56 +1199,445 @@ object FormSimpleIHM: TFormSimpleIHM
     Stretch = True
   end
   object Label15: TLabel
-    Left = 111
-    Top = 32
+    Left = 157
+    Top = 126
     Width = 61
     Height = 13
     Caption = 'Top D'#233'part :'
   end
+  object Label4: TLabel
+    Left = 35
+    Top = 310
+    Width = 41
+    Height = 13
+    Caption = 'Vitesse :'
+  end
+  object GroupBox8: TGroupBox
+    Left = 18
+    Top = 103
+    Width = 424
+    Height = 109
+    Caption = 'Multim'#232'tre'
+    Color = 16772095
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 13
+    object Label10: TLabel
+      Left = 107
+      Top = 24
+      Width = 78
+      Height = 13
+      Caption = 'Top de mesure :'
+      Color = 16772351
+      ParentColor = False
+    end
+  end
+  object GroupBox5: TGroupBox
+    Left = 18
+    Top = 218
+    Width = 195
+    Height = 135
+    Caption = 'Vitesse Convoyeur'
+    Color = 15334119
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentBackground = False
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 10
+    OnClick = GroupBox5Click
+    object Label6: TLabel
+      Left = 64
+      Top = 40
+      Width = 63
+      Height = 13
+      Caption = 'Vitesse (%) :'
+      Color = 15399655
+      ParentColor = False
+    end
+  end
   object Memo1: TMemo
-    Left = 360
-    Top = 395
-    Width = 305
-    Height = 80
+    Left = 18
+    Top = 8
+    Width = 424
+    Height = 87
     Ctl3D = True
     ParentCtl3D = False
     ScrollBars = ssVertical
     TabOrder = 0
   end
   object CheckBox3: TCheckBox
-    Left = 194
-    Top = 83
-    Width = 71
+    Left = 226
+    Top = 180
+    Width = 103
     Height = 21
     Cursor = crArrow
-    Caption = 'Appareil 3'
+    Caption = 'Capacim'#232'tre Z'
     Color = clBtnFace
     Enabled = False
     ParentColor = False
     TabOrder = 1
   end
   object CheckBox1: TCheckBox
-    Left = 194
-    Top = 29
+    Left = 226
+    Top = 126
     Width = 79
     Height = 21
     Cursor = crArrow
-    Caption = 'Appareil1'
+    Caption = 'Multim'#232'tre'
     Color = clBtnFace
     Enabled = False
     ParentColor = False
     TabOrder = 2
   end
   object CheckBox2: TCheckBox
-    Left = 194
-    Top = 56
-    Width = 79
+    Left = 226
+    Top = 153
+    Width = 137
     Height = 21
     Cursor = crArrow
-    Caption = 'Appareil 2'
+    Caption = 'Capacim'#232'tre Capa / Tg'
     Color = clBtnFace
     Enabled = False
     ParentColor = False
     TabOrder = 3
+  end
+  object GroupBox2: TGroupBox
+    Left = 448
+    Top = 8
+    Width = 220
+    Height = 204
+    Caption = 'Outputs'
+    Color = 16772095
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 4
+    object CheckBox7: TCheckBox
+      Left = 3
+      Top = 21
+      Width = 118
+      Height = 21
+      Caption = '1 - Courant de fuite'
+      Enabled = False
+      TabOrder = 0
+    end
+    object CheckBox8: TCheckBox
+      Left = 3
+      Top = 48
+      Width = 102
+      Height = 21
+      Caption = '2 - Capacit'#233' (-)'
+      Enabled = False
+      TabOrder = 1
+    end
+    object CheckBox9: TCheckBox
+      Left = 3
+      Top = 75
+      Width = 102
+      Height = 21
+      Caption = '3 - Capacit'#233' (+)'
+      Enabled = False
+      TabOrder = 2
+    end
+    object CheckBox10: TCheckBox
+      Left = -29
+      Top = 183
+      Width = 102
+      Height = 21
+      Caption = '4 - Tangente'
+      Enabled = False
+      TabOrder = 3
+    end
+    object CheckBox11: TCheckBox
+      Left = 3
+      Top = 156
+      Width = 102
+      Height = 21
+      Caption = '6 - Imp'#233'dance'
+      Enabled = False
+      TabOrder = 4
+    end
+    object CheckBox12: TCheckBox
+      Left = 3
+      Top = 129
+      Width = 136
+      Height = 21
+      Caption = '5 - Capacite trop faible'
+      Enabled = False
+      TabOrder = 5
+    end
+    object CheckBox13: TCheckBox
+      Left = 3
+      Top = 183
+      Width = 142
+      Height = 21
+      Caption = '7 - Absence Composant'
+      Enabled = False
+      TabOrder = 6
+    end
+    object CbOutput4: TCheckBox
+      Left = 3
+      Top = 102
+      Width = 102
+      Height = 21
+      Caption = '4 - Tangente'
+      Enabled = False
+      TabOrder = 7
+    end
+  end
+  object Button1: TButton
+    Left = 72
+    Top = 310
+    Width = 73
+    Height = 27
+    Caption = 'OK'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 5
+  end
+  object Edit1: TEdit
+    Left = 82
+    Top = 278
+    Width = 54
+    Height = 26
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 6
+    Text = '180'
+  end
+  object GroupBox1: TGroupBox
+    Left = 448
+    Top = 357
+    Width = 220
+    Height = 142
+    Caption = 'Alimentation'
+    Color = 15268583
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentBackground = False
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 7
+    object Label1: TLabel
+      Left = 96
+      Top = 57
+      Width = 44
+      Height = 13
+      Caption = 'Tension :'
+    end
+    object EditTension: TEdit
+      Left = 83
+      Top = 89
+      Width = 73
+      Height = 26
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -15
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object GroupBox3: TGroupBox
+    Left = 219
+    Top = 357
+    Width = 223
+    Height = 142
+    Caption = 'Capacim'#232'tre 1 Capa / Tg'
+    Color = 15268583
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentBackground = False
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 8
+    object Label3: TLabel
+      Left = 28
+      Top = 33
+      Width = 113
+      Height = 13
+      Caption = 'Capacit'#233'_limite_basse :'
+      Color = 15334119
+      ParentColor = False
+    end
+    object Label5: TLabel
+      Left = 28
+      Top = 60
+      Width = 113
+      Height = 13
+      Caption = 'Capacit'#233'_limite_haute :'
+      Color = 15334119
+      ParentColor = False
+    end
+    object Label7: TLabel
+      Left = 90
+      Top = 87
+      Width = 53
+      Height = 13
+      Caption = 'Tangente :'
+    end
+    object Label8: TLabel
+      Left = 47
+      Top = 113
+      Width = 94
+      Height = 13
+      Caption = 'Capacit'#233' nominale :'
+    end
+    object Edit2: TEdit
+      Left = 147
+      Top = 25
+      Width = 73
+      Height = 21
+      TabOrder = 0
+    end
+    object Edit3: TEdit
+      Left = 147
+      Top = 52
+      Width = 73
+      Height = 21
+      TabOrder = 1
+    end
+    object Edit4: TEdit
+      Left = 149
+      Top = 79
+      Width = 71
+      Height = 21
+      TabOrder = 2
+    end
+    object Edit5: TEdit
+      Left = 147
+      Top = 106
+      Width = 73
+      Height = 21
+      TabOrder = 3
+    end
+  end
+  object GroupBox4: TGroupBox
+    Left = 18
+    Top = 357
+    Width = 195
+    Height = 142
+    Caption = 'R'#233'f'#233'rence Produit'
+    Color = 16579817
+    ParentBackground = False
+    ParentColor = False
+    TabOrder = 9
+    object EditCodeLu: TEdit
+      Left = 35
+      Top = 58
+      Width = 102
+      Height = 21
+      TabOrder = 0
+      Text = 'M151365'
+    end
+    object ButtonFindValues: TButton
+      Left = 54
+      Top = 93
+      Width = 75
+      Height = 25
+      Caption = 'Valider'
+      Enabled = False
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -15
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+    end
+  end
+  object GroupBox6: TGroupBox
+    Left = 219
+    Top = 216
+    Width = 223
+    Height = 135
+    Caption = 'Multim'#232'tre'
+    Color = 15268583
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentBackground = False
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 11
+    object Label2: TLabel
+      Left = 59
+      Top = 42
+      Width = 107
+      Height = 13
+      Caption = 'Courant de fuite ('#181'A):'
+    end
+    object EditEssaisVal: TEdit
+      Left = 77
+      Top = 82
+      Width = 76
+      Height = 26
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -15
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object GroupBox7: TGroupBox
+    Left = 448
+    Top = 218
+    Width = 220
+    Height = 133
+    Caption = 'Capacim'#232'tre 2 Imp'#233'dance'
+    Color = 15268583
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentBackground = False
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 12
+    object Label9: TLabel
+      Left = 80
+      Top = 40
+      Width = 87
+      Height = 13
+      Caption = 'Impedance (m'#8486') :'
+    end
+    object EditImpedance: TEdit
+      Left = 83
+      Top = 80
+      Width = 81
+      Height = 26
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlue
+      Font.Height = -15
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      OEMConvert = True
+      ParentFont = False
+      TabOrder = 0
+    end
   end
 end
