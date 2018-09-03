@@ -189,7 +189,6 @@ var
   currentCode : String;
 
   monLog : Log;
-  compteurTop1 : Integer;
   compteurTop2 : Integer;
   compteurTop3 : Integer;
 
@@ -654,10 +653,7 @@ end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 var i: integer;
-tmpNull : TResultat;
 begin
-  tmpNull.Valeur := 0;
-  tmpNull.Annalyse := True;
   timer1.enabled:=false;
   Memo1.Lines.Add(inttostr(ReadCounter(1)));
 
@@ -666,14 +662,6 @@ begin
   then
   begin
     // sera le point de depart pour préciser qu'on change de composant pour le log
-    if((compteurTop2 > compteurTop1) and (compteurTop3 > compteurTop1))then
-    begin   // je dois rattrapper le retard car je n'ai pas reçu le top precedent
-        Inc(compteurTop1, 1);
-        fifoAp1.Enqueue(tmpNull);
-    end;
-
-
-    Inc(compteurTop1, 1);
     CheckBox1.Checked := True;
     FaireMesureAp1(Sender);
     TraiterResAp1();
