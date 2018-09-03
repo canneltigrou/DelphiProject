@@ -336,6 +336,25 @@ begin
     end;
 end;
 
+function calculFrequence(val : Double) : Integer;
+var
+    vitesseMin : Integer;
+    vitesseMax : Integer;
+    resDouble : Double;   // pour garder un peu de precision
+    coeff : Double;
+
+begin
+    vitesseMin := 30;
+    vitesseMAx := 70;
+    coeff := (vitesseMax - vitesseMin)/9;
+    // effectuons la formule générale (en %) :
+    resDouble := (coeff * val) + vitesseMax - coeff;
+    // Normalisons entre 0 et 255 pour l'automate :
+    resDouble := resDouble * 2.55;
+
+    // Retournons l'entier
+    Result := Round(resDouble);
+end;
 
 
 function LireFichier(memo : TMemo): HRESULT;
@@ -493,6 +512,14 @@ begin
       sValue3 := vCell.Value;
       tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
 
+      sRange2 := 'R1';
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+      sRange3 := 'R' + IntToStr(j)  ;
+      vCell := vWorksheet.Range[sRange3];
+      sValue3 := vCell.Value;
+      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+
       dictionaryValues.Add(sValue1, tmpDict);
 
       Inc(j, 1);
@@ -538,6 +565,8 @@ begin
 end;
 
 procedure TForm1.ButtonFindValuesClick(Sender: TObject);
+var
+  tmp : Integer;
 begin
   if(not dictionaryRef.ContainsKey(EditCodeLu.Text)) then
   begin
@@ -563,6 +592,11 @@ begin
       EditTension.Text :=  (dictionaryValues[currentCode])['Tension nominale'].ToString;
       EditCapaNominale.Text :=  (dictionaryValues[currentCode])['Capacité nominale'].ToString;
       appareil2.valeurCapaNominale := (dictionaryValues[currentCode])['Capacité nominale'];
+      tmp := calculFrequence((dictionaryValues[currentCode])['Temps de charge (s)']);
+      EditFrequence.Text :=  tmp.ToString;
+      //OutputAnalogChannel(1,(dictionaryValues[currentCode])['Temps de charge (s)']);
+      OutputAnalogChannel(1, tmp);
+
   except on E: Exception do
       ShowMessage(E.message + sLineBreak + 'Peut-etre votre organisation du fichier Excel a-t-elle changé ?'
                   + sLineBreak + 'Pour ma part j''ai besoin de :'
@@ -574,6 +608,7 @@ begin
                   + sLineBreak + '"Essais val_2" colonne P'
                   + sLineBreak + '"Tension nominale" colonne F '
                   + sLineBreak + '"Capacité nominale" colonne G '
+                  + sLineBreak + '"Temps de charge (s)" colonne R'
               );
   end;
   EnvoiTensionAp4();
