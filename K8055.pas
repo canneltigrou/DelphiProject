@@ -7,7 +7,7 @@ uses
   ExtCtrls, ComCtrls, Math, Buttons, ScktComp, ActiveX,
   VisaComLib_TLB, Generics.Collections, ComObj, System.Variants, //UChargementFichier;
   uFormConnection, uAppareilMultimetre, uAppareilCapacimetre1,
-  uAppareilCapacimetre2, uAppareil, uLog, uUtils;
+  uAppareilCapacimetre2, uAppareil, uLog, uUtils, uSimpleIHM;
  // TQueue : http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/delphivclwin32/Generics_Collections_TQueue.html
 
 type
@@ -159,7 +159,7 @@ type
     procedure FaireMesureAp1(Sender: TObject);
     procedure FaireMesureAp2(Sender: TObject);
     procedure FaireMesureAp3(Sender: TObject);
-    procedure EnvoiTensionAp4();
+    //procedure EnvoiTensionAp4();
     procedure EditCapaMinChange(Sender: TObject);
     procedure EditCapaMaxChange(Sender: TObject);
     procedure EditTangenteChange(Sender: TObject);
@@ -170,10 +170,12 @@ type
     procedure EditPas3_2Change(Sender: TObject);
     procedure ButtonCloseStatsClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure EditTensionChange(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
   private
     { Private declarations }
   public
-    { Public declarations }
+    procedure EnvoiTensionAp4();
   end;
 
 var
@@ -196,6 +198,8 @@ var
   fifoAp3 : TQueue<TResultatsCapa2>;
   pas_1_3 : Integer;
   pas_3_2 : Integer;
+
+  simpleIHM : TFormSimpleIHM;
 
 
 implementation
@@ -590,35 +594,45 @@ begin
   begin
     // sera le point de depart pour préciser qu'on change de composant pour le log
     CheckBox1.Checked := True;
+    simpleIHM.CbInput1.Checked  := True;
     FaireMesureAp1(Sender);
     TraiterResAp1();
   end
   else
+  begin
     CheckBox1.checked:=(i and 1)>0;
-
+    simpleIHM.CbInput1.Checked := (i and 1) > 0;
+  end;
+    
   if((not CheckBox2.Checked) and ((i and 2)>0))
   then
   begin
     Inc(compteurTop2, 1);
     CheckBox2.Checked := True;
+    simpleIHM.CbInput2.Checked := True;
     FaireMesureAp2(Sender);
     TraiterResAp2();
   end
   else
+    begin
     CheckBox2.checked:=(i and 2)>0;
+    simpleIHM.CbInput2.Checked := true;
+    end;
 
   if((not CheckBox3.Checked) and ((i and 4)>0))
   then
   begin
     Inc(compteurTop3, 1);
     CheckBox3.Checked := True;
+    simpleIHM.CbInput3.Checked := True;
     FaireMesureAp3(Sender);
     TraiterResAp3();
   end
   else
+  begin
     CheckBox3.checked:=(i and 4)>0;
-  //CheckBox4.checked:=(i and 8)>0;
-  //CheckBox5.checked:=(i and 16)>0;
+    simpleIHM.CbInput3.Checked := (i and 4)>0;
+  end;
   timer1.enabled:=true;
 end;
 
@@ -846,6 +860,8 @@ end;
 ************* Connection a l'appareil 4 : ClientSocket *******************
 ************************************************************************** *)
 
+
+
 procedure TForm1.ClientSocket4Disconnect(Sender: TObject;  Socket: TCustomWinSocket);
 begin
    Socket.SendText('Disconnected');//Send the ÂDisconnectedÂ message to the server
@@ -945,26 +961,31 @@ end;
 procedure TForm1.EditCapaMaxChange(Sender: TObject);
 begin
     appareil2.valeurCapaMax := StrToFloat(EditCapaMax.Text);
+    simpleIHM.CapaPlus.Text := EditCapaMax.Text;
 end;
 
 procedure TForm1.EditCapaMinChange(Sender: TObject);
 begin
     appareil2.valeurCapaMin := StrToFloat(EditCapaMin.Text);
+    simpleIHM.CapaMoins.Text := EditCapaMin.Text;
 end;
 
 procedure TForm1.EditCapaNominaleChange(Sender: TObject);
 begin
     appareil2.valeurCapaNominale := StrToFloat(EditCapaNominale.Text);
+    simpleIHM.CapaNominale.Text := EditCapaNominale.Text;
 end;
 
 procedure TForm1.EditEssaisValChange(Sender: TObject);
 begin
     appareil1.valeurRef := StrToFloat(EditEssaisVal.Text);
+    simpleIHM.EssaisVal.Text := EditEssaisVal.Text;
 end;
 
 procedure TForm1.EditImpedanceChange(Sender: TObject);
 begin
     appareil3.valeurImpedance := StrToFloat(EditImpedance.Text);
+    simpleIHM.Impedance.Text := EditImpedance.Text ;
 end;
 
 procedure TForm1.EditPas1_3Change(Sender: TObject);
@@ -980,6 +1001,13 @@ end;
 procedure TForm1.EditTangenteChange(Sender: TObject);
 begin
     appareil2.valeurTangente := StrToFloat(EditTangente.text);
+    simpleIHM.Tangente.Text := EditTangente.Text ;
+end;
+
+procedure TForm1.EditTensionChange(Sender: TObject);
+begin
+    EnvoiTensionAp4();
+    simpleIHM.Tension.Text := EditTension.Text ;
 end;
 
 procedure TForm1.EnvoiTensionAp4();
@@ -1062,11 +1090,21 @@ begin
                           if(ButtonConnect3.Enabled = false)then
                               Configurer(memo1, EditSend3, appareil3, LabelConnexion3, ButtonConnect3);
                       finally
-                        formConnect.AddMemoLine('  >> ' + LabelConnexion3.Caption);
-                        ChargementFile(formConnect.memo, ButtonFindValues);
-                        formConnect.AddMemoLine('Connexion à l''automate');
-                        ButtonConnectAutomateClick(Sender);
-                        formConnect.AddMemoLine('  >> ' + LabelEtatAutomate.Caption);
+                          formConnect.AddMemoLine('  >> ' + LabelConnexion3.Caption);
+                          try
+                              ChargementFile(formConnect.memo, ButtonFindValues);
+                          finally
+                              formConnect.AddMemoLine('Connexion à l''automate');
+
+                              try
+                                  ButtonConnectAutomateClick(Sender);
+                                  formConnect.AddMemoLine('  >> ' + LabelEtatAutomate.Caption);
+                              finally
+                                  simpleIHM := TFormSimpleIHM.Create(self);
+                                  
+                              end;
+                          end;
+
                       end;
                   end;
               end;
@@ -1077,8 +1115,15 @@ end;
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  CloseDevice;
+  //CloseDevice;
+  Visible := False;
 end;
+
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+    simpleIHM.Show;
+end;
+
 
 
 
@@ -1096,8 +1141,9 @@ begin
 end;
 
 
+
 (* ****************************************************************************
-*************           TEST              *************************************
+*************           Log               *************************************
 ***************************************************************************** *)
 
 
