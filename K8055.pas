@@ -99,7 +99,7 @@ type
     EditCapaMin: TEdit;
     EditCapaMax: TEdit;
     Label4: TLabel;
-    Label6: TLabel;
+    LabelTangente_ESR: TLabel;
     EditTangente: TEdit;
     EditTension: TEdit;
     Label7: TLabel;
@@ -308,50 +308,35 @@ begin
 end;
 
 
-procedure TForm1.ButtonFindValuesClick(Sender: TObject);
-begin
-  if(not dictionaryRef.ContainsKey(EditCodeLu.Text)) then
-  begin
-      ShowMessage('Oups... Désolé.' + sLineBreak + 'Il semblerait que cette référence ne soit pas mentionnée dans le fichier que j''ai chargé.'
-                    + sLineBreak + 'Veuillez réessayer !');
-      exit;
-
-  end;
-  try
-      currentCode := dictionaryRef[EditCodeLu.Text];
-      EditEssaisVal.Text := (dictionaryValues[currentCode])['Essais val_1'].ToString;
-      Appareil1.valeurRef := (dictionaryValues[currentCode])['Essais val_1'];
-      EditCapaMin.Text :=  (dictionaryValues[currentCode])['Cap_lim_bas'].ToString;
-      appareil2.valeurCapaMin := (dictionaryValues[currentCode])['Cap_lim_bas'];
-      EditCapaMax.Text :=  (dictionaryValues[currentCode])['Cap_lim_haut'].ToString;
-      appareil2.valeurCapaMax := (dictionaryValues[currentCode])['Cap_lim_haut'];
-      EditTangente.Text :=  (dictionaryValues[currentCode])['Essais val_0'].ToString;
-      appareil2.valeurTangente := (dictionaryValues[currentCode])['Essais val_0'];
-      EditImpedance.Text :=  (dictionaryValues[currentCode])['Essais val_2'].ToString;
-      appareil3.valeurImpedance := (dictionaryValues[currentCode])['Essais val_2'];
-      EditTension.Text :=  (dictionaryValues[currentCode])['Tension nominale'].ToString;
-      EditCapaNominale.Text :=  (dictionaryValues[currentCode])['Capacité nominale'].ToString;
-      appareil2.valeurCapaNominale := (dictionaryValues[currentCode])['Capacité nominale'];
-  except on E: Exception do
-      ShowMessage(E.message + sLineBreak + 'Peut-etre votre organisation du fichier Excel a-t-elle changé ?'
-                  + sLineBreak + 'Pour ma part j''ai besoin de :'
-                  + sLineBreak + '"Essais val_1" colonne O'
-                  + sLineBreak + '"Cap_lim_bas" colonne J'
-                  + sLineBreak + '"Cap_lim_haut" colonne K'
-                  + sLineBreak + '"Essais val_0" colonne M'
-                  + sLineBreak + '"Essais val_2" colonne P'
-                  + sLineBreak + '"Tension nominale" colonne F '
-                  + sLineBreak + '"Capacité nominale" colonne G '
-              );
-  end;
-  EnvoiTensionAp4();
-  OutputAnalogChannel(1,strtoint(EditFrequence.Text));
-end;
 
 
 (**********************************************************************
 *********            Chargement du fichier         ********************
 ******************************************************************** *)
+procedure Gestion_Tangente_ESR(LabelTangente_ESR : TLabel; memo : TMemo);
+var
+    stg : string;
+    motTangente : string;
+    motESR : string;
+begin
+    motTangente := 'Tg maxi';
+    motESR := 'ESR';
+    stg := ' ' + (dictionaryValues[currentCode])['Essais lib_0'].ToString; // espace devant pour eviter la position0
+    if(Pos(motESR, stg) <> 0) then
+    begin
+       appareil2.ConfigurerESR(memo); // presence de motESR dans stg
+       LabelTangente_ESR.Caption := 'ESR :';
+    end
+    else
+    begin
+        // à modifier par la suite en fonction du mot motTangente
+        // ici par défaut, si absence de ESR, on estime Tangente.
+        appareil2.ConfigurerTangente(memo) ;
+        LabelTangente_ESR.Caption := 'Tangente :';
+    end;
+end;
+
+
 
 function LireFichier(memo : TMemo): HRESULT;
 var
@@ -467,6 +452,15 @@ begin
       sValue3 := vCell.Value;
       tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
 
+      sRange2 := 'L1';
+      vCell := vWorksheet.Range[sRange2];
+      sValue2 := vCell.Value;
+      sRange3 := 'L' + IntToStr(j)  ;
+      vCell := vWorksheet.Range[sRange3];
+      sValue3 := vCell.Value;
+      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+
+
       sRange2 := 'M1';
       vCell := vWorksheet.Range[sRange2];
       sValue2 := vCell.Value;
@@ -512,6 +506,7 @@ begin
     vMSExcel.Quit;
     vMSExcel := Unassigned;
     Result := S_OK;
+    //Gestion_Tangente_ESR();
 
 end;
 
@@ -540,6 +535,49 @@ begin
   LabelEnCours.Visible := True;
   ChargementFile(memo1, ButtonFindValues);
   LabelEnCours.Visible := False;
+end;
+
+procedure TForm1.ButtonFindValuesClick(Sender: TObject);
+begin
+  if(not dictionaryRef.ContainsKey(EditCodeLu.Text)) then
+  begin
+      ShowMessage('Oups... Désolé.' + sLineBreak + 'Il semblerait que cette référence ne soit pas mentionnée dans le fichier que j''ai chargé.'
+                    + sLineBreak + 'Veuillez réessayer !');
+      exit;
+
+  end;
+  try
+      currentCode := dictionaryRef[EditCodeLu.Text];
+      Gestion_Tangente_ESR(LabelTangente_ESR, memo1);
+
+      EditEssaisVal.Text := (dictionaryValues[currentCode])['Essais val_1'].ToString;
+      Appareil1.valeurRef := (dictionaryValues[currentCode])['Essais val_1'];
+      EditCapaMin.Text :=  (dictionaryValues[currentCode])['Cap_lim_bas'].ToString;
+      appareil2.valeurCapaMin := (dictionaryValues[currentCode])['Cap_lim_bas'];
+      EditCapaMax.Text :=  (dictionaryValues[currentCode])['Cap_lim_haut'].ToString;
+      appareil2.valeurCapaMax := (dictionaryValues[currentCode])['Cap_lim_haut'];
+      EditTangente.Text :=  (dictionaryValues[currentCode])['Essais val_0'].ToString;
+      appareil2.valeurTangente := (dictionaryValues[currentCode])['Essais val_0'];
+      EditImpedance.Text :=  (dictionaryValues[currentCode])['Essais val_2'].ToString;
+      appareil3.valeurImpedance := (dictionaryValues[currentCode])['Essais val_2'];
+      EditTension.Text :=  (dictionaryValues[currentCode])['Tension nominale'].ToString;
+      EditCapaNominale.Text :=  (dictionaryValues[currentCode])['Capacité nominale'].ToString;
+      appareil2.valeurCapaNominale := (dictionaryValues[currentCode])['Capacité nominale'];
+  except on E: Exception do
+      ShowMessage(E.message + sLineBreak + 'Peut-etre votre organisation du fichier Excel a-t-elle changé ?'
+                  + sLineBreak + 'Pour ma part j''ai besoin de :'
+                  + sLineBreak + '"Essais val_1" colonne O'
+                  + sLineBreak + '"Cap_lim_bas" colonne J'
+                  + sLineBreak + '"Cap_lim_haut" colonne K'
+                  + sLineBreak + '"Essais lib_0" colonne L'
+                  + sLineBreak + '"Essais val_0" colonne M'
+                  + sLineBreak + '"Essais val_2" colonne P'
+                  + sLineBreak + '"Tension nominale" colonne F '
+                  + sLineBreak + '"Capacité nominale" colonne G '
+              );
+  end;
+  EnvoiTensionAp4();
+  OutputAnalogChannel(1,strtoint(EditFrequence.Text));
 end;
 
 

@@ -9,10 +9,11 @@ interface
 uses Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, OleCtrls, ComCtrls, ExtCtrls, uAppareil, uUtils, uLog;
 
+type TMesure = (Tangente, ESR);
 
 //--------------------------Déclaration de la classe AppareilCapacimetre1--------------------
 // Il s'agit ici d'un appareil Capacimetre de la technologie keysight
-// et qui permettra de mesurer la capacité et la tangente
+// et qui permettra de mesurer la capacité et la tangente ou ESR
 // et dee comparer les resultats a des valeurs seuils.
 // C'est une classe fille de Appareil, laquelle permet une connexion par ethernet.
 type AppareilCapacimetre1 = class(Appareil)
@@ -22,6 +23,8 @@ type AppareilCapacimetre1 = class(Appareil)
           CapaMax : Double;
           tangente : Double;
           CapaNominale : Double;
+          typeMesure : TMesure;
+
 
       public
         constructor Create();
@@ -30,6 +33,8 @@ type AppareilCapacimetre1 = class(Appareil)
 
         //Fonctions
         Function Configurer(memo : TMemo):HRESULT; override;
+        Function ConfigurerTangente(memo : TMemo):HRESULT;
+        Function ConfigurerESR(memo : TMemo):HRESULT;
         Function Traiter_donnee(resText : String): TResultats;
 
         // Acces propriétés
@@ -58,8 +63,15 @@ constructor AppareilCapacimetre1.Create();
 
 //------------------  Configure l'appareil de mesure ---------------------------
 // Configure l'appareil de type capacimetre de Keysight
-// pour recevoir une valeur de capacite une la tangente.
+// par défaut pour recevoir une capacité et une tangente.
 function AppareilCapacimetre1.Configurer(memo : TMemo):HRESULT;
+begin
+    Result := ConfigurerTangente(memo)
+end;
+
+// Configure l'appareil de type capacimetre de Keysight
+// pour recevoir une valeur de capacite et une la TANGENTE.
+function AppareilCapacimetre1.ConfigurerTangente(memo : TMemo):HRESULT;
 var
    hresultat : HRESULT;
 begin
@@ -74,7 +86,27 @@ begin
     end;
   finally
     result := hresultat;
+    typeMesure := TMesure.Tangente;
 
+  end;
+end;
+
+function AppareilCapacimetre1.ConfigurerESR(memo : TMemo):HRESULT;
+var
+   hresultat : HRESULT;
+begin
+  hresultat := S_OK;
+  memo.Lines.Add('Configuration de l''appareil :');
+  try
+    try
+        io.WriteString(':FUNC:IMP RSD', retCount); // Write to the instrument
+        io.WriteString(':FREQ 100', retCount); // Write to the instrument
+    except
+        hresultat := S_FALSE;
+    end;
+  finally
+    result := hresultat;
+    typeMesure := TMesure.ESR;
   end;
 end;
 
@@ -133,8 +165,14 @@ begin
   SetLength(Result.Annalyse, 3);
   Result.Annalyse[0] := ((resultatDouble[0] * 1000000) > CapaMin);
   Result.Annalyse[1] := ((resultatDouble[0] * 1000000) < CapaMax);
-  Result.Annalyse[2] := ((resultatDouble[1] * 100) < tangente);
   Result.Annalyse[3] := ((resultatDouble[0] * 1000000) > (0.4 * CapaNominale));
+
+  if(typeMesure = TMesure.Tangente) then
+      Result.Annalyse[2] := ((resultatDouble[1] * 100) < tangente)
+  else
+      Result.Annalyse[2] := ((resultatDouble[1] * 1000) < tangente); // Ici cas de l'ESR
+
+
   Result.Valeur := resultatDouble;
   //monLog.Capacimetre1Resultat(result, resultatDouble);
 end;
