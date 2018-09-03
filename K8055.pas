@@ -7,7 +7,7 @@ uses
   ExtCtrls, ComCtrls, Math, Buttons, ScktComp, ActiveX,
   VisaComLib_TLB, Generics.Collections, ComObj, System.Variants, //UChargementFichier;
   uFormConnection, uAppareilMultimetre, uAppareilCapacimetre1,
-  uAppareilCapacimetre2, uAppareil, uLog, uUtils;
+  uAppareilCapacimetre2, uAppareil, uLog, uUtils, Vcl.Imaging.pngimage;
  // TQueue : http://docs.embarcadero.com/products/rad_studio/delphiAndcpp2009/HelpUpdate2/EN/html/delphivclwin32/Generics_Collections_TQueue.html
 
 type
@@ -17,27 +17,9 @@ type
     SK5: TCheckBox;
     Timer1: TTimer;
     ButtonConnectAutomate: TButton;
-    GroupBoxInputs: TGroupBox;
-    CheckBox1: TCheckBox;
-    CheckBox2: TCheckBox;
-    CheckBox3: TCheckBox;
-    CheckBox4: TCheckBox;
-    GroupBoxOutputs: TGroupBox;
-    CbOutput1: TCheckBox;
-    CbOutput2: TCheckBox;
-    CbOutput3: TCheckBox;
-    CbOutput4: TCheckBox;
-    CbOutput6: TCheckBox;
-    CbOutput5: TCheckBox;
-    CbOutput7: TCheckBox;
     SpeedButtonTest: TSpeedButton;
     ButtonDisconnectAutomate: TButton;
-    EditFrequence: TEdit;
-    Label3: TLabel;
-    ButtonFrequence: TButton;
-    GroupBoxAutomate: TGroupBox;
     LabelEtatAutomate: TLabel;
-    GroupBoxAp4: TGroupBox;
     EditIP4: TEdit;
     EditPort4: TEdit;
     EditReception4: TEdit;
@@ -50,7 +32,6 @@ type
     LabelEnvoi4: TLabel;
     EditSend4: TEdit;
     ButtonSend4: TButton;
-    GroupBoxAp3: TGroupBox;
     Label5: TLabel;
     Label8: TLabel;
     LabelEtat3: TLabel;
@@ -59,7 +40,6 @@ type
     ButtonConnect3: TButton;
     EditSend3: TEdit;
     ButtonSend3: TButton;
-    GroupBoxAp2: TGroupBox;
     Label10: TLabel;
     Label14: TLabel;
     LabelEtat2: TLabel;
@@ -68,7 +48,6 @@ type
     ButtonConnect2: TButton;
     EditSend2: TEdit;
     ButtonSend2: TButton;
-    GroupBoxAp1: TGroupBox;
     Label16: TLabel;
     Label19: TLabel;
     LabelEtat1: TLabel;
@@ -85,33 +64,12 @@ type
     LabelSent2: TLabel;
     LabelSent3: TLabel;
     LabelSent4: TLabel;
-    Memo1: TMemo;
     ButtonLoadFile: TButton;
-    EditCodeLu: TEdit;
-    ButtonFindValues: TButton;
-    ButtonTest: TButton;
-    Label1: TLabel;
-    EditEssaisVal: TEdit;
     LabelEnCours: TLabel;
-    ClientSocketAp4: TClientSocket;
-    GroupBoxLoadFile: TGroupBox;
-    Label2: TLabel;
-    EditCapaMin: TEdit;
-    EditCapaMax: TEdit;
-    Label4: TLabel;
-    LabelTangente_ESR: TLabel;
-    EditTangente: TEdit;
-    EditTension: TEdit;
-    Label7: TLabel;
-    Label9: TLabel;
-    EditImpedance: TEdit;
     CbACK1: TCheckBox;
     CbACK2: TCheckBox;
     CbACK3: TCheckBox;
-    EditCapaNominale: TEdit;
-    Label11: TLabel;
     Label13: TLabel;
-    Label15: TLabel;
     EditPas1_3: TEdit;
     EditPas3_2: TEdit;
     Label12: TLabel;
@@ -127,6 +85,71 @@ type
     LabelNbCapaMin: TLabel;
     LabelNbCapaMax: TLabel;
     LabelNbTangente: TLabel;
+    PanelParamMultimetre: TPanel;
+    ButtonCloseParamMultimetre: TButton;
+    Label6: TLabel;
+    GroupBoxMultimetre: TGroupBox;
+    Label1: TLabel;
+    EditEssaisVal: TEdit;
+    PanelParamAlimentation: TPanel;
+    Label26: TLabel;
+    ButtonCloseParamAlimentation: TButton;
+    PanelParamImpedance: TPanel;
+    Label21: TLabel;
+    ButtonCloseParamImpedance: TButton;
+    PanelParamAutomate: TPanel;
+    Label22: TLabel;
+    ButtonCloseParamAutomate: TButton;
+    ImageParamMultimetre: TImage;
+    GroupBox8: TGroupBox;
+    Label3: TLabel;
+    CbInput1: TCheckBox;
+    CbInput2: TCheckBox;
+    CbInput3: TCheckBox;
+    GroupBox2: TGroupBox;
+    cbOutput1: TCheckBox;
+    CbOutput2: TCheckBox;
+    CbOutput3: TCheckBox;
+    CheckBox10: TCheckBox;
+    CbOutput6: TCheckBox;
+    CbOutput5: TCheckBox;
+    CbOutput7: TCheckBox;
+    CbOutput4: TCheckBox;
+    ImageParamAutomate: TImage;
+    Memo1: TMemo;
+    GroupBox7: TGroupBox;
+    Label9: TLabel;
+    EditImpedance: TEdit;
+    ImageParamImpedance: TImage;
+    GroupBox5: TGroupBox;
+    Label15: TLabel;
+    EditFrequence: TEdit;
+    Button2: TButton;
+    PanelParamCapaTangente: TPanel;
+    Label23: TLabel;
+    ButtonCloseParamCapaTg: TButton;
+    GroupBox3: TGroupBox;
+    Label2: TLabel;
+    Label4: TLabel;
+    LabelTangente_ESR: TLabel;
+    Label24: TLabel;
+    EditCapaMin: TEdit;
+    EditCapaMax: TEdit;
+    EditTangente: TEdit;
+    EditCapaNominale: TEdit;
+    ImageParamCapaTg: TImage;
+    PanelParamFichier: TPanel;
+    Label25: TLabel;
+    ButtonCloseParamFichier: TButton;
+    ClientSocketAp4: TClientSocket;
+    GroupBox4: TGroupBox;
+    EditCodeLu: TEdit;
+    ButtonFindValues: TButton;
+    GroupBox6: TGroupBox;
+    Label7: TLabel;
+    EditTension: TEdit;
+    ImageParamFichier: TImage;
+    ImageParamAlimentation: TImage;
 
 
 
@@ -170,6 +193,19 @@ type
     procedure EditPas3_2Change(Sender: TObject);
     procedure ButtonCloseStatsClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure ButtonCloseParamAutomateClick(Sender: TObject);
+    procedure ImageParamMultimetreClick(Sender: TObject);
+    procedure ImageParamAutomateClick(Sender: TObject);
+    procedure ButtonCloseParamMultimetreClick(Sender: TObject);
+    procedure ButtonCloseParamImpedanceClick(Sender: TObject);
+    procedure ImageParamImpedanceClick(Sender: TObject);
+    procedure ButtonCloseParamCapaTgClick(Sender: TObject);
+    procedure ImageParamCapaTgClick(Sender: TObject);
+    procedure ButtonCloseParamFichierClick(Sender: TObject);
+    procedure ButtonCloseParamAlimentationClick(Sender: TObject);
+    procedure ImageParamFichierClick(Sender: TObject);
+    procedure ImageParamAlimentationClick(Sender: TObject);
+    procedure EditTensionChange(Sender: TObject);
   private
     { Private declarations }
   public
@@ -672,42 +708,42 @@ begin
   Memo1.Lines.Add(inttostr(ReadCounter(1)));
 
   i:=ReadAllDigital;
-  if((not CheckBox1.Checked) and ((i and 1)>0))
+  if((not CbInput1.Checked) and ((i and 1)>0))
   then
   begin
     // sera le point de depart pour préciser qu'on change de composant pour le log
     Inc(compteurTop1, 1);
     memo1.Lines.Add('compteurTop1 -> ' + IntToStr(compteurTop1));
-    CheckBox1.Checked := True;
+    CbInput1.Checked := True;
     FaireMesureAp1(Sender);
     TraiterResAp1();
   end
   else
-    CheckBox1.checked:=(i and 1)>0;
+    CbInput1.checked:=(i and 1)>0;
 
-  if((not CheckBox2.Checked) and ((i and 2)>0))
+  if((not CbInput2.Checked) and ((i and 2)>0))
   then
   begin
     Inc(compteurTop2, 1);
     memo1.Lines.Add('compteurTop2 -> ' + IntToStr(compteurTop2));
-    CheckBox2.Checked := True;
+    CbInput2.Checked := True;
     FaireMesureAp2(Sender);
     TraiterResAp2();
   end
   else
-    CheckBox2.checked:=(i and 2)>0;
+    CbInput2.checked:=(i and 2)>0;
 
-  if((not CheckBox3.Checked) and ((i and 4)>0))
+  if((not CbInput3.Checked) and ((i and 4)>0))
   then
   begin
     Inc(compteurTop3, 1);
     memo1.Lines.Add('compteurTop3 -> ' + IntToStr(compteurTop3));
-    CheckBox3.Checked := True;
+    CbInput3.Checked := True;
     FaireMesureAp3(Sender);
     TraiterResAp3();
   end
   else
-    CheckBox3.checked:=(i and 4)>0;
+    CbInput3.checked:=(i and 4)>0;
   //CheckBox4.checked:=(i and 8)>0;
   //CheckBox5.checked:=(i and 16)>0;
   timer1.enabled:=true;
@@ -1073,6 +1109,11 @@ begin
     appareil2.valeurTangente := StrToFloat(EditTangente.text);
 end;
 
+procedure TForm1.EditTensionChange(Sender: TObject);
+begin
+    EnvoiTensionAp4;
+end;
+
 procedure TForm1.EnvoiTensionAp4();
 begin
     try
@@ -1166,6 +1207,44 @@ begin
    end;
 end;
 
+
+
+procedure TForm1.ImageParamMultimetreClick(Sender: TObject);
+begin
+    PanelParamMultimetre.Visible := True;
+    PanelParamMultimetre.BringToFront;
+end;
+
+procedure TForm1.ImageParamAlimentationClick(Sender: TObject);
+begin
+    PanelParamAlimentation.Visible := True;
+    PanelParamAlimentation.BringToFront;
+end;
+
+procedure TForm1.ImageParamAutomateClick(Sender: TObject);
+begin
+    PanelParamAutomate.Visible := True;
+    PanelParamAutomate.BringToFront;
+end;
+
+procedure TForm1.ImageParamCapaTgClick(Sender: TObject);
+begin
+    PanelParamCapaTangente.Visible := True;
+    PanelParamCapaTangente.BringToFront ;
+end;
+
+procedure TForm1.ImageParamFichierClick(Sender: TObject);
+begin
+    PanelParamFichier.Visible := True;
+    PanelParamFichier.BringToFront ;
+end;
+
+procedure TForm1.ImageParamImpedanceClick(Sender: TObject);
+begin
+    PanelParamImpedance.Visible := True;
+    PanelParamImpedance.BringToFront;
+end;
+
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   CloseDevice;
@@ -1195,12 +1274,43 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 begin
     PanelStats.Visible := true;
+    PanelStats.BringToFront;
     LabelNbOK.Caption := 'Nombre de composants conformes : ' + IntToStr(monLog.nbOK);
     LabelNbCourantFuite.Caption := 'Nombre de défauts courant de fuite : ' + IntToStr(monLog.nbCourantFuite);
     LabelNbImpedance.Caption := 'Nombre de défauts d''impédance : ' + IntToStr(monLog.nbImpedance);
     LabelNbCapaMin.Caption := 'Nombre de défauts capa (-) : ' + IntToStr(monLog.nbCapaMin);
     LabelNbCapaMax.Caption := 'Nombre de défauts capa (+) : ' + IntToStr(monLog.nbCapaMax);
     LabelNbTangente.Caption := 'Nombre de défauts tangente : '+ IntToStr(monLog.nbTangente);
+end;
+
+procedure TForm1.ButtonCloseParamAlimentationClick(Sender: TObject);
+begin
+    PanelParamAlimentation.Visible := False;
+end;
+
+procedure TForm1.ButtonCloseParamAutomateClick(Sender: TObject);
+begin
+    PanelParamAutomate.Visible := False;
+end;
+
+procedure TForm1.ButtonCloseParamCapaTgClick(Sender: TObject);
+begin
+    PanelParamCapaTangente.Visible := False;
+end;
+
+procedure TForm1.ButtonCloseParamFichierClick(Sender: TObject);
+begin
+    PanelParamFichier.Visible := False;
+end;
+
+procedure TForm1.ButtonCloseParamImpedanceClick(Sender: TObject);
+begin
+    PanelParamImpedance.Visible := False;
+end;
+
+procedure TForm1.ButtonCloseParamMultimetreClick(Sender: TObject);
+begin
+    PanelParamMultimetre.Visible := False;
 end;
 
 procedure TForm1.ButtonCloseStatsClick(Sender: TObject);
