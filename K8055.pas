@@ -189,6 +189,7 @@ var
   currentCode : String;
 
   monLog : Log;
+  compteurTop1 : Integer;
   compteurTop2 : Integer;
   compteurTop3 : Integer;
 
@@ -662,6 +663,8 @@ begin
   then
   begin
     // sera le point de depart pour préciser qu'on change de composant pour le log
+    Inc(compteurTop1, 1);
+    memo1.Lines.Add('compteurTop1 -> ' + IntToStr(compteurTop1));
     CheckBox1.Checked := True;
     FaireMesureAp1(Sender);
     TraiterResAp1();
@@ -673,6 +676,7 @@ begin
   then
   begin
     Inc(compteurTop2, 1);
+    memo1.Lines.Add('compteurTop2 -> ' + IntToStr(compteurTop2));
     CheckBox2.Checked := True;
     FaireMesureAp2(Sender);
     TraiterResAp2();
@@ -684,6 +688,7 @@ begin
   then
   begin
     Inc(compteurTop3, 1);
+    memo1.Lines.Add('compteurTop3 -> ' + IntToStr(compteurTop3));
     CheckBox3.Checked := True;
     FaireMesureAp3(Sender);
     TraiterResAp3();
