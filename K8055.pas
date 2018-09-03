@@ -316,16 +316,12 @@ end;
 ******************************************************************** *)
 procedure Gestion_Tangente_ESR(LabelTangente_ESR : TLabel; memo : TMemo);
 var
-    stg : string;
-    motTangente : string;
-    motESR : string;
+    TypeMesure : TMesure;
 begin
-    motTangente := 'Tg maxi';
-    motESR := 'ESR';
-    stg := ' ' + (dictionaryValues[currentCode])['Essais lib_0'].ToString; // espace devant pour eviter la position0
-    if(Pos(motESR, stg) <> 0) then
+    TypeMesure := TMesure(Round((dictionaryValues[currentCode])['Essais lib_0']));
+    if(TypeMesure = TMesure.ESR) then
     begin
-       appareil2.ConfigurerESR(memo); // presence de motESR dans stg
+       appareil2.ConfigurerESR(memo);
        LabelTangente_ESR.Caption := 'ESR :';
     end
     else
@@ -335,6 +331,23 @@ begin
         appareil2.ConfigurerTangente(memo) ;
         LabelTangente_ESR.Caption := 'Tangente :';
     end;
+end;
+
+function Caste_Tangente_ESR(stgValeur : string) : Double;
+var
+    stg : string;
+    motTangente : string;
+    motESR : string;
+begin
+    motTangente := 'Tg maxi';
+    motESR := 'ESR';
+    stg := ' ' + stgValeur; // espace devant pour eviter la position0
+    if(Pos(motESR, stg) <> 0) then  // presence du mot ESR. on utilise l'enum du capa1 pour la valeur Double
+        Result := Double(Ord(TMesure.ESR))
+    else
+        // à modifier par la suite en fonction du mot motTangente
+        // ici par défaut, si absence de ESR, on estime Tangente.
+        Result := Double(Ord(TMesure.Tangente));
 end;
 
 function calculFrequence(val : Double) : Integer;
@@ -472,13 +485,13 @@ begin
       sValue3 := vCell.Value;
       tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
 
-      sRange2 := 'L1';
+      sRange2 := 'L1';       // ICI il s'agit de la colonne en string indiquant si Tangente ou ESR
       vCell := vWorksheet.Range[sRange2];
       sValue2 := vCell.Value;
       sRange3 := 'L' + IntToStr(j)  ;
       vCell := vWorksheet.Range[sRange3];
       sValue3 := vCell.Value;
-      tmpDict.Add(sValue2, StrToFloat(sValue3, lFormatSettings));
+      tmpDict.Add(sValue2, Caste_Tangente_ESR(sValue3));
 
 
       sRange2 := 'M1';
